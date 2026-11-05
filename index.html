@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = 'b2ebf5e677'; window.__BUILT__ = '2026-11-06 00:50';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = 'bc81d5cb37'; window.__BUILT__ = '2026-11-06 00:54';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -546,12 +546,16 @@ function render() {
 let lastFocus = null;
 function openSheet(html) {
   lastFocus = document.activeElement;
-  ensureGuard();
+  if ($('#sheet').hidden) pushLayer('sheet');
   $('#sheetBody').innerHTML = `<div class="grab"></div>${html}`; $('#scrim').hidden = false; $('#sheet').hidden = false;
   document.documentElement.style.overflow = 'hidden';
   $('#sheet').querySelector('input,button:not(.grab)')?.focus({ preventScroll: true });
 }
-function closeSheet() { $('#scrim').hidden = true; $('#sheet').hidden = true; $('#sheet').style.transform = ''; $('#sheetBody').onclick = null; padKeys = null; document.documentElement.style.overflow = ''; lastFocus?.focus?.({ preventScroll: true }); }
+function closeSheet() {
+  if ($('#sheet').hidden) return;
+  $('#scrim').hidden = true; $('#sheet').hidden = true; $('#sheet').style.transform = ''; $('#sheetBody').onclick = null; padKeys = null; document.documentElement.style.overflow = ''; lastFocus?.focus?.({ preventScroll: true });
+  dropLayer('sheet');
+}
 $('#scrim').onclick = closeSheet;
 // Pull a sheet down to close it (from its top, or anywhere while its content is scrolled to the top).
 (() => {
@@ -568,19 +572,23 @@ $('#scrim').onclick = closeSheet;
     if (dy > 80) closeSheet(); else sh.style.transform = '';
   });
 })();
-// Android back button / back gesture: close the open sheet, leave the map or group-damage mode instead of leaving
-// the app. A guard history entry absorbs each back press; with nothing to close, a second press leaves the app.
-// (history calls can throw when the single file is opened from file://; the back handling is then simply off)
-function ensureGuard() { try { if (history.state?.dm !== 'guard') history.pushState({ dm: 'guard' }, ''); } catch {} }
-try { history.replaceState({ dm: 'base' }, ''); history.pushState({ dm: 'guard' }, ''); } catch {}
+// Android back button / back gesture: each open layer (a sheet, group-damage mode, the map) gets its own browser
+// history entry when the user opens it, so back closes the top layer instead of leaving the app; on the main
+// screen back leaves the app. Closing a layer with a tap removes its entry again. (window.history explicitly:
+// `history` in this script is the undo stack. Calls can throw from file://; back handling is then simply off.)
+const H = window.history; let skipPop = 0, popping = false;
+function pushLayer(kind) { try { H.pushState({ dm: kind }, ''); } catch {} }
+function dropLayer(kind) { if (popping) return; try { if (H.state?.dm === kind) { skipPop++; H.back(); } } catch {} }
 addEventListener('popstate', () => {
-  let handled = true;
-  if (!$('#sheet').hidden) closeSheet();
-  else if (UI.multi) { UI.multi = false; UI.sel.clear(); render(); }
-  else if (UI.map) showTab(false);
-  else handled = false;
-  if (handled) ensureGuard();
-  else toast('Çıkmak için bir kez daha geri');
+  if (skipPop) { skipPop--; return; }
+  popping = true;
+  try {
+    if (!$('#sheet').hidden) closeSheet();
+    else if (UI.multi) { UI.multi = false; UI.sel.clear(); render(); }
+    else if (UI.map) showTab(false);
+    // a leftover entry of a layer already closed by a tap: step over it, so back never "does nothing"
+    else if (H.state?.dm) H.back();
+  } finally { popping = false; }
 });
 const pad = () => `<div class="amt"><output id="amt">0</output></div>
   <div class="pad">${[1,2,3,4,5,6,7,8,9].map((n) => `<button data-n="${n}">${n}</button>`).join('')}<button data-n="C" aria-label="Sil">Sil</button><button data-n="0">0</button><button data-n="B" aria-label="Son rakamı sil">⌫</button></div>`;
@@ -799,8 +807,8 @@ $('#next').onclick = () => step(1);
 $('#prev').onclick = () => step(-1);
 $('#undo').onclick = () => { const h = history.pop(); if (h) { S = JSON.parse(h); render(); toast('Geri alındı'); } };
 $('#iniAll').onclick = iniSheet;
-$('#multi').onclick = () => { UI.multi = !UI.multi; UI.sel.clear(); render(); if (UI.multi) toast('Hedeflere dokun, sonra "Hasar ver"'); };
-$('#selCancel').onclick = () => { UI.multi = false; UI.sel.clear(); render(); };
+$('#multi').onclick = () => { UI.multi = !UI.multi; UI.sel.clear(); if (UI.multi) pushLayer('multi'); else dropLayer('multi'); render(); if (UI.multi) toast('Hedeflere dokun, sonra "Hasar ver"'); };
+$('#selCancel').onclick = () => { UI.multi = false; UI.sel.clear(); dropLayer('multi'); render(); };
 $('#selApply').onclick = groupSheet;
 // The app's own confirmation sheet: the browser's confirm() is blocked in some viewers and installed apps, where it
 // returned false and the buttons seemed to do nothing.
@@ -1069,7 +1077,8 @@ function fit() {
   };
 })();
 function showTab(map) {
-  UI.map = map; if (map) ensureGuard(); if (map && UI.multi) { UI.multi = false; UI.sel.clear(); render(); }
+  if (map && !UI.map) pushLayer('map'); else if (!map && UI.map) dropLayer('map');
+  UI.map = map; if (map && UI.multi) { UI.multi = false; UI.sel.clear(); render(); }
   $('#fightView').hidden = map; $('#mapView').hidden = !map;
   $('#tabFight').setAttribute('aria-current', map ? 'false' : 'page'); $('#tabMap').setAttribute('aria-current', map ? 'page' : 'false');
   if (map) {
