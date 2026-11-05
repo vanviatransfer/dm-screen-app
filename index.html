@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '254ba330f0'; window.__BUILT__ = '2026-11-06 00:30';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = 'b2ebf5e677'; window.__BUILT__ = '2026-11-06 00:50';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -546,12 +546,42 @@ function render() {
 let lastFocus = null;
 function openSheet(html) {
   lastFocus = document.activeElement;
+  ensureGuard();
   $('#sheetBody').innerHTML = `<div class="grab"></div>${html}`; $('#scrim').hidden = false; $('#sheet').hidden = false;
   document.documentElement.style.overflow = 'hidden';
   $('#sheet').querySelector('input,button:not(.grab)')?.focus({ preventScroll: true });
 }
-function closeSheet() { $('#scrim').hidden = true; $('#sheet').hidden = true; $('#sheetBody').onclick = null; document.documentElement.style.overflow = ''; lastFocus?.focus?.({ preventScroll: true }); }
+function closeSheet() { $('#scrim').hidden = true; $('#sheet').hidden = true; $('#sheet').style.transform = ''; $('#sheetBody').onclick = null; padKeys = null; document.documentElement.style.overflow = ''; lastFocus?.focus?.({ preventScroll: true }); }
 $('#scrim').onclick = closeSheet;
+// Pull a sheet down to close it (from its top, or anywhere while its content is scrolled to the top).
+(() => {
+  const sh = $('#sheet'); let y0 = null, dy = 0, drag = false;
+  sh.addEventListener('touchstart', (e) => { y0 = sh.scrollTop <= 0 ? e.touches[0].clientY : null; dy = 0; drag = false; }, { passive: true });
+  sh.addEventListener('touchmove', (e) => {
+    if (y0 == null) return; dy = e.touches[0].clientY - y0;
+    if (!drag && dy > 10) drag = true;
+    if (drag) { e.preventDefault(); sh.style.transition = 'none'; sh.style.transform = `translateY(${Math.max(0, dy)}px)`; }
+  }, { passive: false });
+  sh.addEventListener('touchend', () => {
+    if (!drag) { y0 = null; return; }
+    sh.style.transition = 'transform .18s'; y0 = null; drag = false;
+    if (dy > 80) closeSheet(); else sh.style.transform = '';
+  });
+})();
+// Android back button / back gesture: close the open sheet, leave the map or group-damage mode instead of leaving
+// the app. A guard history entry absorbs each back press; with nothing to close, a second press leaves the app.
+// (history calls can throw when the single file is opened from file://; the back handling is then simply off)
+function ensureGuard() { try { if (history.state?.dm !== 'guard') history.pushState({ dm: 'guard' }, ''); } catch {} }
+try { history.replaceState({ dm: 'base' }, ''); history.pushState({ dm: 'guard' }, ''); } catch {}
+addEventListener('popstate', () => {
+  let handled = true;
+  if (!$('#sheet').hidden) closeSheet();
+  else if (UI.multi) { UI.multi = false; UI.sel.clear(); render(); }
+  else if (UI.map) showTab(false);
+  else handled = false;
+  if (handled) ensureGuard();
+  else toast('Çıkmak için bir kez daha geri');
+});
 const pad = () => `<div class="amt"><output id="amt">0</output></div>
   <div class="pad">${[1,2,3,4,5,6,7,8,9].map((n) => `<button data-n="${n}">${n}</button>`).join('')}<button data-n="C" aria-label="Sil">Sil</button><button data-n="0">0</button><button data-n="B" aria-label="Son rakamı sil">⌫</button></div>`;
 function padInput(e, st) {
@@ -1039,7 +1069,7 @@ function fit() {
   };
 })();
 function showTab(map) {
-  UI.map = map; if (map && UI.multi) { UI.multi = false; UI.sel.clear(); render(); }
+  UI.map = map; if (map) ensureGuard(); if (map && UI.multi) { UI.multi = false; UI.sel.clear(); render(); }
   $('#fightView').hidden = map; $('#mapView').hidden = !map;
   $('#tabFight').setAttribute('aria-current', map ? 'false' : 'page'); $('#tabMap').setAttribute('aria-current', map ? 'page' : 'false');
   if (map) {
