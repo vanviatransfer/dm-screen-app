@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '8c1a1fa0cf'; window.__BUILT__ = '2026-11-06 23:23';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = 'a096e8b43f'; window.__BUILT__ = '2026-11-06 23:45';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -360,6 +360,12 @@ body.watch #liveTop{display:none!important}
 .apick{grid-template-columns:repeat(2,auto)}
 /* on a short screen the control column scrolls inside the map instead of running under the bottom tabs */
 .zoom{max-height:calc(100% - 24px);overflow-y:auto;scrollbar-width:none}
+/* DM4b: a short map puts the controls in two columns (all visible); the info box and the chooser move aside for them */
+#mapView.zz .zoom{grid-template-columns:repeat(2,44px)}
+#mapView.zz .dist{right:118px;max-width:calc(100% - 130px)}
+#mapView.zz .apick{right:118px}
+/* the card sheet's average line shows only when there is a formula */
+.avgl:has(> output:empty){display:none}
 .apick button.hue{min-width:118px}
 .apick button.hue small{color:hsl(var(--h) 30% 72%)}
 .crow.hue button{background:color-mix(in srgb,hsl(var(--h) 42% 45%) 12%,var(--surface));border-color:color-mix(in srgb,hsl(var(--h) 40% 60%) 40%,var(--line));color:hsl(var(--h) 45% 80%)}
@@ -386,7 +392,7 @@ body.watch #liveTop{display:none!important}
     <div class="hd">
       <div class="ttl"><h1>DM Ekranı</h1><button class="btn sm hue" style="--h:8" id="newFight">Yeni savaş</button><button class="btn sm hue" style="--h:196" id="liveTop" aria-label="Oyunculara aç">Oyuncular</button></div>
       <div class="ctrls">
-        <button class="btn sm" id="prev" aria-label="Önceki sıra" title="Önceki sıra (←)">◀</button>
+        <button class="btn sm hue" style="--h:95" id="prev" aria-label="Önceki sıra" title="Önceki sıra (←)">◀</button>
         <div class="round"><span>Tur</span><b id="round">1</b></div>
         <button class="btn pri" id="next" title="Sıradaki (→ ya da boşluk)">Sıradaki ▶</button>
       </div>
@@ -1269,7 +1275,7 @@ function showArea(a) {
   const m = $('#mapView').getBoundingClientRect(); if (!m.width) return;
   const b = areaBox(a), pad = a.shape === 'cone' ? 1.2 : 0.4, k = CELL * V.z;
   const x0 = (b.x - pad) * k + V.x, x1 = (b.x + b.w + pad) * k + V.x, y0 = (b.y - pad) * k + V.y, y1 = (b.y + b.h + pad) * k + V.y;
-  const L = 8, R = m.width - 64, T = 60, B = m.height - 56;
+  const L = 8, R = m.width - $('.zoom').offsetWidth - 20, T = 60, B = m.height - 56;
   if (x1 - x0 > R - L) V.x += (L + R) / 2 - (x0 + x1) / 2; else if (x0 < L) V.x += L - x0; else if (x1 > R) V.x -= x1 - R;
   if (y1 - y0 > B - T) V.y += (T + B) / 2 - (y0 + y1) / 2; else if (y0 < T) V.y += T - y0; else if (y1 > B) V.y -= y1 - B;
   applyView();
@@ -1414,9 +1420,7 @@ function showArea(a) {
   // button but always inside the map view, above the bottom tabs, however short the screen is.
   const pick = (open) => {
     const p = $('#apick'); p.hidden = !open; $('#zarea').setAttribute('aria-expanded', String(open));
-    if (!open) return;
-    const v = view.getBoundingClientRect(), z = $('#zarea').getBoundingClientRect();
-    p.style.top = Math.max(8, Math.min(z.top - v.top, v.height - p.offsetHeight - 8)) + 'px';
+    if (open) placePick();
   };
   $('#zarea').onclick = () => pick($('#apick').hidden);
   $('#apick').onclick = (e) => {
@@ -1458,11 +1462,26 @@ function showTab(map, lib = false) {
   if (lib) { scrollTo(0, 0); renderLib(); }
   else if (map) {
     scrollTo(0, 0); document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().bottom + 'px');
-    if (!V.fitted) { fit(); V.fitted = true; }
+    mapLayout(); if (!V.fitted) { fit(); V.fitted = true; }
   } else if (W.on ? W.P?.cur : S.cur) reveal(W.on ? W.P.cur : S.cur);
 }
 $('#tabFight').onclick = () => showTab(false); $('#tabMap').onclick = () => showTab(true); $('#tabLib').onclick = () => { if (!W.on) showTab(false, true); };
-addEventListener('resize', () => { if (UI.map) document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().bottom + 'px'); });
+addEventListener('resize', () => { if (UI.map) document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().bottom + 'px'); mapLayout(); });
+// DM4b (review N3, N5): on a short map (a phone with its browser bars, or a keyboard open) the control column goes into
+// two columns so every button stays on screen; the info box and the Alan chooser make room for it. The chooser, when
+// open, is placed again whenever the view changes size.
+function placePick() {
+  const p = $('#apick'); if (p.hidden) return;
+  const v = $('#mapView').getBoundingClientRect(), z = $('#zarea').getBoundingClientRect();
+  p.style.top = Math.max(8, Math.min(z.top - v.top, v.height - p.offsetHeight - 8)) + 'px';
+}
+function mapLayout() {
+  const v = $('#mapView'); if (v.hidden) return;
+  const one = $('.zoom').children.length * 50 + 18;
+  v.classList.toggle('zz', v.clientHeight > 0 && v.clientHeight < one);
+  placePick();
+}
+window.visualViewport?.addEventListener('resize', mapLayout);
 
 /* ---------- Kayıtlar (DM2, the DM's requests of 2026-11-06): monster cards and prepared fights ----------
    A library kept apart from the live fight, under its own key: "Yeni savaş" and Geri al never touch it.
@@ -1628,7 +1647,7 @@ function cardSheet(k, after) {
       <p class="wide hint inih" id="k-inih"></p>`)}
     ${sec('Can', SEC.hp, `<label${lab(HUE.hp)}>En yüksek can<input id="k-max" inputmode="numeric" value="${c.max}"></label>
       <label${lab(HUE.formula)}>Can formülü (isteğe bağlı)<input id="k-hpf" value="${esc(c.hpf)}" placeholder="ör. 2d8+2" autocomplete="off" spellcheck="false"></label>
-      <label class="wide"><output id="k-avg" class="hint"></output></label>`)}
+      <label class="wide avgl"><output id="k-avg" class="hint"></output></label>`)}
     ${sec('Boyut', SEC.sense, `<div class="wide lh" style="--h:${HUE.size}"><span class="szl">Boyut (haritada)</span>
         <div class="szseg" id="k-size">${[[1, 'Small / Medium · 1 kare'], [2, 'Large · 2×2'], [3, 'Huge · 3×3'], [4, 'Gargantuan · 4×4']].map(([v, t]) => `<button type="button" data-sz="${v}" aria-pressed="${(c.size || 1) === v}">${t}</button>`).join('')}</div></div>`)}
     ${sec('Not', SEC.note, `<label${lab(HUE.note, true)}>Not<input id="k-note" value="${esc(c.note)}" placeholder="ör. Multiattack, Resistance: Fire"></label>`)}
