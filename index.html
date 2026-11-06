@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '6ff89fe7fb'; window.__BUILT__ = '2026-11-06 15:59';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '3f777b3d05'; window.__BUILT__ = '2026-11-06 16:38';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -62,7 +62,7 @@ h1{font-family:var(--display);font-weight:700;font-size:1.4rem;letter-spacing:.0
 .chip.ally i{background:var(--ally-bg);color:var(--ally);border:1px solid var(--ally-line)}
 .chip.now{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset;font-weight:700}
 .chip.down{opacity:.45;text-decoration:line-through}
-.tools{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px}
+.tools{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:10px}
 
 main{padding-block:4px calc(140px + env(safe-area-inset-bottom,0px))}
 .row-h{font-family:var(--display);font-weight:700;font-size:1.05rem;letter-spacing:.06em;margin:10px 0 0;display:flex;align-items:center;gap:10px}
@@ -235,6 +235,21 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .apick small{font-weight:500;font-size:.72rem;color:var(--muted)}
 .abar{position:absolute;left:12px;bottom:48px;z-index:4}
 
+/* live view (A14): the DM's share sheet and the players' read-only view */
+.lcode{font-family:var(--display);font-weight:700;font-size:2.6rem;letter-spacing:.22em;text-align:center;color:var(--acc);padding:4px 0 2px;font-variant-numeric:tabular-nums}
+.qr{display:grid;place-items:center;margin:4px auto 6px;width:200px;min-height:200px;background:#fff;border-radius:12px;padding:6px}
+.qr svg{width:188px;height:188px;display:block}
+.qr .sub{color:#444;text-align:center;margin:0;padding:10px}
+.lstat{text-align:center;font-weight:700;margin:4px 0 8px}
+.wbar{border-color:var(--ctl)}
+.wbar.ok{border-color:var(--ally)}
+.wbar.ok b{color:var(--ally)}
+.wempty{color:var(--muted);margin:0;padding:12px 4px}
+body.watch #newFight,body.watch #prev,body.watch #next,body.watch .tools,body.watch .log,body.watch .help,body.watch #zmeasure,body.watch #zreset,body.watch #zarea,body.watch .apick,body.watch .abar{display:none!important}
+body.watch .tok,body.watch .area{cursor:default}
+.card.ro{gap:10px}
+.card.ro .ini small{font-size:.55rem}
+
 /* app shell (as in the character apps): install banner, new-version banner, "Güncel sürümü çek" and the version line.
    Own class names: .card is the combatant card here. */
 .appbox{margin:8px 0 4px;background:var(--surface);border:1px solid var(--acc);border-radius:12px;padding:10px 12px;display:grid;gap:8px}
@@ -265,10 +280,13 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 <main class="wrap" id="fightView">
   <div class="appbox" id="updBanner" hidden><p><b>Yeni sürüm hazır.</b> Güncellemek için dokun; savaş ve kayıtlar silinmez.</p><div class="acts2"><button class="btn sm pri" data-update="apply">Güncelle</button></div></div>
   <div class="appbox" id="install" hidden></div>
+  <div class="appbox wbar" id="watchBar" hidden><p id="watchMsg"></p><div class="acts2"><button class="btn sm" id="watchStop">İzlemeyi bırak</button></div></div>
   <div class="tools">
     <button class="btn sm" id="iniAll">İnisiyatif gir</button>
     <button class="btn sm" id="multi" aria-pressed="false">Toplu hasar</button>
     <button class="btn sm" id="rest">Uzun dinlenme</button>
+    <button class="btn sm" id="liveBtn">Oyunculara aç</button>
+    <button class="btn sm" id="watchBtn">Savaşı izle</button>
   </div>
   <div class="row-h foe">Düşmanlar <small id="foeSum"></small></div>
   <div class="row" id="foes"></div>
@@ -303,7 +321,7 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
     <button data-shape="rect">Dikdörtgen<small>iki kenar</small></button>
   </div>
   <div class="abar" id="abar" hidden><button class="btn sm pri" data-agrp>Bunlara toplu hasar</button></div>
-  <div class="maphint">İki parmakla yakınlaştır · boş yeri sürükle: kaydır · pula dokun: can</div>
+  <div class="maphint" id="maphint">İki parmakla yakınlaştır · boş yeri sürükle: kaydır · pula dokun: can</div>
 </div>
 
 <div class="selbar" id="selbar" hidden><div class="in"><span id="selCount">0 seçili</span><span class="ctrls"><button class="btn sm" id="selCancel">Vazgeç</button><button class="btn sm pri" id="selApply">Hasar ver</button></span></div></div>
@@ -523,6 +541,7 @@ function card(c, pos) {
   </article>`;
 }
 function render() {
+  if (W.on) return renderWatch();
   const ord = order();
   document.body.classList.toggle('multi', UI.multi);
   const pos = Object.fromEntries(ord.map((c, i) => [c.id, i + 1]));
@@ -540,6 +559,7 @@ function render() {
   $('#selCount').textContent = `${UI.sel.size} seçili`;
   renderMap();
   save();
+  liveSend();
 }
 
 /* ---------- sheets ---------- */
@@ -769,7 +789,8 @@ function groupSheet() {
 document.addEventListener('click', (e) => {
   if (e.target.closest('#sheet')) return;
   const jump = e.target.closest('[data-jump]');
-  if (jump) { const c = byId(jump.dataset.jump); if (UI.map) return; reveal(c.id); return; }
+  if (jump) { if (!UI.map) reveal(jump.dataset.jump); return; }
+  if (W.on) return; // the player view is read only
   const add = e.target.closest('[data-add]');
   if (add) { editSheet({ ...blank(add.dataset.add), name: '' }, true); return; }
   const cardEl = e.target.closest('.card'); if (!cardEl) return;
@@ -845,7 +866,7 @@ document.addEventListener('keydown', (e) => {
     else if (e.key === 'Enter') { e.preventDefault(); padKeys.enter(); }
     return;
   }
-  if (!$('#sheet').hidden || /INPUT|TEXTAREA/.test(document.activeElement?.tagName)) return;
+  if (W.on || !$('#sheet').hidden || /INPUT|TEXTAREA/.test(document.activeElement?.tagName)) return;
   if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); step(1); }
   if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
 });
@@ -909,6 +930,7 @@ function areaHtml(a) {
 }
 const DIST_DEFAULT = 'Pulu sürükle: hareket · <b>5 ft</b> = 1 kare';
 function renderMap() {
+  if (W.on) return renderWatchMap();
   place();
   const b = $('#board'); b.style.setProperty('--cell', CELL + 'px'); b.style.width = COLS * CELL + 'px'; b.style.height = ROWS * CELL + 'px';
   if (UI.area && !areaById(UI.area)) UI.area = null;
@@ -931,10 +953,12 @@ function applyView() { const b = $('#board'); b.style.transform = `translate(${V
 function zoomAt(f, cx, cy) { const z = Math.max(.35, Math.min(3, V.z * f)); const k = z / V.z; V.x = cx - (cx - V.x) * k; V.y = cy - (cy - V.y) * k; V.z = z; applyView(); }
 // Fit the tokens (with two squares around them), not the whole board, so a phone shows readable squares.
 function fit() {
-  const m = $('#mapView').getBoundingClientRect(); place(); if (!S.list.length) return;
-  const xs = S.list.map((c) => c.gx), ys = S.list.map((c) => c.gy);
-  const x0 = Math.max(0, Math.min(...xs) - 2), x1 = Math.min(COLS, Math.max(...S.list.map((c) => c.gx + sz(c))) + 2);
-  const y0 = Math.max(0, Math.min(...ys) - 2), y1 = Math.min(ROWS, Math.max(...S.list.map((c) => c.gy + sz(c))) + 2);
+  const m = $('#mapView').getBoundingClientRect();
+  // the player view fits the tokens the DM sent
+  const L = W.on ? (W.P?.list || []).filter((c) => c.gx != null) : (place(), S.list); if (!L.length) return;
+  const xs = L.map((c) => c.gx), ys = L.map((c) => c.gy);
+  const x0 = Math.max(0, Math.min(...xs) - 2), x1 = Math.min(COLS, Math.max(...L.map((c) => c.gx + sz(c))) + 2);
+  const y0 = Math.max(0, Math.min(...ys) - 2), y1 = Math.min(ROWS, Math.max(...L.map((c) => c.gy + sz(c))) + 2);
   // Never below ~40 px per token (a usable tap target); if everyone doesn't fit, the view centres on them and pans.
   V.z = Math.max(.85, Math.min(1.6, Math.min(m.width / ((x1 - x0) * CELL), (m.height - 70) / ((y1 - y0) * CELL))));
   V.x = (m.width - (x1 - x0) * CELL * V.z) / 2 - x0 * CELL * V.z;
@@ -978,7 +1002,8 @@ function fit() {
       if (adrag) { Object.assign(adrag.a, adrag.orig); adrag = null; renderMap(); }
       const [p, q] = [...pts.values()]; pinch = { d: Math.hypot(p.x - q.x, p.y - q.y) }; pan = null; return;
     }
-    const t = e.target.closest('[data-tok]'), ar = e.target.closest('[data-area]');
+    // the player view only pans and zooms: tokens and templates do not move
+    const t = !W.on && e.target.closest('[data-tok]'), ar = !W.on && e.target.closest('[data-area]');
     if (t) { const c = byId(t.dataset.tok); drag = { c, el: t, from: [c.gx, c.gy], start: local(e), moved: false, to: null }; }
     else if (ar) {
       // Touching a template selects it; its body moves it, a handle resizes it. Never pans the map.
@@ -1084,10 +1109,287 @@ function showTab(map) {
   if (map) {
     scrollTo(0, 0); document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().bottom + 'px');
     if (!V.fitted) { fit(); V.fitted = true; }
-  } else if (S.cur) reveal(S.cur);
+  } else if (W.on ? W.P?.cur : S.cur) reveal(W.on ? W.P.cur : S.cur);
 }
 $('#tabFight').onclick = () => showTab(false); $('#tabMap').onclick = () => showTab(true);
 addEventListener('resize', () => { if (UI.map) document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().bottom + 'px'); });
+
+/* ---------- live view for the players (PLAN-APK-PARITY A14, owner request 2026-11-06) ----------
+   The DM's "Oyunculara aç" opens a room with a short code (and a QR code of the app link with that code). Players open
+   "Savaşı izle" in the same app, or scan the QR code with the phone camera, and see the fight read only.
+   WebRTC data channel, phone to phone; only the first handshake goes through the free public PeerJS server. No relay
+   (TURN): it works on the same Wi-Fi, some mobile networks block it. Needs the network; the app itself still opens offline.
+   The DM side filters: players get only what the player view shows. Enemies: name and "Ağır yaralı" / "düştü" (D2),
+   conditions and the Concentration tag; never HP numbers, AC, notes, subtitles or the log. Our side: HP. */
+const LIBS = {
+  peer: ['https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js', 'sha384-x0YgkOr/3UOZP2CRDxGW9e0Q+2Qjyr3uJrm4xU32Y7ZCNAo7Cc7bjhrZMi/dwczu'],
+  qr: ['https://unpkg.com/qrcode-generator@1.4.4/qrcode.js', 'sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k'],
+};
+const LIVE_KEY = 'dmscreen-live-v1', WATCH_KEY = 'dmscreen-watch-v1';
+// Peer ids on the shared public server carry the app's prefix; the code alphabet has no 0/O or 1/I.
+const PEER_PREFIX = 'dmscreen-', CODE_ABC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const APP_URL = 'https://vanviatransfer.github.io/dm-screen-app/';
+// STUN only (finds the phones' addresses); PeerJS's default list also has its TURN relay, which would carry the fight
+// data through a server: left out, the data goes phone to phone (plan A14).
+const PEER_OPTS = { config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] } };
+// Errors after which the Peer object is of no more use. Every other error (network, socket, server, id still taken)
+// only cuts the link to the signalling server: PeerJS then disconnects a peer that has opened once and keeps its open
+// data channels, so a Wi-Fi hiccup does not drop the players; we rejoin the server with the same id, backing off.
+const PEER_FATAL = ['browser-incompatible', 'invalid-id', 'invalid-key', 'ssl-unavailable'];
+const peerDead = (peer, e) => peer.destroyed || PEER_FATAL.includes(e?.type);
+function rejoinLater(peer, st, alive) {
+  clearTimeout(st.rj); const n = st.rjN || 0; st.rjN = n + 1;
+  st.rj = setTimeout(() => { if (alive() && peer.disconnected && !peer.destroyed) try { peer.reconnect(); } catch {} }, Math.min(30000, 2000 * 2 ** n));
+}
+const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(5)), (b) => CODE_ABC[b % 32]).join('');
+const cleanCode = (v) => { const c = String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); return /^[A-HJ-NP-Z2-9]{5}$/.test(c) ? c : ''; };
+const loadJSON = (k) => { try { return JSON.parse(localStorage.getItem(k)) || null; } catch { return null; } };
+const libs = {};
+function lib(k) {
+  return libs[k] ||= new Promise((ok, no) => {
+    const s = document.createElement('script'); s.src = LIBS[k][0]; s.integrity = LIBS[k][1]; s.crossOrigin = 'anonymous';
+    s.onload = ok; s.onerror = () => { delete libs[k]; s.remove(); no(new Error('lib ' + k)); }; document.head.append(s);
+  });
+}
+
+// What a player may see, built on the DM side (nothing else leaves the DM's phone).
+function publicState() {
+  return {
+    v: 1, round: S.round, cur: S.cur,
+    list: order().map((c) => {
+      const o = { id: c.id, side: c.side, name: c.name, size: sz(c), gx: c.gx, gy: c.gy, turn: takesTurn(c), conds: c.conds.map((x) => ({ k: x.k, r: x.r })), conc: !!c.conc };
+      if (c.side === 'ally') Object.assign(o, { hp: c.hp, max: c.max, tmp: c.tmp, concOn: c.concOn || '', ds: [...c.ds], stable: !!c.stable, dead: isDead(c) });
+      else o.st = isDown(c) ? 'down' : c.hp <= c.max / 2 ? 'bloodied' : '';
+      return o;
+    }),
+    areas: areas().map((a) => (a.shape === 'circle' ? { id: a.id, shape: a.shape, cx: a.cx, cy: a.cy, r: a.r } : { id: a.id, shape: a.shape, gx: a.gx, gy: a.gy, w: a.w, h: a.h })),
+  };
+}
+// The player side takes the message apart again: numbers stay numbers, ids stay plain, shapes from the known list.
+function cleanState(s) {
+  if (!s || typeof s !== 'object' || !Array.isArray(s.list)) return null;
+  const n = (v, d = 0) => (Number.isFinite(+v) ? +v : d), id = (v) => String(v ?? '').replace(/[^\w-]/g, '').slice(0, 40), str = (v) => String(v ?? '').slice(0, 80);
+  const list = s.list.slice(0, 60).map((c) => {
+    const o = { id: id(c.id), side: c.side === 'ally' ? 'ally' : 'foe', name: str(c.name), size: Math.max(1, Math.min(4, n(c.size, 1))), gx: c.gx == null ? null : n(c.gx), gy: c.gy == null ? null : n(c.gy), turn: c.turn !== false,
+      conds: (Array.isArray(c.conds) ? c.conds : []).slice(0, 20).map((x) => ({ k: str(x?.k), r: x?.r == null ? null : n(x.r) })), conc: !!c.conc };
+    if (o.side === 'ally') Object.assign(o, { hp: n(c.hp), max: Math.max(1, n(c.max, 1)), tmp: n(c.tmp), concOn: str(c.concOn), ds: [n(c.ds?.[0]), n(c.ds?.[1])], stable: !!c.stable, dead: !!c.dead });
+    else o.st = c.st === 'down' || c.st === 'bloodied' ? c.st : '';
+    return o;
+  });
+  const areasIn = (Array.isArray(s.areas) ? s.areas : []).slice(0, 30).filter((a) => AREA_NAME[a?.shape]).map((a) => (a.shape === 'circle'
+    ? { id: id(a.id), shape: a.shape, cx: n(a.cx), cy: n(a.cy), r: Math.max(1, n(a.r, 1)) } : { id: id(a.id), shape: a.shape, gx: n(a.gx), gy: n(a.gy), w: Math.max(1, n(a.w, 1)), h: Math.max(1, n(a.h, 1)) }));
+  return { round: Math.max(1, n(s.round, 1)), cur: s.cur == null ? null : id(s.cur), list, areas: areasIn };
+}
+
+/* --- DM side: the room --- */
+const LV = { on: false, code: '', peer: null, conns: new Set(), last: '', lock: null, timer: null, msg: '' };
+const liveSave = () => { try { localStorage.setItem(LIVE_KEY, JSON.stringify({ code: LV.code, on: LV.on })); } catch {} };
+const shareUrl = () => (location.protocol === 'https:' ? location.origin + location.pathname : APP_URL) + '?izle=' + LV.code;
+function liveStatus(msg) {
+  if (msg !== undefined) LV.msg = msg;
+  const n = LV.conns.size;
+  $('#liveBtn').textContent = LV.on ? `Oyunculara açık · ${n}` : 'Oyunculara aç';
+  $('#liveBtn').setAttribute('aria-pressed', String(LV.on));
+  const el = $('#liveStat');
+  if (el) el.textContent = LV.peer?.open && !LV.msg ? (n ? `${n} oyuncu bağlı` : 'Oda açık, oyuncu bekleniyor') : LV.msg || 'Bağlanıyor…';
+}
+function liveRetry(ms = 3000) { clearTimeout(LV.timer); if (LV.on) LV.timer = setTimeout(hostStart, ms); }
+async function hostStart() {
+  if (W.on) return;
+  LV.on = true; LV.code ||= cleanCode(loadJSON(LIVE_KEY)?.code) || newCode(); liveSave();
+  if (LV.peer && !LV.peer.destroyed) { liveStatus(); return; }
+  liveStatus('Bağlanıyor…');
+  try { await lib('peer'); } catch { liveStatus('Bağlantı kitaplığı yüklenemedi: internet gerekli. Tekrar deneniyor…'); liveRetry(5000); return; }
+  if (!LV.on || (LV.peer && !LV.peer.destroyed)) return;
+  const peer = LV.peer = new Peer(PEER_PREFIX + LV.code, PEER_OPTS);
+  peer.on('open', () => { if (LV.peer === peer) { LV.rjN = 0; liveStatus(''); } });
+  peer.on('connection', (conn) => {
+    const gone = () => { if (LV.conns.delete(conn)) { liveStatus(); wake(); } };
+    conn.on('open', () => { if (LV.peer !== peer) { conn.close(); return; } LV.conns.add(conn); conn.send({ t: 'state', at: Date.now(), s: publicState() }); liveStatus(); wake(); });
+    conn.on('close', gone); conn.on('error', gone);
+    // read only: whatever a player sends is ignored
+  });
+  // The signalling server dropped us (the phone slept, the network changed): rejoin it with the same code.
+  // Players already connected keep watching meanwhile (their channels are phone to phone).
+  const alive = () => LV.peer === peer && LV.on;
+  peer.on('disconnected', () => { if (alive()) rejoinLater(peer, LV, alive); });
+  peer.on('error', (e) => {
+    if (LV.peer !== peer || e.type === 'peer-unavailable') return;
+    // After a reload the server may still hold the code for a moment ("unavailable-id"): try again with the same code,
+    // so the players' phones find the room again.
+    liveStatus(e.type === 'unavailable-id' ? 'Kod daha serbest kalmadı, tekrar deneniyor…' : 'Sunucuya ulaşılamadı, tekrar deneniyor…');
+    if (peerDead(peer, e)) { LV.conns.forEach((c) => c.close()); LV.conns.clear(); peer.destroy(); LV.peer = null; wake(); liveRetry(); return; }
+    rejoinLater(peer, LV, alive);
+  });
+}
+function hostClose() {
+  clearTimeout(LV.timer); clearTimeout(LV.rj); LV.rjN = 0; LV.conns.forEach((c) => c.close()); LV.conns.clear();
+  LV.peer?.destroy(); LV.peer = null; LV.last = ''; wake();
+}
+// "Paylaşımı kapat" drops the code too: the next "Oyunculara aç" makes a fresh one (a reload while open keeps it).
+function hostStop() { LV.on = false; hostClose(); LV.code = ''; liveSave(); liveStatus(''); }
+// "Yeni kod": the connected players are dropped and need the new code or QR code.
+function hostNewCode() { hostClose(); LV.code = newCode(); liveSave(); hostStart(); liveSheet(); toast('Yeni kod: oyuncular yeni kodla katılmalı'); }
+function liveSend() {
+  if (!LV.conns.size) return;
+  const s = publicState(), j = JSON.stringify(s); if (j === LV.last) return; LV.last = j;
+  const m = { t: 'state', at: Date.now(), s };
+  LV.conns.forEach((c) => { if (c.open) try { c.send(m); } catch {} });
+}
+// A beat every few seconds: a player whose DM went quiet (phone locked, app reloaded) reconnects by itself.
+setInterval(() => { LV.conns.forEach((c) => { if (c.open) try { c.send({ t: 'ping' }); } catch {} }); }, 4000);
+// Keep the DM's screen awake while players are connected (the lock drops when the app is hidden; taken again on return).
+async function wake() {
+  const want = LV.conns.size > 0 && document.visibilityState === 'visible';
+  try {
+    if (want && !LV.lock && navigator.wakeLock) { const l = await navigator.wakeLock.request('screen'); if (LV.lock || !(LV.conns.size > 0)) l.release(); else { LV.lock = l; l.addEventListener('release', () => { if (LV.lock === l) LV.lock = null; }); } }
+    else if (!want && LV.lock) { const l = LV.lock; LV.lock = null; await l.release(); }
+  } catch {}
+}
+document.addEventListener('visibilitychange', wake);
+async function liveSheet() {
+  if (!LV.on) hostStart();
+  openSheet(`<h3>Oyunculara aç</h3><p class="sub">Oyuncular kendi telefonlarında DM Ekranı → <b>Savaşı izle</b>’ye dokunup bu kodu yazar ya da QR kodu telefonun kamerasıyla okutur. Yalnız izlerler, hiçbir şeyi değiştiremezler.</p>
+    <div class="lcode" aria-label="Oda kodu">${LV.code}</div>
+    <div class="qr" id="liveQr" aria-label="QR kod: uygulamanın bu odalı bağlantısı"></div>
+    <p class="lstat" id="liveStat" aria-live="polite"></p>
+    <p class="sub">Düşmanların yalnız adı ile “Ağır yaralı” / “düştü” durumu görünür; can, AC ve notlar gitmez. Bizim tarafın canları görünür. <b>Yeni kod</b> bağlı oyuncuları düşürür; yeni kodla yeniden katılırlar.</p>
+    <p class="note">Bağlantı telefondan telefona: aynı Wi-Fi’de çalışır. Bazı mobil ağlar engelleyebilir; o zaman herkes aynı Wi-Fi’ye bağlansın. İlk bağlantı için internet gerekir.</p>
+    <div class="acts"><button class="btn" data-lstop="1">Paylaşımı kapat</button><button class="btn" data-lnew="1">Yeni kod</button><button class="btn pri" data-lok="1">Tamam</button></div>`);
+  liveStatus();
+  $('#sheetBody').onclick = (e) => {
+    if (e.target.closest('[data-lok]')) closeSheet();
+    else if (e.target.closest('[data-lstop]')) { hostStop(); closeSheet(); toast('Paylaşım kapandı'); }
+    else if (e.target.closest('[data-lnew]')) hostNewCode();
+  };
+  try {
+    await lib('qr'); const q = qrcode(0, 'M'); q.addData(shareUrl()); q.make();
+    const box = $('#liveQr'); if (box) box.innerHTML = q.createSvgTag({ cellSize: 4, margin: 3, scalable: true });
+  } catch { const box = $('#liveQr'); if (box) box.innerHTML = '<p class="sub">QR kod için internet gerekli; kodu yazmak da olur.</p>'; }
+}
+$('#liveBtn').onclick = liveSheet;
+
+/* --- player side: the read-only view --- */
+const W = { on: false, code: '', peer: null, conn: null, P: null, last: 0, timer: null, msg: '', lag: null };
+function watchStatus(msg) { W.msg = msg; renderWatchBar(); if (UI.map) renderWatchMap(); }
+function renderWatchBar() {
+  const ok = W.conn?.open;
+  $('#watchBar').hidden = !W.on; if (!W.on) return;
+  $('#watchBar').classList.toggle('ok', !!ok);
+  $('#watchMsg').innerHTML = ok ? `<b>Canlı</b> · DM’e bağlı (oda ${esc(W.code)}). Yalnız izliyorsun.` : `<b>Oda ${esc(W.code)}</b> · ${esc(W.msg || 'Bağlanıyor…')}`;
+}
+function watchRetry(ms = 3000) { clearTimeout(W.timer); if (W.on) W.timer = setTimeout(watchConnect, ms); }
+async function watchConnect() {
+  if (!W.on) return;
+  try { await lib('peer'); } catch { watchStatus('Bağlantı kitaplığı yüklenemedi: internet gerekli. Tekrar deneniyor…'); watchRetry(5000); return; }
+  if (!W.on) return;
+  const alive = () => W.peer === peer && W.on;
+  if (W.peer && !W.peer.destroyed) { const p = W.peer; if (p.open) dial(); else if (p.disconnected) rejoinLater(p, W, () => W.peer === p && W.on); return; }
+  const peer = W.peer = new Peer(PEER_OPTS);
+  // back on the signalling server: dial only if the channel to the DM did not survive
+  peer.on('open', () => { if (W.peer !== peer) return; W.rjN = 0; if (!W.conn?.open) dial(); });
+  peer.on('disconnected', () => { if (alive()) rejoinLater(peer, W, alive); });
+  peer.on('error', (e) => {
+    if (W.peer !== peer) return;
+    if (e.type === 'peer-unavailable') { watchStatus('DM bulunamadı: DM’in ekranında “Oyunculara aç” açık mı? Tekrar deneniyor…'); watchRetry(); return; }
+    if (!W.conn?.open) watchStatus('Sunucuya ulaşılamadı, tekrar deneniyor…');
+    if (peerDead(peer, e)) { peer.destroy(); W.peer = null; watchRetry(); return; }
+    rejoinLater(peer, W, alive);
+  });
+}
+// A dial that has not opened in this time (the DM's answer got lost, ICE stuck) is dropped and dialled again.
+const DIAL_MS = 10000;
+function dial() {
+  if (W.conn) { const old = W.conn; W.conn = null; try { old.close(); } catch {} }
+  if (!W.peer?.open) { watchRetry(); return; }
+  watchStatus('DM aranıyor…');
+  const conn = W.conn = W.peer.connect(PEER_PREFIX + W.code, { reliable: true });
+  if (!conn) { W.conn = null; watchRetry(); return; }
+  const stall = setTimeout(() => { if (W.conn !== conn || conn.open) return; W.conn = null; try { conn.close(); } catch {} watchStatus('DM yanıt vermedi, tekrar aranıyor…'); watchRetry(500); }, DIAL_MS);
+  conn.on('open', () => { clearTimeout(stall); if (W.conn !== conn) return; W.last = Date.now(); watchStatus(''); });
+  conn.on('data', (m) => {
+    if (W.conn !== conn || !W.on) return; W.last = Date.now();
+    if (m?.t !== 'state') return;
+    const P = cleanState(m.s); if (!P) return;
+    const first = !W.P, turned = W.P?.cur !== P.cur;
+    W.P = P; W.lag = Number.isFinite(m.at) ? Date.now() - m.at : null; render();
+    if (first && UI.map) fit();
+    if (turned && P.cur) reveal(P.cur);
+  });
+  const lost = () => { if (W.conn !== conn) return; W.conn = null; watchStatus('DM’le bağlantı koptu, tekrar deneniyor…'); watchRetry(); };
+  conn.on('close', lost); conn.on('error', lost);
+}
+// No word from the DM for a while (its app reloaded or the phone slept): drop the link and dial again.
+setInterval(() => { if (W.on && W.conn?.open && Date.now() - W.last > 12000) { const c = W.conn; W.conn = null; try { c.close(); } catch {} watchStatus('DM’den ses yok, tekrar bağlanıyor…'); watchRetry(500); } }, 3000);
+function watchStart(code) {
+  if (LV.on) hostStop();
+  Object.assign(W, { on: true, code, P: null, msg: 'Bağlanıyor…' }); try { localStorage.setItem(WATCH_KEY, code); } catch {}
+  UI.multi = false; UI.sel.clear(); UI.area = null; UI.measure = null; V.fitted = false;
+  document.body.classList.add('watch'); $('h1').textContent = 'Canlı savaş';
+  $('#maphint').textContent = 'İki parmakla yakınlaştır · sürükle: kaydır';
+  render(); renderWatchBar(); watchConnect();
+}
+function watchStop() {
+  W.on = false; clearTimeout(W.timer); try { W.conn?.close(); } catch {} W.conn = null; W.peer?.destroy(); W.peer = null; W.P = null;
+  try { localStorage.removeItem(WATCH_KEY); } catch {}
+  document.body.classList.remove('watch'); $('h1').textContent = 'DM Ekranı';
+  $('#maphint').textContent = 'İki parmakla yakınlaştır · boş yeri sürükle: kaydır · pula dokun: can';
+  V.fitted = false; renderWatchBar(); render(); if (UI.map) { fit(); V.fitted = true; }
+  toast('İzleme bitti; kendi savaşın burada');
+}
+$('#watchStop').onclick = watchStop;
+function watchSheet() {
+  openSheet(`<h3>Savaşı izle</h3><p class="sub">DM’in ekranındaki <b>Oyunculara aç</b> kodunu yaz. DM’in QR kodunu telefonun kamerasıyla okutursan bu ekran kendiliğinden açılır.</p>
+    <div class="fields"><label class="wide">Oda kodu<input id="w-code" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="5" placeholder="ör. K7M2Q"></label></div>
+    <p class="sub" style="margin-top:10px">Yalnız izlersin: bu cihazdaki kendi savaşın silinmez, değişmez. Bağlantı telefondan telefona: aynı Wi-Fi’de çalışır; bazı mobil ağlar engelleyebilir.</p>
+    <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-wgo="1">İzle</button></div>`);
+  const go = () => { const c = cleanCode($('#w-code').value); if (!c) { toast('Kod 5 harf / rakam: DM’in ekranındaki gibi yaz', true); $('#w-code').focus(); return; } closeSheet(); watchStart(c); };
+  $('#w-code').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+  $('#sheetBody').onclick = (e) => { if (e.target.closest('[data-wgo]')) go(); };
+}
+$('#watchBtn').onclick = watchSheet;
+function wcard(c, pos, now) {
+  const ally = c.side === 'ally', down = !ally && c.st === 'down', dying = ally && c.hp === 0 && !c.dead;
+  const bloodied = ally ? c.hp > 0 && c.hp <= c.max / 2 : c.st === 'bloodied';
+  const tags = (bloodied ? '<span class="tg bl">Ağır yaralı</span>' : '')
+    + c.conds.map((x) => `<span class="tg">${esc(x.k)}${x.r != null ? ` <em>${x.k === 'Exhaustion' ? x.r + '. seviye' : x.r + ' tur'}</em>` : ''}</span>`).join('')
+    + (c.conc ? `<span class="tg conc">Concentration${ally && c.concOn ? ' · ' + esc(c.concOn) : ''}</span>` : '');
+  const state = c.dead ? ' · öldü' : down ? ' · düştü' : dying ? (c.stable ? ' · stabil' : ' · ölüyor') : '';
+  const shield = Math.max(c.max + (c.tmp || 0), c.max);
+  return `<article class="card ro ${c.side}${now ? ' now' : ''}${down ? ' down' : ''}${c.dead ? ' dead' : ''}" data-id="${c.id}">
+    <div class="top"><span class="ini" aria-label="Sırada ${pos}.">${pos}<small>sıra</small></span><span class="name"><b>${esc(c.name)}</b><span>${ally ? 'Biz' : 'Düşman'}${state}</span></span></div>
+    ${ally ? `<div class="hp" aria-label="Can ${c.hp} / ${c.max}"><span class="nums"><span class="cur">${c.hp}<small> / ${c.max}</small></span>${c.tmp ? `<span class="tmp">+${c.tmp} geçici</span>` : ''}</span>
+      <span class="bar"><i style="width:${Math.max(0, c.hp / shield * 100)}%;background:${hpColor(c)}"></i><i class="t" style="width:${(c.tmp || 0) / shield * 100}%"></i></span></div>` : ''}
+    ${tags ? `<div class="conds">${tags}</div>` : ''}
+    ${dying && !c.stable ? `<div class="res"><span class="pill ds">Death save <span class="dots">${dots(3, c.ds[0], 's')}</span><span class="dots">${dots(3, c.ds[1], 'f')}</span></span></div>` : ''}
+  </article>`;
+}
+function renderWatch() {
+  document.body.classList.remove('multi'); $('#selbar').hidden = true;
+  renderWatchBar();
+  const P = W.P;
+  $('#round').textContent = P ? P.round : '–';
+  if (!P) { $('#strip').innerHTML = ''; $('#foes').innerHTML = '<p class="wempty">DM’in savaşı bekleniyor…</p>'; $('#allies').innerHTML = ''; $('#foeSum').textContent = ''; $('#allySum').textContent = ''; renderWatchMap(); return; }
+  const pos = Object.fromEntries(P.list.map((c, i) => [c.id, i + 1]));
+  $('#strip').innerHTML = P.list.map((c, i) => `<button class="chip ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}" data-jump="${c.id}"><i>${i + 1}</i>${esc(c.name)}</button>`).join('');
+  const foes = P.list.filter((c) => c.side === 'foe'), allies = P.list.filter((c) => c.side === 'ally');
+  $('#foes').innerHTML = foes.map((c) => wcard(c, pos[c.id], P.cur === c.id)).join('') || '<p class="wempty">Düşman yok</p>';
+  $('#allies').innerHTML = allies.map((c) => wcard(c, pos[c.id], P.cur === c.id)).join('') || '<p class="wempty">Kimse yok</p>';
+  const up = foes.filter((c) => c.st !== 'down').length;
+  $('#foeSum').textContent = foes.length ? `${up} ayakta · ${foes.length - up} düştü` : '';
+  $('#allySum').textContent = `${allies.length} kişi`;
+  renderWatchMap();
+}
+function renderWatchMap() {
+  const b = $('#board'); b.style.setProperty('--cell', CELL + 'px'); b.style.width = COLS * CELL + 'px'; b.style.height = ROWS * CELL + 'px';
+  const P = W.P;
+  b.innerHTML = !P ? '' : P.areas.map(areaHtml).join('') + P.list.filter((c) => c.gx != null).map((c) => {
+    const bar = c.side === 'ally' ? `<span class="hpbar"><s style="width:${Math.max(0, Math.min(100, c.hp / c.max * 100))}%;background:${hpColor(c)}"></s></span>` : '';
+    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${c.size}" aria-label="${esc(c.name)}"><i>${bar}${esc(initials(c.name || '?'))}</i><b>${esc(c.name)}</b></div>`;
+  }).join('');
+  $('#dist').innerHTML = W.conn?.open ? '<b>Canlı</b> · yalnız izleme' : esc(W.msg || 'Bağlanıyor…');
+  applyView();
+}
 
 /* ---------- install banner (as in the character apps) ----------
    Android Chrome: keep its beforeinstallprompt event and show our own button that opens the real install dialog.
@@ -1166,6 +1468,13 @@ document.addEventListener('click', (e) => {
   const u = e.target.closest('[data-update]'); if (u) updateAction(u.dataset.update);
 });
 
+// Live view on launch: an "?izle=CODE" link (the DM's QR code) opens the player view; after a reload the player keeps
+// watching and the DM's room opens again with the same code, so the players' phones reconnect by themselves.
+(() => {
+  let q = ''; try { q = cleanCode(new URLSearchParams(location.search).get('izle')); if (location.search) H.replaceState(H.state, '', location.pathname); } catch {}
+  let w = q; if (!w) try { w = cleanCode(localStorage.getItem(WATCH_KEY)); } catch {}
+  if (w) watchStart(w); else if (loadJSON(LIVE_KEY)?.on) hostStart();
+})();
 render();
 renderInstall();
 initUpdate();
