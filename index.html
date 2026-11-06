@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = 'a096e8b43f'; window.__BUILT__ = '2026-11-06 23:45';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '0fd1ea7ac5'; window.__BUILT__ = '2026-11-07 00:50';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -339,8 +339,12 @@ body.watch .tok,body.watch .area{cursor:default}
 .card.ro .csec{cursor:default}
 /* the map's HP bar sits just above the token circle, not inside it */
 .tok .hpbar{top:-9px;left:16%;right:16%;height:5px;box-shadow:0 0 0 1px rgba(0,0,0,.55)}
-#liveTop{padding-inline:10px}
-body.watch #liveTop{display:none!important}
+/* DM5 (owner: "bu iki tuş yanyana veya alt alta olmali … farklı renkerde olmalilar"): Oturum başlat and Oturuma katıl together
+   in the header next to Yeni savaş, stacked (a player in a session sees neither: the bar above the fight has Oturumdan çık) */
+.sess{display:grid;gap:4px}
+.sess .btn.sm{min-height:34px;padding:2px 10px;font-size:.84rem}
+@media (min-width:600px){.sess{display:flex;gap:6px}}
+body.watch .sess{display:none!important}
 
 /* DM4 (owner: "her başlık ayrıştırma amaçlı soluk farklı renklerde ve her section farklı background renginde olsun ama
    renkler soluk olsun baya … bizim html karakter uygulamalarımızdaki gibi"): the character apps' hue tiles. Each item
@@ -361,9 +365,9 @@ body.watch #liveTop{display:none!important}
 /* on a short screen the control column scrolls inside the map instead of running under the bottom tabs */
 .zoom{max-height:calc(100% - 24px);overflow-y:auto;scrollbar-width:none}
 /* DM4b: a short map puts the controls in two columns (all visible); the info box and the chooser move aside for them */
-#mapView.zz .zoom{grid-template-columns:repeat(2,44px)}
-#mapView.zz .dist{right:118px;max-width:calc(100% - 130px)}
-#mapView.zz .apick{right:118px}
+#mapView.zz .zoom{grid-template-columns:repeat(var(--zc,2),44px)}
+#mapView.zz .dist{right:calc(var(--zc,2) * 50px + 18px);max-width:calc(100% - var(--zc,2) * 50px - 30px)}
+#mapView.zz .apick{right:calc(var(--zc,2) * 50px + 18px)}
 /* the card sheet's average line shows only when there is a formula */
 .avgl:has(> output:empty){display:none}
 .apick button.hue{min-width:118px}
@@ -390,7 +394,7 @@ body.watch #liveTop{display:none!important}
 <header>
   <div class="wrap">
     <div class="hd">
-      <div class="ttl"><h1>DM Ekranı</h1><button class="btn sm hue" style="--h:8" id="newFight">Yeni savaş</button><button class="btn sm hue" style="--h:196" id="liveTop" aria-label="Oyunculara aç">Oyuncular</button></div>
+      <div class="ttl"><h1>DM Ekranı</h1><button class="btn sm hue" style="--h:8" id="newFight">Yeni savaş</button><span class="sess"><button class="btn sm hue" style="--h:196" id="liveBtn">Oturum başlat</button><button class="btn sm hue" style="--h:262" id="watchBtn">Oturuma katıl</button></span></div>
       <div class="ctrls">
         <button class="btn sm hue" style="--h:95" id="prev" aria-label="Önceki sıra" title="Önceki sıra (←)">◀</button>
         <div class="round"><span>Tur</span><b id="round">1</b></div>
@@ -404,13 +408,11 @@ body.watch #liveTop{display:none!important}
 <main class="wrap" id="fightView">
   <div class="appbox" id="updBanner" hidden><p><b>Yeni sürüm hazır.</b> Güncellemek için dokun; savaş ve kayıtlar silinmez.</p><div class="acts2"><button class="btn sm pri" data-update="apply">Güncelle</button></div></div>
   <div class="appbox" id="install" hidden></div>
-  <div class="appbox wbar" id="watchBar" hidden><p id="watchMsg"></p><div class="acts2"><button class="btn sm" id="watchPick" hidden>Kimsin?</button><button class="btn sm" id="watchStop">İzlemeyi bırak</button></div></div>
+  <div class="appbox wbar" id="watchBar" hidden><p id="watchMsg"></p><div class="acts2"><button class="btn sm" id="watchPick" hidden>Kimsin?</button><button class="btn sm" id="watchStop">Oturumdan çık</button></div></div>
   <div class="tools">
     <button class="btn sm hue" style="--h:42" id="iniAll">İnisiyatif gir</button>
     <button class="btn sm hue" style="--h:350" id="multi" aria-pressed="false">Toplu hasar</button>
     <button class="btn sm hue" style="--h:150" id="rest">Uzun dinlenme</button>
-    <button class="btn sm hue" style="--h:196" id="liveBtn">Oyunculara aç</button>
-    <button class="btn sm hue" style="--h:262" id="watchBtn">Savaşı izle</button>
   </div>
   <div class="row-h foe">Düşmanlar <small id="foeSum"></small></div>
   <div class="row" id="foes"></div>
@@ -1476,9 +1478,11 @@ function placePick() {
   p.style.top = Math.max(8, Math.min(z.top - v.top, v.height - p.offsetHeight - 8)) + 'px';
 }
 function mapLayout() {
-  const v = $('#mapView'); if (v.hidden) return;
-  const one = $('.zoom').children.length * 50 + 18;
-  v.classList.toggle('zz', v.clientHeight > 0 && v.clientHeight < one);
+  const v = $('#mapView'); if (v.hidden || !v.clientHeight) return;
+  // as many 50 px rows as fit (with the column's 12 px margins), then as many columns as the buttons need
+  // (DM5: a phone on its side, 844 × 390, needs three)
+  const n = $('.zoom').children.length, rows = Math.max(1, Math.floor((v.clientHeight - 24 + 6) / 50)), cols = Math.min(4, Math.ceil(n / rows));
+  v.style.setProperty('--zc', cols); v.classList.toggle('zz', cols > 1);
   placePick();
 }
 window.visualViewport?.addEventListener('resize', mapLayout);
@@ -1850,8 +1854,8 @@ $('#libImport').onclick = () => { $('#libFile').value = ''; $('#libFile').click(
 $('#libFile').onchange = () => { const f = $('#libFile').files?.[0]; if (f) libImport(f); };
 
 /* ---------- live view for the players (PLAN-APK-PARITY A14, owner request 2026-11-06) ----------
-   The DM's "Oyunculara aç" opens a room with a short code (and a QR code of the app link with that code). Players open
-   "Savaşı izle" in the same app, or scan the QR code with the phone camera, and see the fight read only.
+   The DM's "Oturum başlat" (DM5; first "Oyunculara aç") opens a room with a short code (and a QR code of the app link with that code). Players open
+   "Oturuma katıl" (first "Savaşı izle") in the same app, or scan the QR code with the phone camera, and see the fight read only.
    WebRTC data channel, phone to phone; only the first handshake goes through the free public PeerJS server. No relay
    (TURN): it works on the same Wi-Fi, some mobile networks block it. Needs the network; the app itself still opens offline.
    The DM side filters: players get only what the player view shows. Enemies: name and "Ağır yaralı" / "düştü" (D2),
@@ -1932,11 +1936,8 @@ const shareUrl = () => (location.protocol === 'https:' ? location.origin + locat
 function liveStatus(msg) {
   if (msg !== undefined) LV.msg = msg;
   const n = LV.conns.size;
-  $('#liveBtn').textContent = LV.on ? `Oyunculara açık · ${n}` : 'Oyunculara aç';
+  $('#liveBtn').textContent = LV.on ? `Oturum açık · ${n}` : 'Oturum başlat';
   $('#liveBtn').setAttribute('aria-pressed', String(LV.on));
-  // DM3b: the same control at the top, next to Yeni savaş (compact at 390 px)
-  $('#liveTop').textContent = LV.on ? `Açık · ${n}` : 'Oyuncular'; $('#liveTop').setAttribute('aria-pressed', String(LV.on));
-  $('#liveTop').setAttribute('aria-label', LV.on ? `Oyunculara açık, ${n} oyuncu bağlı` : 'Oyunculara aç');
   const el = $('#liveStat');
   if (el) el.textContent = LV.peer?.open && !LV.msg ? (n ? `${n} oyuncu bağlı` : 'Oda açık, oyuncu bekleniyor') : LV.msg || 'Bağlanıyor…';
   // the share sheet's list of connected players (rebuilt only when it changed, so an open menu is not closed under the finger)
@@ -1998,7 +1999,7 @@ function hostClose() {
   clearTimeout(LV.timer); clearTimeout(LV.rj); LV.rjN = 0; LV.conns.forEach((c) => c.close()); LV.conns.clear(); LV.info.clear(); LV.buckets.clear(); LV.runs.clear(); LV.queue = [];
   LV.peer?.destroy(); LV.peer = null; LV.last = ''; wake();
 }
-// "Paylaşımı kapat" drops the code too: the next "Oyunculara aç" makes a fresh one (a reload while open keeps it).
+// "Oturumu kapat" drops the code too: the next "Oturum başlat" makes a fresh one (a reload while open keeps it).
 function hostStop() { LV.on = false; hostClose(); LV.code = ''; LV.ban.clear(); liveSave(); liveStatus(''); }
 // "Yeni kod": the connected players are dropped and need the new code or QR code.
 function hostNewCode() { hostClose(); LV.code = newCode(); LV.ban.clear(); liveSave(); hostStart(); liveSheet(); toast('Yeni kod: oyuncular yeni kodla katılmalı'); }
@@ -2142,7 +2143,7 @@ async function wake() {
 document.addEventListener('visibilitychange', wake);
 async function liveSheet() {
   if (!LV.on) hostStart();
-  openSheet(`<h3>Oyunculara aç</h3><p class="sub">Oyuncular: uygulamada <b>Savaşı izle</b> → <b>QR okut</b>, ya da kodu yaz. Kim olduklarını seçerler; yalnız kendi pullarını oynatır, kendi alanlarını koyarlar.</p>
+  openSheet(`<h3>Oturum başlat</h3><p class="sub">Oyuncular: uygulamada <b>Oturuma katıl</b> → <b>QR okut</b>, ya da kodu yaz. Kim olduklarını seçerler; yalnız kendi pullarını oynatır, kendi alanlarını koyarlar.</p>
     <div class="lcode" aria-label="Oda kodu">${LV.code}</div>
     <div class="qr" id="liveQr" aria-label="QR kod: uygulamanın bu odalı bağlantısı"></div>
     <p class="lstat" id="liveStat" aria-live="polite"></p>
@@ -2150,12 +2151,12 @@ async function liveSheet() {
     <div class="trow lact"><span>Oyuncular hareket edebilir<small>kendi pulunu oynatır, kendi alanlarını koyar (kişi başı en çok ${PLAYER_AREAS})</small></span><button class="btn sm" data-lact="1" aria-pressed="${LV.act}">${LV.act ? 'Açık' : 'Kapalı'}</button></div></div>
     <p class="sub">Düşmanların yalnız adı ile “Ağır yaralı” / “düştü” durumu görünür; can, AC ve notlar gitmez. Bizim tarafın canları görünür. <b>Çıkar</b> oyuncuyu odadan atar; <b>Yeni kod</b> herkesi düşürür, yeni kodla yeniden katılırlar.</p>
     <p class="note">Bağlantı telefondan telefona: aynı Wi-Fi’de çalışır. Bazı mobil ağlar engelleyebilir; o zaman herkes aynı Wi-Fi’ye bağlansın. İlk bağlantı için internet gerekir.</p>
-    <div class="acts"><button class="btn" data-lstop="1">Paylaşımı kapat</button><button class="btn" data-lnew="1">Yeni kod</button><button class="btn pri" data-lok="1">Tamam</button></div>`);
+    <div class="acts"><button class="btn" data-lstop="1">Oturumu kapat</button><button class="btn" data-lnew="1">Yeni kod</button><button class="btn pri" data-lok="1">Tamam</button></div>`);
   liveStatus();
   const connOf = (key) => [...LV.info].find(([, o]) => String(o.key) === key)?.[0];
   $('#sheetBody').onclick = (e) => {
     if (e.target.closest('[data-lok]')) closeSheet();
-    else if (e.target.closest('[data-lstop]')) { hostStop(); closeSheet(); toast('Paylaşım kapandı'); }
+    else if (e.target.closest('[data-lstop]')) { hostStop(); closeSheet(); toast('Oturum kapandı'); }
     else if (e.target.closest('[data-lnew]')) hostNewCode();
     else if (e.target.closest('[data-lact]')) {
       LV.act = !LV.act; liveSave(); const b = e.target.closest('[data-lact]'); b.setAttribute('aria-pressed', String(LV.act)); b.textContent = LV.act ? 'Açık' : 'Kapalı';
@@ -2172,7 +2173,7 @@ async function liveSheet() {
     const box = $('#liveQr'); if (box) box.innerHTML = q.createSvgTag({ cellSize: 4, margin: 3, scalable: true });
   } catch { const box = $('#liveQr'); if (box) box.innerHTML = '<p class="sub">QR kod için internet gerekli; kodu yazmak da olur.</p>'; }
 }
-$('#liveBtn').onclick = $('#liveTop').onclick = liveSheet;
+$('#liveBtn').onclick = liveSheet;
 
 /* --- player side: the read-only view --- */
 // me: the character the DM gave this player (DM3); raw: the last state as received (a refused request goes back to it);
@@ -2261,7 +2262,7 @@ async function watchConnect() {
   peer.on('disconnected', () => { if (alive()) rejoinLater(peer, W, alive); });
   peer.on('error', (e) => {
     if (W.peer !== peer) return;
-    if (e.type === 'peer-unavailable') { watchStatus('DM bulunamadı: DM’in ekranında “Oyunculara aç” açık mı? Tekrar deneniyor…'); watchRetry(); return; }
+    if (e.type === 'peer-unavailable') { watchStatus('DM bulunamadı: DM’in ekranında oturum açık mı? Tekrar deneniyor…'); watchRetry(); return; }
     if (!W.conn?.open) watchStatus('Sunucuya ulaşılamadı, tekrar deneniyor…');
     if (peerDead(peer, e)) { peer.destroy(); W.peer = null; watchRetry(); return; }
     rejoinLater(peer, W, alive);
@@ -2316,14 +2317,14 @@ function watchStop(why) {
   document.body.classList.remove('watch', 'pact'); $('h1').textContent = 'DM Ekranı'; $('#apick').hidden = true;
   $('#maphint').textContent = 'İki parmakla yakınlaştır · boş yeri sürükle: kaydır · pula dokun: can';
   V.fitted = false; renderWatchBar(); render(); if (UI.map) { fit(); V.fitted = true; }
-  toast('İzleme bitti; kendi savaşın burada');
+  toast('Oturumdan çıktın; kendi savaşın burada');
 }
 $('#watchStop').onclick = () => watchStop();
 function watchSheet() {
-  openSheet(`<h3>Savaşı izle</h3><p class="sub">DM’in ekranındaki <b>Oyunculara aç</b> kodunu yaz ya da <b>QR okut</b> ile DM’in QR kodunu bu uygulamanın içinde okut.</p>
+  openSheet(`<h3>Oturuma katıl</h3><p class="sub">DM’in <b>Oturum başlat</b> ekranındaki kodu yaz ya da <b>QR okut</b> ile DM’in QR kodunu bu uygulamanın içinde okut.</p>
     <div class="fields wcode"><label class="wide">Oda kodu<input id="w-code" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="5" placeholder="ör. K7M2Q"></label><button class="btn" type="button" data-wscan="1">QR okut</button></div>
     <p class="sub" style="margin-top:10px">Bizim taraftan kim olduğunu seçersin; DM izin verdikçe yalnız kendi pulunu oynatır, kendi alanlarını koyarsın. Bu cihazdaki kendi savaşın silinmez, değişmez. Bağlantı telefondan telefona: aynı Wi-Fi’de çalışır; bazı mobil ağlar engelleyebilir.</p>
-    <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-wgo="1">İzle</button></div>`);
+    <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-wgo="1">Katıl</button></div>`);
   const go = () => { const c = cleanCode($('#w-code').value); if (!c) { toast('Kod 5 harf / rakam: DM’in ekranındaki gibi yaz', true); $('#w-code').focus(); return; } closeSheet(); watchStart(c); };
   $('#w-code').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
   $('#sheetBody').onclick = (e) => { if (e.target.closest('[data-wgo]')) go(); else if (e.target.closest('[data-wscan]')) scanSheet(); };
@@ -2399,7 +2400,7 @@ async function scanSheet() {
       if (text) {
         const code = codeFromQr(text);
         if (code) { closeSheet(); watchStart(code); return; }
-        say('Bu QR kod bir oda kodu değil: DM’in Oyunculara aç ekranındaki kodu okut', true);
+        say('Bu QR kod bir oda kodu değil: DM’in Oturum başlat ekranındaki kodu okut', true);
       }
     }
     st.timer = setTimeout(() => tick(gen), 250);
