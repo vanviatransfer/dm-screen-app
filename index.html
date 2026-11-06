@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = 'bc81d5cb37'; window.__BUILT__ = '2026-11-06 00:54';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '6ff89fe7fb'; window.__BUILT__ = '2026-11-06 15:59';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -493,7 +493,7 @@ function card(c, pos) {
   const shield = c.max + c.tmp;
   const hpPct = Math.max(0, (c.hp / Math.max(shield, c.max)) * 100), tmpPct = (c.tmp / Math.max(shield, c.max)) * 100;
   const bloodied = c.hp > 0 && c.hp <= c.max / 2;
-  const conds = (bloodied ? '<span class="tg bl" title="Can yarı ya da altında">Bloodied</span>' : '')
+  const conds = (bloodied ? '<span class="tg bl" title="Can en yüksek canın yarısı ya da altında">Ağır yaralı</span>' : '')
     + c.conds.map((x) => `<span class="tg">${esc(x.k)}${x.r != null ? ` <em>${x.k === 'Exhaustion' ? x.r + '. seviye' : x.r + ' tur'}</em>` : ''}</span>`).join('')
     + (c.conc ? `<span class="tg conc">Concentration${c.concOn ? ' · ' + esc(c.concOn) : ''}</span>` : '');
   const dying = c.side === 'ally' && c.hp === 0 && !isDead(c);
