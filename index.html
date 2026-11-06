@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '3f777b3d05'; window.__BUILT__ = '2026-11-06 16:38';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '6eb4aa3e77'; window.__BUILT__ = '2026-11-06 17:08';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -184,7 +184,7 @@ body.multi .toasts{bottom:calc(132px + env(safe-area-inset-bottom,0px))}
 
 /* bottom tabs (as in the character apps) */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav.tabs .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr}
+nav.tabs .in{max-width:640px;margin:0 auto;display:grid;grid-auto-flow:column;grid-auto-columns:1fr}
 nav.tabs button{min-height:60px;display:grid;justify-items:center;align-content:center;gap:2px;color:var(--muted);font-size:.82rem;font-weight:700}
 nav.tabs button svg{width:24px;height:24px}
 nav.tabs button[aria-current="page"]{color:var(--acc)}
@@ -192,7 +192,7 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 /* grid map */
 #mapView{position:fixed;left:0;right:0;top:var(--hdh,120px);bottom:calc(61px + env(safe-area-inset-bottom,0px));overflow:hidden;touch-action:none;background:#15110e}
 #board{position:absolute;left:0;top:0;transform-origin:0 0;background-color:#211a14;
-  background-image:linear-gradient(#4a3c30 1px,transparent 1px),linear-gradient(90deg,#4a3c30 1px,transparent 1px);
+  background-image:linear-gradient(#4a3c30 var(--gl,1px),transparent var(--gl,1px)),linear-gradient(90deg,#4a3c30 var(--gl,1px),transparent var(--gl,1px));
   background-size:var(--cell) var(--cell);border:1px solid var(--ctl)}
 .ttl{display:flex;align-items:center;gap:10px}
 .tok{position:absolute;width:calc(var(--cell) * var(--sz,1));height:calc(var(--cell) * var(--sz,1));display:grid;place-items:center;touch-action:none;cursor:grab}
@@ -234,6 +234,28 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .apick button{min-height:44px;min-width:132px;border:1px solid var(--ctl);border-radius:10px;background:var(--bg);font-weight:700;display:grid;justify-items:start;padding:4px 12px;text-align:left}
 .apick small{font-weight:500;font-size:.72rem;color:var(--muted)}
 .abar{position:absolute;left:12px;bottom:48px;z-index:4}
+
+/* Kayıtlar (DM2): monster cards and prepared fights */
+.recs{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px}
+.recs h2{font-family:var(--display);font-size:1.1rem;margin:0;color:var(--acc)}
+.recs .help{margin:2px 0 10px}
+.recs .acts2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.rec{display:grid;gap:4px;width:100%;text-align:left;border:1px solid var(--foe-line);background:var(--foe-bg);border-radius:12px;padding:10px 12px;margin-top:8px}
+.rec .acts2{margin-top:6px}
+.rh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rh b,.kc b{font-size:1.02rem}
+.rs,.rn{margin:0;font-size:.86rem}
+.rs{color:var(--ink)} .rn,.kc span{color:var(--muted);font-size:.84rem}
+.empty{color:var(--muted);font-size:.9rem;margin:6px 0 0}
+.krow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:4px 0 8px}
+.krow b{display:block;font-size:.95rem}
+.krow small{display:block;color:var(--muted);font-size:.76rem}
+.step{display:flex;align-items:center;border:1px solid var(--ctl);border-radius:10px;overflow:hidden}
+.step button{width:44px;min-height:44px;font-size:1.3rem;font-weight:700;background:var(--bg)}
+.step output{min-width:36px;text-align:center;font-family:var(--display);font-weight:700;font-size:1.2rem;font-variant-numeric:tabular-nums}
+.hint{display:flex;align-items:center;min-height:44px;color:var(--acc);font-weight:700;font-size:.86rem;letter-spacing:0}
+.hint.bad{color:var(--warn)}
+body.watch #tabLib,body.watch #zsave{display:none!important}
 
 /* live view (A14): the DM's share sheet and the players' read-only view */
 .lcode{font-family:var(--display);font-weight:700;font-size:2.6rem;letter-spacing:.22em;text-align:center;color:var(--acc);padding:4px 0 2px;font-variant-numeric:tabular-nums}
@@ -304,6 +326,28 @@ body.watch .tok,body.watch .area{cursor:default}
   </div>
 </main>
 
+<!-- Kayıtlar (DM2): monster cards and prepared fights, kept apart from the live fight -->
+<main class="wrap" id="libView" hidden>
+  <section class="recs">
+    <h2>Hazır savaşlar</h2>
+    <p class="help">Olası savaşları önceden kaydet; oraya gelince aç, inisiyatifleri gir, başlat.</p>
+    <div id="prepList"></div>
+    <div class="acts2"><button class="btn sm pri" id="prepNew">+ Yeni hazır savaş</button><button class="btn sm" id="prepFromFight">Şu anki düşmanları kaydet</button></div>
+  </section>
+  <section class="recs">
+    <h2>Yaratık kartları</h2>
+    <p class="help">Bir kez yaz; savaşta “+ Düşman ekle” ile kartlardan istediğin kadar ekle.</p>
+    <div id="cardList"></div>
+    <div class="acts2"><button class="btn sm pri" id="cardNew">+ Yeni kart</button></div>
+  </section>
+  <section class="recs">
+    <h2>Yedek</h2>
+    <p class="help">Kartlar ve hazır savaşlar bu cihazda, savaştan ayrı saklanır; “Yeni savaş” ve “Geri al” onlara dokunmaz. Yedeği dosyaya al, başka cihaza taşı.</p>
+    <div class="acts2"><button class="btn sm" id="libExport">Dışa aktar</button><button class="btn sm" id="libImport">İçe aktar</button></div>
+    <input type="file" id="libFile" accept=".json,application/json" hidden>
+  </section>
+</main>
+
 <div id="mapView" hidden>
   <div id="board"></div>
   <div class="dist" id="dist">Pulu sürükle: hareket · <b>5 ft</b> = 1 kare</div>
@@ -314,6 +358,7 @@ body.watch .tok,body.watch .area{cursor:default}
     <button id="zmeasure" aria-label="İki pul arası mesafe ölç" aria-pressed="false" style="font-size:.74rem">Ölç</button>
     <button id="zreset" aria-label="Dizilişi sıfırla" style="font-size:.7rem;line-height:1.1">Diz</button>
     <button id="zarea" aria-label="Alan büyüsü şablonu ekle" aria-expanded="false" style="font-size:.74rem">Alan</button>
+    <button id="zsave" aria-label="Bu dizilişi kaydet" style="font-size:.64rem;line-height:1.05">Diziliş kaydet</button>
   </div>
   <div class="apick" id="apick" hidden role="group" aria-label="Alan şekli">
     <button data-shape="circle">Daire<small>yarıçap</small></button>
@@ -329,6 +374,7 @@ body.watch .tok,body.watch .area{cursor:default}
 <nav class="tabs"><div class="in">
   <button id="tabFight" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m16 16 4 4"/><path d="m19 21 2-2"/></svg>Savaş</button>
   <button id="tabMap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>Harita</button>
+  <button id="tabLib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2.5Z"/><path d="M20 19v3H6.5"/><path d="M9 7h7M9 11h5"/></svg>Kayıtlar</button>
 </div></nav>
 
 <div class="scrim" id="scrim" hidden></div>
@@ -486,7 +532,7 @@ function step(d) {
 // Bring the current card into view both ways: below the sticky header (scrollIntoView ignores it, so a card under the
 // header counted as visible and the page never scrolled back up) and centred in its sideways-scrolling row.
 function reveal(id) {
-  if (UI.map) return;
+  if (UI.map || UI.lib) return;
   const el = document.querySelector(`.card[data-id="${id}"]`); if (!el) return;
   const row = el.parentElement;
   row.scrollTo({ left: el.offsetLeft - row.offsetLeft - (row.clientWidth - el.offsetWidth) / 2, behavior: 'smooth' });
@@ -605,7 +651,7 @@ addEventListener('popstate', () => {
   try {
     if (!$('#sheet').hidden) closeSheet();
     else if (UI.multi) { UI.multi = false; UI.sel.clear(); render(); }
-    else if (UI.map) showTab(false);
+    else if (UI.map || UI.lib) showTab(false);
     // a leftover entry of a layer already closed by a tap: step over it, so back never "does nothing"
     else if (H.state?.dm) H.back();
   } finally { popping = false; }
@@ -686,8 +732,10 @@ function editSheet(c, isNew) {
       <label class="wide">Not<input id="f-note" value="${esc(c.note || '')}" placeholder="ör. Pack Tactics, Resistance: Fire"></label>
     </div>
     ${c.side === 'foe' ? '<div class="acts"><button class="btn" data-roll="1">d20 + bonus at</button><button class="btn pri" data-ok="1" style="grid-column:span 2">Kaydet</button></div>' : '<div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-ok="1">Kaydet</button></div>'}
+    ${c.side === 'foe' ? '<div class="acts" style="grid-template-columns:1fr"><button class="btn" data-tocard="1">Karta kaydet</button></div>' : ''}
     ${isNew ? '' : '<button class="danger" data-del="1">Savaştan çıkar</button>'}`);
   $('#sheetBody').onclick = (e) => {
+    if (e.target.closest('[data-tocard]')) { cardFromForm(c); return; }
     const szb = e.target.closest('[data-sz]');
     if (szb) { szb.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === szb))); return; }
     const neg = e.target.closest('[data-neg]');
@@ -710,6 +758,7 @@ function editSheet(c, isNew) {
       const la = toInt($('#f-la').value, 0), lr = toInt($('#f-lr').value, 0);
       vals.la = la > 0 ? [Math.min(la, c.la?.[0] ?? la), la] : null;
       vals.lr = lr > 0 ? [Math.min(lr, c.lr?.[0] ?? lr), lr] : null;
+      vals.card = c.card ?? null;
     }
     const count = c.side === 'foe' ? Math.max(0, Math.min(20, toInt($('#f-n').value, isNew ? 1 : 0))) : (isNew ? 1 : 0);
     if (!isNew) {
@@ -719,20 +768,25 @@ function editSheet(c, isNew) {
       log(`<b>${esc(c.name)}</b> düzenlendi`);
     }
     if (count) {
-      // Copies are numbered after the highest number already used for that name ("Goblin 1", "Goblin 2", …); an
-      // unnumbered original becomes "… 1" so no two creatures share a name. Copies start fresh: full HP and uses.
-      const base = vals.name.replace(/\s+\d+$/, '');
-      const same = S.list.filter((x) => x.name.replace(/\s+\d+$/, '') === base);
-      let n = Math.max(0, ...same.map((x) => toInt(x.name.match(/\s(\d+)$/)?.[1], 1)));
-      const plain = same.find((x) => x.name === base);
-      if (plain && !(isNew && count === 1 && same.length === 0)) plain.name = `${base} 1`;
-      const single = isNew && count === 1 && same.length === 0;
-      const fresh = { ...vals, hp: max, tmp: 0, la: vals.la ? [vals.la[1], vals.la[1]] : null, lr: vals.lr ? [vals.lr[1], vals.lr[1]] : null };
-      for (let k = 0; k < count; k++) S.list.push({ ...blank(c.side), ...fresh, ...(isNew ? { hp } : {}), id: newId(c.side), name: single ? base : `${base} ${++n}`, conds: [], gx: null, gy: null });
+      const base = addCopies(c.side, vals, count, () => (isNew ? { hp } : {}));
       log(`${count > 1 ? count + ' × ' : ''}<b>${esc(base)}</b> eklendi`);
     }
     closeSheet(); render();
   };
+}
+// Copies are numbered after the highest number already used for that name ("Goblin 1", "Goblin 2", …); an
+// unnumbered original becomes "… 1" so no two creatures share a name. Copies start fresh: full HP and uses.
+// extra(k) gives per-copy values (a copy's own rolled HP when added from a card). Returns the base name.
+function addCopies(side, vals, count, extra = () => ({})) {
+  const base = vals.name.replace(/\s+\d+$/, '');
+  const same = S.list.filter((x) => x.name.replace(/\s+\d+$/, '') === base);
+  let n = Math.max(0, ...same.map((x) => toInt(x.name.match(/\s(\d+)$/)?.[1], 1)));
+  const single = count === 1 && same.length === 0;
+  const plain = same.find((x) => x.name === base);
+  if (plain) plain.name = `${base} 1`;
+  const fresh = { ...vals, hp: vals.max, tmp: 0, la: vals.la ? [vals.la[1], vals.la[1]] : null, lr: vals.lr ? [vals.lr[1], vals.lr[1]] : null };
+  for (let k = 0; k < count; k++) S.list.push({ ...blank(side), ...fresh, ...extra(k), id: newId(side), name: single ? base : `${base} ${++n}`, conds: [], gx: null, gy: null });
+  return base;
 }
 
 function iniSheet() {
@@ -792,7 +846,7 @@ document.addEventListener('click', (e) => {
   if (jump) { if (!UI.map) reveal(jump.dataset.jump); return; }
   if (W.on) return; // the player view is read only
   const add = e.target.closest('[data-add]');
-  if (add) { editSheet({ ...blank(add.dataset.add), name: '' }, true); return; }
+  if (add) { if (add.dataset.add === 'foe') addFoeSheet(); else editSheet({ ...blank(add.dataset.add), name: '' }, true); return; }
   const cardEl = e.target.closest('.card'); if (!cardEl) return;
   const c = byId(cardEl.dataset.id);
   if (UI.multi) { UI.sel.has(c.id) ? UI.sel.delete(c.id) : UI.sel.add(c.id); render(); return; }
@@ -854,8 +908,12 @@ function longRest() {
 }
 $('#newFight').onclick = () => ask('Yeni savaş', 'Düşmanlar silinir, tur 1’e döner. Bizim canlarımız kalır. Sonra inisiyatif ekranı açılır.', 'Başlat', newFight);
 function newFight() {
-  snap(); S.list = S.list.filter((c) => c.side === 'ally'); S.list.forEach((c) => { c.conds = c.conds.filter((x) => x.k === 'Exhaustion' || (x.k === 'Unconscious' && c.hp === 0)); c.conc = false; c.concOn = ''; c.tmp = 0; c.react = false; c.turnRound = null; c.gx = null; c.gy = null; });
-  S.round = 1; S.cur = null; S.curInit = null; S.areas = []; UI.area = null; UI.multi = false; UI.sel.clear(); log('Yeni savaş: düşmanlar temizlendi'); render(); iniSheet();
+  snap(); resetFight(); log('Yeni savaş: düşmanlar temizlendi'); render(); iniSheet();
+}
+// Foes out, round 1, our side's fight state cleared (HP kept). The library (cards, prepared fights) is not touched.
+function resetFight() {
+  S.list = S.list.filter((c) => c.side === 'ally'); S.list.forEach((c) => { c.conds = c.conds.filter((x) => x.k === 'Exhaustion' || (x.k === 'Unconscious' && c.hp === 0)); c.conc = false; c.concOn = ''; c.tmp = 0; c.react = false; c.turnRound = null; c.gx = null; c.gy = null; });
+  S.round = 1; S.cur = null; S.curInit = null; S.areas = []; S.prep = null; UI.area = null; UI.multi = false; UI.sel.clear();
 }
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') { padKeys = null; closeSheet(); return; }
@@ -872,21 +930,43 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ---------- grid map: 5 ft squares, drag tokens, pan, zoom ---------- */
-const COLS = 30, ROWS = 20, CELL = 48;
+// The board: 200 × 200 ft (owner, 2026-11-06: "harita 1000 ft x 1000 ft degil 200 ft x 200 ft olmali"), 40 × 40 squares
+// of 5 ft. Saved fights from the 30 × 20 board keep their squares (they all lie inside it).
+const COLS = 40, ROWS = 40, CELL = 48;
 const V = { x: 0, y: 0, z: 1, fitted: false };
+// The view's middle in squares; before the map has been opened, the middle of the board.
+function viewMid() {
+  if (!V.fitted) return [COLS / 2, ROWS / 2];
+  const r = $('#mapView').getBoundingClientRect(), w = r.width || innerWidth, h = r.height || innerHeight - 180;
+  return [(w / 2 - V.x) / (CELL * V.z), (h / 2 - V.y) / (CELL * V.z)];
+}
 function place() {
-  // Tokens without a square get a free one: foes and the party face each other 5 squares (25 ft) apart, mid-board,
-  // so "Sığdır" can show readable squares on a phone.
+  // Tokens without a square get a free one near the others (foes above the party, 4 squares apart), or in the middle
+  // of the current view when nobody is on the board yet.
   // A creature covers size × size squares (Large 2×2, Huge 3×3, Gargantuan 4×4).
+  const free = S.list.filter((c) => c.gx == null); if (!free.length) return;
   const taken = new Set();
   const cover = (c, x, y) => { const s = []; for (let i = 0; i < sz(c); i++) for (let j = 0; j < sz(c); j++) s.push((x + i) + ',' + (y + j)); return s; };
-  S.list.filter((c) => c.gx != null).forEach((c) => cover(c, c.gx, c.gy).forEach((k) => taken.add(k)));
-  for (const c of S.list) if (c.gx == null) {
-    const y0 = c.side === 'foe' ? 8 - sz(c) : 12, dir = c.side === 'foe' ? -1 : 1;
-    outer: for (let r = 0; r < 8; r++) for (let x = 10; x <= COLS - sz(c); x++) {
-      const y = y0 + dir * r; if (y < 0 || y > ROWS - sz(c)) continue;
-      const cells = cover(c, x, y); if (cells.every((k) => !taken.has(k))) { c.gx = x; c.gy = y; cells.forEach((k) => taken.add(k)); break outer; }
+  const on = S.list.filter((c) => c.gx != null);
+  on.forEach((c) => cover(c, c.gx, c.gy).forEach((k) => taken.add(k)));
+  let ax, ay;
+  if (on.length) {
+    const al = on.filter((c) => c.side === 'ally'), fo = on.filter((c) => c.side === 'foe');
+    ax = on.reduce((s, c) => s + c.gx + sz(c) / 2, 0) / on.length;
+    ay = al.length ? Math.min(...al.map((c) => c.gy)) - 2 : Math.max(...fo.map((c) => c.gy + sz(c))) + 2;
+  } else [ax, ay] = viewMid();
+  ax = Math.max(4, Math.min(COLS - 4, ax)); ay = Math.round(Math.max(6, Math.min(ROWS - 6, ay)));
+  for (const c of free) {
+    const s = sz(c), y0 = c.side === 'foe' ? ay - 2 - s : ay + 2, dir = c.side === 'foe' ? -1 : 1;
+    // a row fills left to right from 5 squares left of the anchor (as on the old 30-square board), then leftwards
+    const x0 = Math.max(0, Math.min(COLS - s, Math.round(ax) - 5));
+    const xs = [...Array.from({ length: COLS - s + 1 - x0 }, (_, i) => x0 + i), ...Array.from({ length: x0 }, (_, i) => x0 - 1 - i)];
+    outer: for (let r = 0; r < ROWS * 2; r++) {
+      // past the board's edge the rows go the other way
+      const y = r < ROWS ? y0 + dir * r : y0 - dir * (r - ROWS + 1); if (y < 0 || y > ROWS - s) continue;
+      for (const x of xs) { const cells = cover(c, x, y); if (cells.every((k) => !taken.has(k))) { c.gx = x; c.gy = y; cells.forEach((k) => taken.add(k)); break outer; } }
     }
+    if (c.gx == null) { c.gx = 0; c.gy = 0; }
   }
 }
 const sz = (c) => c.size || 1;
@@ -949,9 +1029,19 @@ function renderMap() {
   applyView();
 }
 // --hz keeps handles, labels and the × the same size on screen at any zoom (≥ 32 px touch targets).
-function applyView() { const b = $('#board'); b.style.transform = `translate(${V.x}px,${V.y}px) scale(${V.z})`; b.style.setProperty('--hz', String(1 / V.z)); }
-function zoomAt(f, cx, cy) { const z = Math.max(.35, Math.min(3, V.z * f)); const k = z / V.z; V.x = cx - (cx - V.x) * k; V.y = cy - (cy - V.y) * k; V.z = z; applyView(); }
-// Fit the tokens (with two squares around them), not the whole board, so a phone shows readable squares.
+// --gl: the grid line stays at least 1 screen pixel wide when zoomed far out, so the squares stay visible.
+function applyView() { const b = $('#board'); b.style.transform = `translate(${V.x}px,${V.y}px) scale(${V.z})`; b.style.setProperty('--hz', String(1 / V.z)); b.style.setProperty('--gl', Math.max(1, 1 / V.z).toFixed(2) + 'px'); }
+// A board smaller than the view (zoomed far out) sits in its middle instead of a corner.
+function centreSmall() {
+  const r = $('#mapView').getBoundingClientRect(), bw = COLS * CELL * V.z, bh = ROWS * CELL * V.z;
+  if (r.width && bw <= r.width) V.x = (r.width - bw) / 2;
+  if (r.height && bh <= r.height) V.y = (r.height - bh) / 2;
+}
+// Zoom out far enough to see the whole board in the view (with a margin), never less than that.
+function zMin() { const r = $('#mapView').getBoundingClientRect(); return Math.min(.35, (Math.min(r.width || innerWidth, r.height || innerHeight) * .9) / (Math.max(COLS, ROWS) * CELL)); }
+function zoomAt(f, cx, cy) { const z = Math.max(zMin(), Math.min(3, V.z * f)); const k = z / V.z; V.x = cx - (cx - V.x) * k; V.y = cy - (cy - V.y) * k; V.z = z; centreSmall(); applyView(); }
+// Fit the tokens (with two squares around them), not the whole board, so a phone shows readable squares. Tokens far
+// apart: zoomed out until everyone is in view.
 function fit() {
   const m = $('#mapView').getBoundingClientRect();
   // the player view fits the tokens the DM sent
@@ -959,10 +1049,9 @@ function fit() {
   const xs = L.map((c) => c.gx), ys = L.map((c) => c.gy);
   const x0 = Math.max(0, Math.min(...xs) - 2), x1 = Math.min(COLS, Math.max(...L.map((c) => c.gx + sz(c))) + 2);
   const y0 = Math.max(0, Math.min(...ys) - 2), y1 = Math.min(ROWS, Math.max(...L.map((c) => c.gy + sz(c))) + 2);
-  // Never below ~40 px per token (a usable tap target); if everyone doesn't fit, the view centres on them and pans.
-  V.z = Math.max(.85, Math.min(1.6, Math.min(m.width / ((x1 - x0) * CELL), (m.height - 70) / ((y1 - y0) * CELL))));
+  V.z = Math.max(zMin(), Math.min(1.6, Math.min(m.width / ((x1 - x0) * CELL), (m.height - 70) / ((y1 - y0) * CELL))));
   V.x = (m.width - (x1 - x0) * CELL * V.z) / 2 - x0 * CELL * V.z;
-  V.y = (m.height - (y1 - y0) * CELL * V.z) / 2 - y0 * CELL * V.z; applyView();
+  V.y = (m.height - (y1 - y0) * CELL * V.z) / 2 - y0 * CELL * V.z; centreSmall(); applyView();
 }
 (() => {
   const view = $('#mapView'); const pts = new Map(); let drag = null, pan = null, pinch = null, adrag = null;
@@ -1101,18 +1190,378 @@ function fit() {
     groupSheet(); UI.sel.clear();
   };
 })();
-function showTab(map) {
-  if (map && !UI.map) pushLayer('map'); else if (!map && UI.map) dropLayer('map');
-  UI.map = map; if (map && UI.multi) { UI.multi = false; UI.sel.clear(); render(); }
-  $('#fightView').hidden = map; $('#mapView').hidden = !map;
-  $('#tabFight').setAttribute('aria-current', map ? 'false' : 'page'); $('#tabMap').setAttribute('aria-current', map ? 'page' : 'false');
-  if (map) {
+// Three tabs: Savaş, Harita (map), Kayıtlar (lib). Harita and Kayıtlar each hold one history entry while open (back
+// returns to Savaş); going from one to the other swaps that entry instead of adding one.
+function showTab(map, lib = false) {
+  const want = lib ? 'lib' : map ? 'map' : '', was = UI.lib ? 'lib' : UI.map ? 'map' : '';
+  if (want && !was) pushLayer(want); else if (!want && was) dropLayer(was);
+  else if (want !== was) { try { if (H.state?.dm === was) H.replaceState({ dm: want }, ''); } catch {} }
+  UI.lib = lib; map = map && !lib;
+  UI.map = map; if ((map || lib) && UI.multi) { UI.multi = false; UI.sel.clear(); render(); }
+  $('#fightView').hidden = map || lib; $('#mapView').hidden = !map; $('#libView').hidden = !lib;
+  $('#tabFight').setAttribute('aria-current', map || lib ? 'false' : 'page'); $('#tabMap').setAttribute('aria-current', map ? 'page' : 'false'); $('#tabLib').setAttribute('aria-current', lib ? 'page' : 'false');
+  if (lib) { scrollTo(0, 0); renderLib(); }
+  else if (map) {
     scrollTo(0, 0); document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().bottom + 'px');
     if (!V.fitted) { fit(); V.fitted = true; }
   } else if (W.on ? W.P?.cur : S.cur) reveal(W.on ? W.P.cur : S.cur);
 }
-$('#tabFight').onclick = () => showTab(false); $('#tabMap').onclick = () => showTab(true);
+$('#tabFight').onclick = () => showTab(false); $('#tabMap').onclick = () => showTab(true); $('#tabLib').onclick = () => { if (!W.on) showTab(false, true); };
 addEventListener('resize', () => { if (UI.map) document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().bottom + 'px'); });
+
+/* ---------- Kayıtlar (DM2, the DM's requests of 2026-11-06): monster cards and prepared fights ----------
+   A library kept apart from the live fight, under its own key: "Yeni savaş" and Geri al never touch it.
+   Card: a foe template (name, sub label, AC, max HP, optional HP formula "2d8+2", initiative bonus, size, Legendary
+   Action / Resistance, note). Prepared fight: a name, card × count entries, an optional note and an optional map layout.
+   Foes added from a card remember it (c.card), so a layout can be saved from the map and the fight saved again. */
+const LIB_KEY = 'dmscreen-library-v1';
+const SIZE_NAME = { 2: 'Large', 3: 'Huge', 4: 'Gargantuan' };
+const recId = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+// HP formula: NdM, NdM+K or NdM−K. Average as printed in stat blocks (rounded down), never below 1.
+function hpFormula(t) {
+  const m = /^(\d{1,2})\s*d\s*(\d{1,3})\s*(?:([+\-−–])\s*(\d{1,4}))?$/i.exec(String(t ?? '').trim()); if (!m) return null;
+  const n = +m[1], d = +m[2], k = (m[3] && m[3] !== '+' ? -1 : 1) * (+m[4] || 0); if (!n || !d) return null;
+  return { n, d, k, avg: Math.max(1, Math.floor(n * (d + 1) / 2) + k), text: `${n}d${d}${k ? (k > 0 ? '+' : '−') + Math.abs(k) : ''}` };
+}
+const rollHp = (f) => { let t = f.k; for (let i = 0; i < f.n; i++) t += 1 + Math.floor(Math.random() * f.d); return Math.max(1, t); };
+// Everything read from storage or an imported file goes through these: plain strings, numbers in range, known ids.
+// Only strings (or numbers) count as text: an object in the file never becomes "[object Object]".
+const clip = (v, n = 80) => (typeof v === 'string' || typeof v === 'number' ? String(v).trim().slice(0, n) : '');
+const inRange = (v, d, lo, hi) => Math.max(lo, Math.min(hi, toInt(v, d)));
+// Ids are used as keys: names Object.prototype already has ("constructor", "__proto__", …) get a prefix, the same one
+// wherever the id appears, so a fight still finds its card. Lookups keyed by ids or names use null-prototype objects.
+const PROTO_NAMES = new Set(Object.getOwnPropertyNames(Object.prototype));
+const cleanId = (v) => { const id = clip(v, 40).replace(/[^\w-]/g, ''); return PROTO_NAMES.has(id) ? 'id-' + id : id; };
+const dict = (entries = []) => Object.assign(Object.create(null), Object.fromEntries(entries));
+// Limits for one prepared fight and for one "Ekle": copies per card as in the UI, distinct cards, foes in total.
+const MAX_PER_CARD = 20, MAX_ITEMS = 50, MAX_FOES = 100;
+// Entries for the same card are added together, then every count and the total are capped (oldest entries first).
+function capItems(items) {
+  const by = new Map();
+  for (const i of items) by.set(i.card, (by.get(i.card) || 0) + i.n);
+  let left = MAX_FOES; const out = [];
+  for (const [card, n] of by) { if (out.length >= MAX_ITEMS || left <= 0) break; const k = Math.min(n, MAX_PER_CARD, left); if (k > 0) { out.push({ card, n: k }); left -= k; } }
+  return out;
+}
+function cleanCard(o) {
+  if (!o || typeof o !== 'object') return null;
+  const name = clip(o.name); if (!name) return null;
+  const f = hpFormula(clip(o.hpf, 20));
+  return { id: cleanId(o.id) || recId('k'), name, sub: clip(o.sub), ac: inRange(o.ac, 12, 0, 40), max: inRange(o.max, f?.avg ?? 10, 1, 9999), hpf: f ? f.text : '',
+    mod: inRange(o.mod, 0, -10, 20), size: inRange(o.size, 1, 1, 4), la: inRange(o.la, 0, 0, 9) || null, lr: inRange(o.lr, 0, 0, 9) || null, note: clip(o.note, 200) };
+}
+function cleanFight(o, ids) {
+  if (!o || typeof o !== 'object') return null;
+  const name = clip(o.name); if (!name) return null;
+  const items = capItems((Array.isArray(o.items) ? o.items : []).slice(0, 1000).map((i) => ({ card: cleanId(i?.card), n: inRange(i?.n, 1, 1, MAX_PER_CARD) })).filter((i) => ids.has(i.card)));
+  const pos = (p) => ({ gx: inRange(p?.gx, 0, 0, COLS - 1), gy: inRange(p?.gy, 0, 0, ROWS - 1) });
+  const ly = o.layout && typeof o.layout === 'object' ? {
+    foes: (Array.isArray(o.layout.foes) ? o.layout.foes : []).slice(0, MAX_FOES).map((p) => ({ card: cleanId(p?.card), k: inRange(p?.k, 0, 0, MAX_PER_CARD - 1), ...pos(p) })).filter((p) => ids.has(p.card)),
+    allies: (Array.isArray(o.layout.allies) ? o.layout.allies : []).slice(0, 40).map((p) => ({ name: clip(p?.name), ...pos(p) })).filter((p) => p.name),
+  } : null;
+  return { id: cleanId(o.id) || recId('f'), name, note: clip(o.note, 300), items, layout: ly && (ly.foes.length || ly.allies.length) ? ly : null };
+}
+// strict (import): fights left without any creature are dropped; `skipped` counts what was left out.
+function cleanLibrary(o, strict = false) {
+  if (!o || typeof o !== 'object' || !Array.isArray(o.cards)) return null;
+  const rawF = Array.isArray(o.fights) ? o.fights : [];
+  const seen = new Set(), cards = o.cards.slice(0, 500).map(cleanCard).filter((k) => k && !seen.has(k.id) && seen.add(k.id));
+  const fseen = new Set(), fights = rawF.slice(0, 200).map((f) => cleanFight(f, seen)).filter((f) => f && (!strict || f.items.length) && !fseen.has(f.id) && fseen.add(f.id));
+  return { v: 1, cards, fights, roll: o.roll === true, skipped: { cards: o.cards.length - cards.length, fights: rawF.length - fights.length } };
+}
+let LB = (() => { try { return cleanLibrary(JSON.parse(localStorage.getItem(LIB_KEY))); } catch { return null; } })() || { v: 1, cards: [], fights: [], roll: false };
+delete LB.skipped;
+// The last library that reached storage: a failed save (storage full) goes back to it, so memory never differs from
+// what the next launch will load. Returns false then; the open sheet closes (it may hold records that are gone).
+let LB_SAVED = JSON.stringify(LB);
+function libSave() {
+  const text = JSON.stringify(LB);
+  try { localStorage.setItem(LIB_KEY, text); LB_SAVED = text; }
+  catch { LB = JSON.parse(LB_SAVED); closeSheet(); toast('Kayıtlar kaydedilemedi (cihazda yer yok mu?); son kayıtlı hâli geri geldi', true); if (UI.lib) renderLib(); return false; }
+  if (UI.lib) renderLib(); return true;
+}
+const cardById = (id) => LB.cards.find((k) => k.id === id) || null;
+const prepById = (id) => LB.fights.find((f) => f.id === id) || null;
+const cardLabel = (k) => k.name + (k.sub ? ` (${k.sub})` : '');
+const cardStats = (k) => [`AC ${k.ac}`, `can ${k.max}${k.hpf ? ` (${k.hpf})` : ''}`, `inisiyatif ${sign(k.mod)}`, SIZE_NAME[k.size], k.la ? `Legendary Action ${k.la}` : '', k.lr ? `Legendary Resistance ${k.lr}` : ''].filter(Boolean).join(' · ');
+const prepSummary = (f) => f.items.filter((i) => cardById(i.card)).map((i) => `${i.n} × ${esc(cardLabel(cardById(i.card)))}`).join(' · ') || 'yaratık yok';
+
+function renderLib() {
+  $('#prepList').innerHTML = LB.fights.map((f) => `<article class="rec" data-prep="${f.id}">
+    <div class="rh"><b>${esc(f.name)}</b>${f.layout ? '<span class="tg">Diziliş kayıtlı</span>' : ''}</div>
+    <p class="rs">${prepSummary(f)}</p>${f.note ? `<p class="rn">${esc(f.note)}</p>` : ''}
+    <div class="acts2"><button class="btn sm pri" data-pstart="${f.id}">Savaşı başlat</button><button class="btn sm" data-pedit="${f.id}">Düzenle</button></div></article>`).join('')
+    || '<p class="empty">Henüz hazır savaş yok.</p>';
+  $('#cardList').innerHTML = LB.cards.map((k) => `<button class="rec kc" data-kedit="${k.id}"><b>${esc(cardLabel(k))}</b><span>${esc(cardStats(k))}</span>${k.note ? `<span class="rn">${esc(k.note)}</span>` : ''}</button>`).join('')
+    || '<p class="empty">Henüz yaratık kartı yok.</p>';
+}
+$('#libView').addEventListener('click', (e) => {
+  if (W.on) return; // the player view is read only (A14)
+  const t = (s) => e.target.closest(`[${s}]`)?.getAttribute(s);
+  let v;
+  if ((v = t('data-pstart'))) { const f = prepById(v); if (f) startPrep(f); }
+  else if ((v = t('data-pedit'))) { const f = prepById(v); if (f) prepSheet(f); }
+  else if ((v = t('data-kedit'))) { const k = cardById(v); if (k) cardSheet(k); }
+});
+$('#cardNew').onclick = () => cardSheet(null);
+$('#prepNew').onclick = () => prepSheet(null);
+$('#prepFromFight').onclick = () => saveFightSheet(false);
+$('#zsave').onclick = () => { if (!W.on) layoutSheet(); };
+
+// Card × count picker (adding foes, a prepared fight's entries). cnt: { cardId: n }.
+const counterHtml = (cnt) => `<div class="targets">${LB.cards.map((k) => `<div class="krow"><span><b>${esc(cardLabel(k))}</b><small>${esc(cardStats(k))}</small></span>
+  <span class="step"><button data-dec="${k.id}" aria-label="${esc(cardLabel(k))}: bir az">−</button><output data-cnt="${k.id}">${cnt[k.id] || 0}</output><button data-inc="${k.id}" aria-label="${esc(cardLabel(k))}: bir fazla">+</button></span></div>`).join('')}</div>`;
+function counterClick(e, cnt) {
+  const b = e.target.closest('[data-inc],[data-dec]'); if (!b) return false;
+  const id = b.dataset.inc || b.dataset.dec, up = !!b.dataset.inc;
+  if (up && countTotal(cnt) >= MAX_FOES) { toast(`Bir seferde en çok ${MAX_FOES} düşman`); return true; }
+  cnt[id] = Math.max(0, Math.min(MAX_PER_CARD, (cnt[id] || 0) + (up ? 1 : -1)));
+  $(`[data-cnt="${id}"]`).textContent = cnt[id]; return true;
+}
+const countTotal = (cnt) => Object.values(cnt).reduce((s, n) => s + n, 0);
+const countItems = (cnt) => capItems(LB.cards.filter((k) => cnt[k.id] > 0).map((k) => ({ card: k.id, n: cnt[k.id] })));
+// "ortalama / zar": with an HP formula each copy either gets the card's HP or rolls its own. One setting, kept.
+const rollSeg = () => (LB.cards.some((k) => k.hpf) ? `<div class="trow"><span>Can (formülü olan kartlarda)</span><span class="seg" id="rollSeg"><button data-hpm="avg" aria-pressed="${!LB.roll}">Ortalama</button><button data-hpm="roll" aria-pressed="${LB.roll}">Zar</button></span></div>` : '');
+function rollClick(e) {
+  const b = e.target.closest('[data-hpm]'); if (!b) return false;
+  LB.roll = b.dataset.hpm === 'roll'; if (!libSave()) return true; b.parentElement.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); return true;
+}
+// Numbered copies from cards (the same numbering as "Adet"); each with full HP, or its own rolled HP. Returns "2 × A, 3 × B".
+// The entries are capped here too (per card, distinct cards, total), whatever their source.
+function addFromCards(items) {
+  const said = [];
+  for (const { card, n } of capItems(items)) {
+    const k = cardById(card); if (!k || n < 1) continue;
+    const vals = { name: k.name, sub: k.sub, init: 10 + k.mod, mod: k.mod, ac: k.ac, max: k.max, size: k.size, note: k.note, card: k.id, la: k.la ? [k.la, k.la] : null, lr: k.lr ? [k.lr, k.lr] : null };
+    const f = LB.roll && hpFormula(k.hpf);
+    addCopies('foe', vals, n, () => { if (!f) return {}; const hp = rollHp(f); return { hp, max: hp }; });
+    said.push(`${n} × ${cardLabel(k)}`);
+  }
+  return said.join(', ');
+}
+
+function addFoeSheet() {
+  const cnt = dict();
+  const label = () => { const n = countTotal(cnt); return n ? `${n} düşman ekle` : 'Ekle'; };
+  openSheet(`<h3>Düşman ekle</h3>${LB.cards.length ? `<p class="sub">Kartlardan ekle: her kart için adet seç. Kopyalar numaralanır (Haydut 1, Haydut 2…).</p>${counterHtml(cnt)}${rollSeg()}
+    <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-addk="1">${label()}</button></div>` : '<p class="sub">Henüz yaratık kartı yok. Bir kart oluştur, sonra buradan istediğin kadar ekle; ya da elle yaz.</p>'}
+    <div class="acts" style="grid-template-columns:1fr 1fr"><button class="btn" data-manual="1">Elle yeni düşman</button><button class="btn" data-newk="1">Yeni kart</button></div>`);
+  $('#sheetBody').onclick = (e) => {
+    if (counterClick(e, cnt)) { $('[data-addk]').textContent = label(); return; }
+    if (rollClick(e)) return;
+    if (e.target.closest('[data-manual]')) { editSheet({ ...blank('foe'), name: '' }, true); return; }
+    if (e.target.closest('[data-newk]')) { cardSheet(null, addFoeSheet); return; }
+    if (!e.target.closest('[data-addk]')) return;
+    if (!countTotal(cnt)) { toast('Önce bir karta adet ver'); return; }
+    snap(); const said = addFromCards(countItems(cnt)); log(`Kartlardan eklendi: ${esc(said)}`);
+    closeSheet(); render(); toast(`Eklendi: ${said}${S.cur != null ? ' · inisiyatifleri “İnisiyatif gir”den yaz' : ''}`);
+  };
+}
+
+function cardSheet(k, after) {
+  const c = k || { name: '', sub: '', ac: 12, max: 10, hpf: '', mod: 0, size: 1, la: null, lr: null, note: '' };
+  openSheet(`<h3>${k ? esc(cardLabel(k)) : 'Yeni yaratık kartı'}</h3><p class="sub">Savaşta “+ Düşman ekle” ile istediğin kadar eklenir. Can formülü yazarsan her kopya ister ortalamayı alır, ister kendi canını zarla.</p>
+    <div class="fields">
+      <label class="wide">Ad<input id="k-name" value="${esc(c.name)}" placeholder="ör. Haydut"></label>
+      <label class="wide">Alt yazı<input id="k-sub" value="${esc(c.sub)}" placeholder="ör. okçu, brawler, lider"></label>
+      <label>AC<input id="k-ac" inputmode="numeric" value="${c.ac}"></label>
+      <label>En yüksek can<input id="k-max" inputmode="numeric" value="${c.max}"></label>
+      <label>Can formülü (isteğe bağlı)<input id="k-hpf" value="${esc(c.hpf)}" placeholder="ör. 2d8+2" autocomplete="off" spellcheck="false"></label>
+      <label>&nbsp;<output id="k-avg" class="hint"></output></label>
+      ${numField('k-mod', 'İnisiyatif bonusu', c.mod, true)}
+      <label>Legendary Action<input id="k-la" inputmode="numeric" value="${c.la ?? ''}" placeholder="—"></label>
+      <label>Legendary Resistance<input id="k-lr" inputmode="numeric" value="${c.lr ?? ''}" placeholder="—"></label>
+      <div class="wide"><span style="font-size:.78rem;color:var(--muted);font-weight:700;letter-spacing:.03em">Boyut (haritada)</span>
+        <div class="szseg" id="k-size">${[[1, 'Small / Medium · 1 kare'], [2, 'Large · 2×2'], [3, 'Huge · 3×3'], [4, 'Gargantuan · 4×4']].map(([v, t]) => `<button type="button" data-sz="${v}" aria-pressed="${(c.size || 1) === v}">${t}</button>`).join('')}</div></div>
+      <label class="wide">Not<input id="k-note" value="${esc(c.note)}" placeholder="ör. Multiattack, Resistance: Fire"></label>
+    </div>
+    <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-ksave="1">Kaydet</button></div>
+    ${k ? '<div class="acts" style="grid-template-columns:1fr"><button class="btn" data-kdup="1">Çoğalt</button></div><button class="danger" data-kdel="1">Kartı sil</button>' : ''}`);
+  // The formula's average shows as it is typed; an empty max HP (or one still equal to the last average) follows it.
+  let prevAvg = hpFormula(c.hpf)?.avg ?? null;
+  const showAvg = () => {
+    const t = $('#k-hpf').value.trim(), f = hpFormula(t);
+    $('#k-avg').textContent = !t ? '' : f ? `ortalama ${f.avg} · zar ${f.n + f.k}–${f.n * f.d + f.k}` : 'ör. 2d8+2';
+    $('#k-avg').classList.toggle('bad', !!t && !f);
+    if (f && ($('#k-max').value.trim() === '' || toInt($('#k-max').value, null) === prevAvg)) $('#k-max').value = f.avg;
+    if (f) prevAvg = f.avg;
+  };
+  $('#k-hpf').oninput = showAvg; showAvg();
+  $('#sheetBody').onclick = (e) => {
+    const szb = e.target.closest('[data-sz]');
+    if (szb) { szb.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === szb))); return; }
+    const neg = e.target.closest('[data-neg]');
+    if (neg) { const i = $('#' + neg.dataset.neg); i.value = String(-toInt(i.value, 0)); return; }
+    if (k && e.target.closest('[data-kdup]')) {
+      const copy = { ...k, id: recId('k'), name: `${k.name} (kopya)` }; LB.cards.splice(LB.cards.indexOf(k) + 1, 0, copy); if (!libSave()) return;
+      toast(`Çoğaltıldı: ${cardLabel(copy)}`); cardSheet(copy, after); return;
+    }
+    if (k && e.target.closest('[data-kdel]')) {
+      const uses = LB.fights.filter((f) => f.items.some((i) => i.card === k.id)).length;
+      ask('Kartı sil', `${cardLabel(k)} silinsin mi?${uses ? ` ${uses} hazır savaşta kullanılıyor; oradan da çıkar.` : ''} Savaştaki düşmanlar kalır.`, 'Sil', () => {
+        LB.cards = LB.cards.filter((x) => x !== k);
+        LB.fights.forEach((f) => { f.items = f.items.filter((i) => i.card !== k.id); if (f.layout) f.layout.foes = f.layout.foes.filter((p) => p.card !== k.id); });
+        if (libSave()) toast('Kart silindi');
+      });
+      return;
+    }
+    if (!e.target.closest('[data-ksave]')) return;
+    const name = $('#k-name').value.trim(); if (!name) { toast('Bir ad yaz'); $('#k-name').focus(); return; }
+    const t = $('#k-hpf').value.trim(); if (t && !hpFormula(t)) { toast('Can formülü: ör. 2d8+2 ya da 3d6', true); $('#k-hpf').focus(); return; }
+    const o = cleanCard({ id: k?.id || recId('k'), name, sub: $('#k-sub').value, ac: $('#k-ac').value, max: $('#k-max').value || hpFormula(t)?.avg, hpf: t, mod: $('#k-mod').value,
+      size: $('#k-size [aria-pressed="true"]')?.dataset.sz, la: $('#k-la').value, lr: $('#k-lr').value, note: $('#k-note').value });
+    if (k) Object.assign(k, o); else LB.cards.push(o);
+    if (!libSave()) return;
+    closeSheet(); toast(k ? 'Kart güncellendi' : `Kart kaydedildi: ${cardLabel(o)}`); after?.();
+  };
+}
+// "Karta kaydet" in a foe's edit sheet: the values in the form become a card (a card with the same name and sub label
+// is updated instead, so saving twice makes no duplicate). The foe remembers its card.
+function cardFromForm(c) {
+  const name = $('#f-name').value.trim().replace(/\s+\d+$/, ''); if (!name) { toast('Bir ad yaz'); $('#f-name').focus(); return; }
+  const sub = $('#f-sub').value.trim();
+  const old = LB.cards.find((k) => k.name === name && k.sub === sub);
+  const o = cleanCard({ id: old?.id || recId('k'), name, sub, ac: $('#f-ac').value, max: $('#f-max').value, hpf: old?.hpf, mod: $('#f-mod').value,
+    size: $('#f-size [aria-pressed="true"]')?.dataset.sz, la: $('#f-la').value, lr: $('#f-lr').value, note: $('#f-note').value });
+  if (old) Object.assign(old, o); else LB.cards.push(o);
+  if (!libSave()) return;
+  c.card = o.id; toast(`${old ? 'Kart güncellendi' : 'Kart kaydedildi'}: ${cardLabel(o)}`);
+}
+
+// draft: the unsaved name, note and counts, kept while "Yeni kart" is open in between.
+function prepSheet(f, draft) {
+  const cnt = draft?.cnt || dict((f?.items || []).map((i) => [i.card, i.n]));
+  const name0 = draft ? draft.name : f?.name || '', note0 = draft ? draft.note : f?.note || '';
+  openSheet(`<h3>${f ? esc(f.name) : 'Yeni hazır savaş'}</h3><p class="sub">Olası bir savaşın yaratıkları. Oraya gelince “Savaşı başlat”: düşmanlar savaşa girer, bizim taraf kalır, inisiyatif ekranı açılır.</p>
+    <div class="fields"><label class="wide">Ad<input id="p-name" value="${esc(name0)}" placeholder="ör. Yoldaki haydutlar"></label>
+      <label class="wide">Not (isteğe bağlı)<input id="p-note" value="${esc(note0)}" placeholder="ör. Köprüde pusu, okçular arkada"></label></div>
+    ${LB.cards.length ? `<div class="sec">Yaratıklar</div>${counterHtml(cnt)}${rollSeg()}` : '<p class="note">Önce bir yaratık kartı oluştur.</p>'}
+    ${f?.layout ? `<div class="trow"><span class="sub" style="margin:0">Haritadaki diziliş kayıtlı (${f.layout.foes.length + f.layout.allies.length} pul).</span><button class="btn sm" data-play="1">Dizilişi sil</button></div>` : ''}
+    <div class="acts" style="grid-template-columns:${f ? '1fr 1fr' : '1fr'}">${f ? '<button class="btn" data-psave="1">Kaydet</button><button class="btn pri" data-pgo="1">Savaşı başlat</button>' : '<button class="btn pri" data-psave="1">Kaydet</button>'}</div>
+    <div class="acts" style="grid-template-columns:1fr"><button class="btn" data-newk="1">Yeni kart</button></div>
+    ${f ? '<button class="danger" data-pdel="1">Hazır savaşı sil</button>' : ''}`);
+  const store = () => {
+    const name = $('#p-name').value.trim(); if (!name) { toast('Bir ad yaz'); $('#p-name').focus(); return null; }
+    const items = countItems(cnt); if (!items.length) { toast('En az bir yaratığa adet ver'); return null; }
+    const o = { id: f?.id || recId('f'), name: clip(name), note: clip($('#p-note').value, 300), items, layout: f?.layout || null };
+    if (f) Object.assign(f, o); else LB.fights.push(o);
+    if (!libSave()) return null;
+    return f || o;
+  };
+  const keep = () => ({ name: $('#p-name').value, note: $('#p-note').value, cnt });
+  $('#sheetBody').onclick = (e) => {
+    if (counterClick(e, cnt) || rollClick(e)) return;
+    if (e.target.closest('[data-newk]')) { const d = keep(); cardSheet(null, () => prepSheet(f, d)); return; }
+    if (f && e.target.closest('[data-play]')) { const d = keep(); f.layout = null; if (libSave()) { toast('Diziliş silindi'); prepSheet(f, d); } return; }
+    if (f && e.target.closest('[data-pdel]')) { ask('Hazır savaşı sil', `${f.name} silinsin mi? Kartlar kalır.`, 'Sil', () => { LB.fights = LB.fights.filter((x) => x !== f); if (!libSave()) return; if (S.prep === f.id) { S.prep = null; save(); } toast('Hazır savaş silindi'); }); return; }
+    if (e.target.closest('[data-psave]')) { const r = store(); if (r) { closeSheet(); toast(`Kaydedildi: ${r.name}`); } return; }
+    if (e.target.closest('[data-pgo]')) { const r = store(); if (r) { closeSheet(); startPrep(r); } }
+  };
+}
+// "Savaşı başlat": the prepared fight's foes replace the current ones (our side and its HP stay, round 1), its layout
+// puts the tokens on their squares, and the initiative sheet opens.
+function startPrep(f) {
+  const items = f.items.filter((i) => cardById(i.card)); if (!items.length) { toast('Bu hazır savaşta yaratık yok', true); return; }
+  showTab(false);
+  const go = () => {
+    snap(); resetFight(); S.prep = f.id;
+    const said = addFromCards(items); applyLayout(f); V.fitted = false;
+    log(`Hazır savaş: <b>${esc(f.name)}</b> (${esc(said)})`); render(); iniSheet();
+  };
+  if (S.list.some((c) => c.side === 'foe')) ask('Savaşı başlat', `${f.name}: şu anki düşmanlar silinir, tur 1’e döner. Bizim canlarımız kalır. Sonra inisiyatif ekranı açılır.`, 'Başlat', go);
+  else go();
+}
+// Layout: foes by card and copy number (the k-th copy of that card), our side by name.
+function layoutOf() {
+  place(); const k = dict();
+  return {
+    foes: S.list.filter((c) => c.side === 'foe' && c.card && cardById(c.card)).map((c) => ({ card: c.card, k: (k[c.card] = (k[c.card] ?? -1) + 1), gx: c.gx, gy: c.gy })),
+    allies: S.list.filter((c) => c.side === 'ally').map((c) => ({ name: c.name, gx: c.gx, gy: c.gy })),
+  };
+}
+function applyLayout(f) {
+  if (!f.layout) return;
+  const by = dict(); S.list.filter((c) => c.side === 'foe' && c.card).forEach((c) => (by[c.card] ||= []).push(c));
+  const put = (c, p) => { if (c) { c.gx = Math.min(p.gx, COLS - sz(c)); c.gy = Math.min(p.gy, ROWS - sz(c)); } };
+  f.layout.foes.forEach((p) => put(by[p.card]?.[p.k], p));
+  f.layout.allies.forEach((p) => put(S.list.find((c) => c.side === 'ally' && c.name === p.name), p));
+}
+// Foes without a card (typed by hand) get one, so they can be part of a prepared fight; same name and values → same card.
+function ensureCards(foes) {
+  for (const c of foes) {
+    if (c.card && cardById(c.card)) continue;
+    const name = c.name.replace(/\s+\d+$/, ''), sub = c.sub || '';
+    let k = LB.cards.find((x) => x.name === name && x.sub === sub && x.ac === c.ac && x.max === c.max && x.mod === c.mod && x.size === sz(c));
+    if (!k) { k = cleanCard({ id: recId('k'), name, sub, ac: c.ac, max: c.max, mod: c.mod, size: sz(c), la: c.la?.[1], lr: c.lr?.[1], note: c.note }); LB.cards.push(k); }
+    c.card = k.id;
+  }
+}
+function saveFightSheet(withLayout) {
+  const foes = S.list.filter((c) => c.side === 'foe'); if (!foes.length) { toast('Savaşta düşman yok'); return; }
+  const names = dict(); foes.forEach((c) => { const b = c.name.replace(/\s+\d+$/, '') + (c.sub ? ` (${c.sub})` : ''); names[b] = (names[b] || 0) + 1; });
+  openSheet(`<h3>Hazır savaş olarak kaydet</h3><p class="sub">${Object.entries(names).map(([b, n]) => `${n} × ${esc(b)}`).join(' · ')}</p>
+    <div class="fields"><label class="wide">Ad<input id="p-name" placeholder="ör. Yoldaki haydutlar"></label><label class="wide">Not (isteğe bağlı)<input id="p-note" placeholder="ör. Köprüde pusu"></label></div>
+    <div class="crow" style="margin-top:10px"><button aria-pressed="${withLayout}" data-lay="1">Haritadaki dizilişi de kaydet</button><span></span></div>
+    <p class="sub" style="margin-top:8px">Kartı olmayan düşmanlar için kart da oluşturulur.</p>
+    <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-psave="1">Kaydet</button></div>`);
+  $('#sheetBody').onclick = (e) => {
+    const lay = e.target.closest('[data-lay]'); if (lay) { lay.setAttribute('aria-pressed', String(lay.getAttribute('aria-pressed') !== 'true')); return; }
+    if (!e.target.closest('[data-psave]')) return;
+    const name = $('#p-name').value.trim(); if (!name) { toast('Bir ad yaz'); $('#p-name').focus(); return; }
+    ensureCards(foes);
+    const f = { id: recId('f'), name: clip(name), note: clip($('#p-note').value, 300), items: capItems(foes.map((c) => ({ card: c.card, n: 1 }))), layout: null };
+    if ($('[data-lay]').getAttribute('aria-pressed') === 'true') f.layout = layoutOf();
+    LB.fights.push(f); if (!libSave()) return;
+    S.prep = f.id; save(); closeSheet(); toast(`Hazır savaş kaydedildi: ${f.name}`);
+  };
+}
+// Harita → "Diziliş kaydet": into the prepared fight this fight was started from, or as a new prepared fight.
+function layoutSheet() {
+  if (!S.list.some((c) => c.side === 'foe')) { toast('Haritada düşman yok'); return; }
+  const f = S.prep && prepById(S.prep);
+  openSheet(`<h3>Bu dizilişi kaydet</h3><p class="sub">Pulların kareleri hazır savaşa yazılır; “Savaşı başlat” onları bu karelere koyar (düşmanlar kart ve sıra numarasıyla, bizim taraf adla).</p>
+    <div class="acts" style="grid-template-columns:1fr">${f ? `<button class="btn pri" data-lto="1">“${esc(f.name)}” savaşına kaydet</button>` : ''}<button class="btn${f ? '' : ' pri'}" data-lnew="1">Yeni hazır savaş olarak kaydet</button></div>`);
+  $('#sheetBody').onclick = (e) => {
+    if (f && e.target.closest('[data-lto]')) { f.layout = layoutOf(); if (libSave()) { closeSheet(); toast(`Diziliş kaydedildi: ${f.name}`); } }
+    else if (e.target.closest('[data-lnew]')) saveFightSheet(true);
+  };
+}
+
+/* Yedek: the library as a JSON file, to keep a copy or move it to another device. */
+function libExport() {
+  const text = JSON.stringify({ app: 'dmscreen', kind: 'library', v: 1, at: new Date().toISOString(), cards: LB.cards, fights: LB.fights }, null, 1);
+  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: `dm-ekrani-kayitlar-${new Date().toISOString().slice(0, 10)}.json` });
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+  toast(`Yedek: ${LB.cards.length} kart, ${LB.fights.length} hazır savaş`);
+}
+const IMPORT_MAX_BYTES = 2 * 1024 * 1024;
+async function libImport(file) {
+  if (file.size > IMPORT_MAX_BYTES) { toast('Dosya çok büyük (en çok 2 MB): DM Ekranı yedeği değil', true); return; }
+  let o = null; try { o = JSON.parse(await file.text()); } catch {}
+  const got = o && o.app === 'dmscreen' && o.kind === 'library' ? cleanLibrary(o, true) : null;
+  if (!got) { toast('Bu dosya DM Ekranı yedeği değil', true); return; }
+  const { skipped } = got; delete got.skipped;
+  const left = [skipped.cards ? `${skipped.cards} kart` : '', skipped.fights ? `${skipped.fights} hazır savaş` : ''].filter(Boolean).join(', ');
+  openSheet(`<h3>İçe aktar</h3><p class="sub">Dosyada ${got.cards.length} kart, ${got.fights.length} hazır savaş var. Şu an bu cihazda ${LB.cards.length} kart, ${LB.fights.length} hazır savaş.</p>
+    ${left ? `<p class="note" id="impSkipped">Alınmayacak: ${left} (bozuk, adsız, tekrarlanan ya da içinde yaratık olmayan).</p>` : ''}
+    <p class="sub">Birleştir: aynı kayıtlar dosyadakiyle güncellenir, diğerleri kalır. Yerine koy: bu cihazdakiler silinir.</p>
+    <div class="acts"><button class="btn" data-no="1">Vazgeç</button><button class="btn" data-imp="replace">Yerine koy</button><button class="btn pri" data-imp="merge">Birleştir</button></div>`);
+  $('#sheetBody').onclick = (e) => {
+    if (e.target.closest('[data-no]')) { closeSheet(); return; }
+    const m = e.target.closest('[data-imp]')?.dataset.imp; if (!m) return;
+    if (m === 'replace') LB = { ...got, roll: LB.roll };
+    else {
+      const up = (list, add) => { for (const x of add) { const i = list.findIndex((y) => y.id === x.id); if (i >= 0) list[i] = x; else list.push(x); } };
+      up(LB.cards, got.cards); up(LB.fights, got.fights);
+    }
+    if (!libSave()) return;
+    closeSheet(); toast(`İçe aktarıldı: ${got.cards.length} kart, ${got.fights.length} hazır savaş${left ? ` (alınmayan: ${left})` : ''}`);
+  };
+}
+$('#libExport').onclick = libExport;
+$('#libImport').onclick = () => { $('#libFile').value = ''; $('#libFile').click(); };
+$('#libFile').onchange = () => { const f = $('#libFile').files?.[0]; if (f) libImport(f); };
 
 /* ---------- live view for the players (PLAN-APK-PARITY A14, owner request 2026-11-06) ----------
    The DM's "Oyunculara aç" opens a room with a short code (and a QR code of the app link with that code). Players open
