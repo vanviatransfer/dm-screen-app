@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1b1612">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '6720ce5566'; window.__BUILT__ = '2026-11-06 20:17';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '0f68b3ac71'; window.__BUILT__ = '2026-11-06 21:24';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -29,6 +29,9 @@
   --ally:#86cf97; --ally-bg:#15241a; --ally-line:#2c4a33;
   --tmp:#8fc1e0; --conc:#a9c6f0; --conc-bg:#2b3346;
   --hp-hi:#86cf97; --hp-mid:#e6c26b; --hp-lo:#e9786a;
+  /* DM3b (owner: "soluk renklerimizden katmamiz lazim"): one soft colour per field, the same everywhere */
+  --c-name:#f3e3c8; --c-sub:#bba68c; --c-ini:#e8c27e; --c-ac:#a9c4dc; --c-hp:#f2c3a4;
+  --c-cond:#d9bfe8; --c-cond-bg:#3a2d44; --c-res:#9fd4c6; --c-res-line:#2f4c46;
   --display:"Alegreya SC","Palatino Linotype",Georgia,serif;
   --body:"Alegreya Sans","Segoe UI",system-ui,sans-serif;
   color-scheme:dark;
@@ -250,6 +253,10 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .apick button{min-height:44px;min-width:132px;border:1px solid var(--ctl);border-radius:10px;background:var(--bg);font-weight:700;display:grid;justify-items:start;padding:4px 12px;text-align:left}
 .apick small{font-weight:500;font-size:.72rem;color:var(--muted)}
 .abar{position:absolute;left:12px;bottom:48px;z-index:4}
+/* DM3b (N5): a selected template's handles and × stay usable: the hint steps aside, and the info boxes let touches
+   through to what is under them */
+#mapView.asel .maphint{display:none}
+.dist,.maphint{pointer-events:none}
 
 /* Kayıtlar (DM2): monster cards and prepared fights */
 .recs{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px}
@@ -282,6 +289,15 @@ body.watch #tabLib,body.watch #zsave{display:none!important}
 .wbar{border-color:var(--ctl)}
 .wbar.ok{border-color:var(--ally)}
 .wbar.ok b{color:var(--ally)}
+/* DM3b: the code field with "QR okut" beside it, and the in-app QR reader */
+.wcode{grid-template-columns:1fr auto;align-items:end}
+.wcode .wide{grid-column:auto}
+.wcode .btn{min-height:44px}
+.scan{position:relative;margin:8px auto 4px;width:min(100%,320px);aspect-ratio:1;border-radius:14px;overflow:hidden;background:#000}
+.scan video{width:100%;height:100%;object-fit:cover;display:block}
+.scanframe{position:absolute;inset:16%;border:3px solid var(--acc);border-radius:12px;box-shadow:0 0 0 999px rgba(0,0,0,.35);pointer-events:none}
+.scanx{position:absolute;right:8px;top:8px;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:1.5rem;line-height:1;display:grid;place-items:center}
+.lstat.bad{color:var(--warn)}
 .wempty{color:var(--muted);margin:0;padding:12px 4px}
 body.watch #newFight,body.watch #prev,body.watch #next,body.watch .tools,body.watch .log,body.watch .help,body.watch #zmeasure,body.watch #zreset,body.watch .abar{display:none!important}
 /* DM3: a player who may act (body.pact) gets the Alan chooser; their own token is marked */
@@ -299,6 +315,33 @@ body.watch .tok,body.watch .area{cursor:default}
 .card.ro{gap:10px}
 .card.ro .ini small{font-size:.55rem}
 
+/* DM3b: soft field colours (name, subtitle, initiative, AC, HP, conditions, resources) and the card's three sections */
+.name b,.chip,.rec b,.krow b,.log ol b,.irow span{color:var(--c-name)}
+.name span,.ini small,.ac small,.krow small,.rs,.rn{color:var(--c-sub)}
+.ini,.foe .ini,.ally .ini{color:var(--c-ini)}
+.chip i,.chip.foe i,.chip.ally i{color:var(--c-ini)}
+.ac{color:var(--c-ac)}
+.hp .cur{color:var(--c-hp)}
+.tg{background:var(--c-cond-bg);color:var(--c-cond)}
+.pill{color:var(--c-res);border-color:var(--c-res-line)}
+.sheet h3,.recs h2{color:var(--tag-ink)}
+.irow .foe,.irow .ally{color:var(--c-name)}
+.irow small{color:var(--c-sub);font-weight:500}
+.ihead{margin:8px 0 0;font-family:var(--display);font-weight:700;font-size:.95rem;letter-spacing:.04em;border-bottom:1px solid var(--line);padding-bottom:2px}
+.ihead.ally{color:var(--ally)} .ihead.foe{color:var(--foe)}
+.inih{grid-column:1/-1;margin:0;min-height:0;color:var(--c-ini)}
+.card{gap:6px}
+.csec{display:grid;gap:6px;border:1px solid;border-radius:10px;padding:6px 8px;cursor:pointer}
+.csec.top{display:flex}
+.s-top{background:rgba(232,194,126,.05);border-color:rgba(232,194,126,.18)}
+.s-hp{background:rgba(242,195,164,.06);border-color:rgba(242,195,164,.2)}
+.s-st{background:rgba(217,191,232,.06);border-color:rgba(217,191,232,.2)}
+.card.ro .csec{cursor:default}
+/* the map's HP bar sits just above the token circle, not inside it */
+.tok .hpbar{top:-9px;left:16%;right:16%;height:5px;box-shadow:0 0 0 1px rgba(0,0,0,.55)}
+#liveTop{padding-inline:10px}
+body.watch #liveTop{display:none!important}
+
 /* app shell (as in the character apps): install banner, new-version banner, "Güncel sürümü çek" and the version line.
    Own class names: .card is the combatant card here. */
 .appbox{margin:8px 0 4px;background:var(--surface);border:1px solid var(--acc);border-radius:12px;padding:10px 12px;display:grid;gap:8px}
@@ -315,7 +358,7 @@ body.watch .tok,body.watch .area{cursor:default}
 <header>
   <div class="wrap">
     <div class="hd">
-      <div class="ttl"><h1>DM Ekranı</h1><button class="btn sm" id="newFight">Yeni savaş</button></div>
+      <div class="ttl"><h1>DM Ekranı</h1><button class="btn sm" id="newFight">Yeni savaş</button><button class="btn sm" id="liveTop" aria-label="Oyunculara aç">Oyuncular</button></div>
       <div class="ctrls">
         <button class="btn sm" id="prev" aria-label="Önceki sıra" title="Önceki sıra (←)">◀</button>
         <div class="round"><span>Tur</span><b id="round">1</b></div>
@@ -440,8 +483,17 @@ let S; try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch { S 
 if (!S || S.v !== 2 || !Array.isArray(S.list)) S = sample();
 const UI = { multi: false, sel: new Set(), map: false, measure: null, area: null, gesture: false };
 const history = [];
+// DM3b: who made each undo step, kept in step with `history`: null = the DM, an object = a player's run (playerStep).
+// When the stack is full the oldest player step goes first (its change then undoes together with the step before it),
+// so players only ever use places the DM's own last 60 steps leave free.
+const histTag = [];
+const HIST_MAX = 60;
+function pushHist(s, tag = null) {
+  history.push(s); histTag.push(tag);
+  while (history.length > HIST_MAX) { const i = histTag.findIndex(Boolean), k = i >= 0 ? i : 0; history.splice(k, 1); histTag.splice(k, 1); }
+}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
-const snap = () => { history.push(JSON.stringify(S)); if (history.length > 60) history.shift(); };
+const snap = () => pushHist(JSON.stringify(S));
 const $ = (s) => document.querySelector(s);
 const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sign = (n) => (n >= 0 ? '+' : '−') + Math.abs(n);
@@ -599,19 +651,23 @@ function card(c, pos) {
   const state = isDead(c) ? ' · öldü' : isDown(c) ? ' · düştü' : dying ? (c.stable ? ' · stabil' : ' · ölüyor') : '';
   return `<article class="card ${c.side}${now ? ' now' : ''}${isDown(c) ? ' down' : ''}${isDead(c) ? ' dead' : ''}${UI.sel.has(c.id) ? ' sel' : ''}" data-id="${c.id}">
     ${UI.multi ? '<span class="selmark">✓</span>' : ''}
-    <div class="top">
+    <div class="csec s-top top" data-act="edit">
       <button class="ini" data-act="edit" aria-label="İnisiyatif ${c.init}, sırada ${pos}.">${c.init}<small>#${pos}</small></button>
       <button class="name" data-act="edit"><b>${esc(c.name)}</b><span>${esc(c.sub || (c.side === 'foe' ? 'Düşman' : 'Oyuncu'))}${state}</span></button>
       <button class="ac" data-act="edit" aria-label="AC ${c.ac}">${c.ac}<small>AC</small></button>
     </div>
+    <div class="csec s-hp" data-act="hp">
     <button class="hp" data-act="hp" aria-label="Can ${c.hp} / ${c.max}">
       <span class="nums"><span class="cur">${c.hp}<small> / ${c.max}</small></span>${c.tmp ? `<span class="tmp">+${c.tmp} geçici</span>` : ''}</span>
       <span class="bar"><i style="width:${hpPct}%;background:${hpColor(c)}"></i><i class="t" style="width:${tmpPct}%"></i></span>
     </button>
     <div class="quick"><button class="dmg" data-act="dmg">− Hasar</button><button class="heal" data-act="heal">+ İyileş</button></div>
+    </div>
+    <div class="csec s-st" data-act="conds">
     <button class="conds" data-act="conds" aria-label="Durumlar">${conds}<span class="tg add">+ durum</span></button>
     ${res ? `<div class="res">${res}</div>` : ''}
     ${c.pp || c.note ? `<div class="meta">${c.pp ? `<span>Passive Perception <b>${c.pp}</b></span>` : ''}${c.note ? `<span>${esc(c.note)}</span>` : ''}</div>` : ''}
+    </div>
   </article>`;
 }
 function render() {
@@ -639,13 +695,19 @@ function render() {
 /* ---------- sheets ---------- */
 let lastFocus = null;
 function openSheet(html) {
+  sheetDone();
   lastFocus = document.activeElement;
   if ($('#sheet').hidden) pushLayer('sheet');
   $('#sheetBody').innerHTML = `<div class="grab"></div>${html}`; $('#scrim').hidden = false; $('#sheet').hidden = false;
   document.documentElement.style.overflow = 'hidden';
   $('#sheet').querySelector('input,button:not(.grab)')?.focus({ preventScroll: true });
 }
+// A sheet that holds something open (the QR scanner's camera) sets onSheetClose; it runs however the sheet goes away
+// (×, back, pull-down, the scrim, another sheet).
+let onSheetClose = null;
+function sheetDone() { const f = onSheetClose; onSheetClose = null; try { f?.(); } catch {} }
 function closeSheet() {
+  sheetDone();
   if ($('#sheet').hidden) return;
   $('#scrim').hidden = true; $('#sheet').hidden = true; $('#sheet').style.transform = ''; $('#sheetBody').onclick = null; $('#sheetBody').onchange = null; padKeys = null; document.documentElement.style.overflow = ''; lastFocus?.focus?.({ preventScroll: true });
   dropLayer('sheet');
@@ -665,6 +727,24 @@ $('#scrim').onclick = closeSheet;
     sh.style.transition = 'transform .18s'; y0 = null; drag = false;
     if (dy > 80) closeSheet(); else sh.style.transform = '';
   });
+})();
+// DM3b (owner: "telefon klavyesi açılınca açık herhangi bir drawer menu genelde klavyenin altinda kalıyor"): an open
+// sheet follows the visual viewport. With the viewport meta's interactive-widget=resizes-content the page itself shrinks
+// above the keyboard; where the keyboard still overlays the page, the sheet is lifted by the covered part. Either way
+// the sheet is no taller than what is visible and the focused field is scrolled into view inside it.
+(() => {
+  const vv = window.visualViewport; if (!vv) return;
+  const fitSheet = () => {
+    const sh = $('#sheet');
+    if (sh.hidden) { sh.style.bottom = ''; sh.style.maxHeight = ''; return; }
+    const covered = Math.max(0, Math.round(innerHeight - (vv.height + vv.offsetTop)));
+    sh.style.bottom = covered ? covered + 'px' : '';
+    sh.style.maxHeight = Math.round(vv.height * 0.88) + 'px';
+    const f = document.activeElement;
+    if (f && sh.contains(f) && /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName)) f.scrollIntoView({ block: 'nearest' });
+  };
+  vv.addEventListener('resize', fitSheet); vv.addEventListener('scroll', fitSheet);
+  document.addEventListener('focusin', (e) => { if ($('#sheet').contains(e.target)) { fitSheet(); setTimeout(fitSheet, 350); } });
 })();
 // Android back button / back gesture: each open layer (a sheet, group-damage mode, the map) gets its own browser
 // history entry when the user opens it, so back closes the top layer instead of leaving the app; on the main
@@ -818,16 +898,20 @@ function addCopies(side, vals, count, extra = () => ({})) {
 }
 
 function iniSheet() {
-  const ord = order();
+  // DM3b (owner: "jimmy nin ismi altta kalıyor"): our side first as a group, then the foes, each in the order they were
+  // added (not sorted by the default initiatives, which put a slow character under the foes). The fight order still
+  // follows initiative after saving. Foes with a fixed initiative (from their card) keep it on "Düşmanlara at".
+  const row = (c) => `<div class="irow"><span class="${c.side}">${esc(c.name)}${c.side === 'foe' ? ` <small>${c.fixIni ? 'sabit' : sign(c.mod)}</small>` : ''}</span><input inputmode="numeric" data-ini="${c.id}" value="${c.init}" aria-label="${esc(c.name)} inisiyatifi (toplam)">${c.side === 'foe' ? `<button class="btn sm" data-r1="${c.id}" aria-label="${esc(c.name)} için d20 + bonus at">d20</button>` : '<span></span>'}</div>`;
+  const group = (h, cls, L) => (L.length ? `<p class="ihead ${cls}">${h}</p>${L.map(row).join('')}` : '');
   // During a fight "Kaydet" only fixes values and keeps the turn; "Baştan başlat" starts round 1.
   const running = S.cur != null;
-  openSheet(`<h3>İnisiyatif gir</h3><p class="sub">Her biri için toplam inisiyatifi yaz (oyuncular söyler); düşmanlara istersen d20 + bonus at.${running ? ' Savaş sürüyor: “Kaydet” sırayı korur.' : ''}</p>
-    <div class="targets">${ord.map((c) => `<div class="irow"><span class="${c.side}">${esc(c.name)}${c.side === 'foe' ? ` <small style="color:var(--muted)">${sign(c.mod)}</small>` : ''}</span><input inputmode="numeric" data-ini="${c.id}" value="${c.init}" aria-label="${esc(c.name)} inisiyatifi (toplam)">${c.side === 'foe' ? `<button class="btn sm" data-r1="${c.id}" aria-label="${esc(c.name)} için d20 + bonus at">d20</button>` : '<span></span>'}</div>`).join('')}</div>
+  openSheet(`<h3>İnisiyatif gir</h3><p class="sub">Her biri için toplam inisiyatifi yaz (oyuncular söyler); düşmanlara istersen d20 + bonus at (sabit inisiyatifliler atılmaz).${running ? ' Savaş sürüyor: “Kaydet” sırayı korur.' : ''}</p>
+    <div class="targets">${group('Biz', 'ally', S.list.filter((c) => c.side === 'ally'))}${group('Düşmanlar', 'foe', S.list.filter((c) => c.side === 'foe'))}</div>
     <div class="acts"><button class="btn" data-rollfoes="1">Düşmanlara at</button>${running ? '<button class="btn" data-start="1">Baştan başlat</button><button class="btn pri" data-ok="1">Kaydet</button>' : '<button class="btn pri" data-start="1" style="grid-column:span 2">Kaydet ve başlat</button>'}</div>`);
   const roll = (c) => { $(`[data-ini="${c.id}"]`).value = 1 + Math.floor(Math.random() * 20) + c.mod; };
   $('#sheetBody').onclick = (e) => {
     const one = e.target.closest('[data-r1]'); if (one) { roll(byId(one.dataset.r1)); return; }
-    if (e.target.closest('[data-rollfoes]')) { S.list.filter((c) => c.side === 'foe').forEach(roll); return; }
+    if (e.target.closest('[data-rollfoes]')) { S.list.filter((c) => c.side === 'foe' && !c.fixIni).forEach(roll); return; }
     const start = e.target.closest('[data-start]'), ok = e.target.closest('[data-ok]');
     if (!start && !ok) return;
     snap();
@@ -908,7 +992,7 @@ function dsSheet(c) {
 
 $('#next').onclick = () => step(1);
 $('#prev').onclick = () => step(-1);
-$('#undo').onclick = () => { const h = history.pop(); if (h) { S = JSON.parse(h); render(); toast('Geri alındı'); } };
+$('#undo').onclick = () => { const h = history.pop(); histTag.pop(); if (h) { S = JSON.parse(h); render(); toast('Geri alındı'); } };
 $('#iniAll').onclick = iniSheet;
 $('#multi').onclick = () => { UI.multi = !UI.multi; UI.sel.clear(); if (UI.multi) pushLayer('multi'); else dropLayer('multi'); render(); if (UI.multi) toast('Hedeflere dokun, sonra "Hasar ver"'); };
 $('#selCancel').onclick = () => { UI.multi = false; UI.sel.clear(); dropLayer('multi'); render(); };
@@ -1114,6 +1198,8 @@ function renderMap() {
   if (UI.measure?.b) { const a = byId(UI.measure.a), b = byId(UI.measure.b); if (a && b) drawMeasure(a, b); }
   // The selected template's size and the creatures in it; the group-damage button when anyone is in it.
   const a = UI.area && areaById(UI.area), who = a ? inArea(a) : [];
+  // DM3b (N5): while a template is selected the hint at the bottom steps aside, so no handle or × sits under it
+  $('#mapView').classList.toggle('asel', !!a);
   if (a) { $('#dist').innerHTML = areaInfo(a); UI.distArea = true; }
   else if (UI.distArea) { UI.distArea = false; $('#dist').innerHTML = UI.measure ? 'Ölç: ilk pula dokun' : DIST_DEFAULT; }
   $('#abar').hidden = !who.length;
@@ -1245,7 +1331,7 @@ function fit() {
       // the player view asks the DM, who checks, applies and sends the new state back
       if (W.on) { if (changed) playerArea('set', a); renderMap(); }
       else {
-        if (changed) { history.push(before); if (history.length > 60) history.shift(); log(`${AREA_NAME[a.shape]} alan: ${areaLabel(a)}`); }
+        if (changed) { pushHist(before); log(`${AREA_NAME[a.shape]} alan: ${areaLabel(a)}`); }
         render();
       }
     }
@@ -1361,12 +1447,14 @@ function capItems(items) {
   for (const [card, n] of by) { if (out.length >= MAX_ITEMS || left <= 0) break; const k = Math.min(n, MAX_PER_CARD, left); if (k > 0) { out.push({ card, n: k }); left -= k; } }
   return out;
 }
+// "Sabit inisiyatif": a whole number from −10 to 50, or none (empty or unreadable → null)
+const fixedIni = (v) => { const n = toInt(v, null); return n == null ? null : Math.max(-10, Math.min(50, n)); };
 function cleanCard(o) {
   if (!o || typeof o !== 'object') return null;
   const name = clip(o.name); if (!name) return null;
   const f = hpFormula(clip(o.hpf, 20));
   return { id: cleanId(o.id) || recId('k'), name, sub: clip(o.sub), ac: inRange(o.ac, 12, 0, 40), max: inRange(o.max, f?.avg ?? 10, 1, 9999), hpf: f ? f.text : '',
-    mod: inRange(o.mod, 0, -10, 20), size: inRange(o.size, 1, 1, 4), la: inRange(o.la, 0, 0, 9) || null, lr: inRange(o.lr, 0, 0, 9) || null, note: clip(o.note, 200) };
+    mod: inRange(o.mod, 0, -10, 20), ini: fixedIni(o.ini), size: inRange(o.size, 1, 1, 4), la: inRange(o.la, 0, 0, 9) || null, lr: inRange(o.lr, 0, 0, 9) || null, note: clip(o.note, 200) };
 }
 function cleanFight(o, ids) {
   if (!o || typeof o !== 'object') return null;
@@ -1401,7 +1489,9 @@ function libSave() {
 const cardById = (id) => LB.cards.find((k) => k.id === id) || null;
 const prepById = (id) => LB.fights.find((f) => f.id === id) || null;
 const cardLabel = (k) => k.name + (k.sub ? ` (${k.sub})` : '');
-const cardStats = (k) => [`AC ${k.ac}`, `can ${k.max}${k.hpf ? ` (${k.hpf})` : ''}`, `inisiyatif ${sign(k.mod)}`, SIZE_NAME[k.size], k.la ? `Legendary Action ${k.la}` : '', k.lr ? `Legendary Resistance ${k.lr}` : ''].filter(Boolean).join(' · ');
+// DM3b: the total initiative next to the bonus (the fixed one when set)
+const iniText = (mod, ini) => `İnisiyatif: bonus ${sign(mod)} · ${ini != null ? 'sabit ' + ini : 'ortalama ' + (10 + mod)}`;
+const cardStats = (k) => [`AC ${k.ac}`, `can ${k.max}${k.hpf ? ` (${k.hpf})` : ''}`, iniText(k.mod, k.ini), SIZE_NAME[k.size], k.la ? `Legendary Action ${k.la}` : '', k.lr ? `Legendary Resistance ${k.lr}` : ''].filter(Boolean).join(' · ');
 const prepSummary = (f) => f.items.filter((i) => cardById(i.card)).map((i) => `${i.n} × ${esc(cardLabel(cardById(i.card)))}`).join(' · ') || 'yaratık yok';
 
 function renderLib() {
@@ -1450,7 +1540,7 @@ function addFromCards(items) {
   const said = [];
   for (const { card, n } of capItems(items)) {
     const k = cardById(card); if (!k || n < 1) continue;
-    const vals = { name: k.name, sub: k.sub, init: 10 + k.mod, mod: k.mod, ac: k.ac, max: k.max, size: k.size, note: k.note, card: k.id, la: k.la ? [k.la, k.la] : null, lr: k.lr ? [k.lr, k.lr] : null };
+    const vals = { name: k.name, sub: k.sub, init: k.ini ?? 10 + k.mod, fixIni: k.ini != null, mod: k.mod, ac: k.ac, max: k.max, size: k.size, note: k.note, card: k.id, la: k.la ? [k.la, k.la] : null, lr: k.lr ? [k.lr, k.lr] : null };
     const f = LB.roll && hpFormula(k.hpf);
     addCopies('foe', vals, n, () => { if (!f) return {}; const hp = rollHp(f); return { hp, max: hp }; });
     said.push(`${n} × ${cardLabel(k)}`);
@@ -1477,7 +1567,7 @@ function addFoeSheet() {
 }
 
 function cardSheet(k, after) {
-  const c = k || { name: '', sub: '', ac: 12, max: 10, hpf: '', mod: 0, size: 1, la: null, lr: null, note: '' };
+  const c = k || { name: '', sub: '', ac: 12, max: 10, hpf: '', mod: 0, ini: null, size: 1, la: null, lr: null, note: '' };
   openSheet(`<h3>${k ? esc(cardLabel(k)) : 'Yeni yaratık kartı'}</h3><p class="sub">Savaşta “+ Düşman ekle” ile istediğin kadar eklenir. Can formülü yazarsan her kopya ister ortalamayı alır, ister kendi canını zarla.</p>
     <div class="fields">
       <label class="wide">Ad<input id="k-name" value="${esc(c.name)}" placeholder="ör. Haydut"></label>
@@ -1486,7 +1576,9 @@ function cardSheet(k, after) {
       <label>En yüksek can<input id="k-max" inputmode="numeric" value="${c.max}"></label>
       <label>Can formülü (isteğe bağlı)<input id="k-hpf" value="${esc(c.hpf)}" placeholder="ör. 2d8+2" autocomplete="off" spellcheck="false"></label>
       <label>&nbsp;<output id="k-avg" class="hint"></output></label>
-      ${numField('k-mod', 'İnisiyatif bonusu', c.mod, true)}
+      ${numField('k-mod', 'İnisiyatif bonusu', c.mod)}
+      ${numField('k-ini', 'Sabit inisiyatif', c.ini ?? '')}
+      <p class="wide hint inih" id="k-inih"></p>
       <label>Legendary Action<input id="k-la" inputmode="numeric" value="${c.la ?? ''}" placeholder="—"></label>
       <label>Legendary Resistance<input id="k-lr" inputmode="numeric" value="${c.lr ?? ''}" placeholder="—"></label>
       <div class="wide"><span style="font-size:.78rem;color:var(--muted);font-weight:700;letter-spacing:.03em">Boyut (haritada)</span>
@@ -1505,11 +1597,18 @@ function cardSheet(k, after) {
     if (f) prevAvg = f.avg;
   };
   $('#k-hpf').oninput = showAvg; showAvg();
+  // the total the copies get: the fixed initiative when set, otherwise the average 10 + bonus
+  const showIni = () => {
+    const m = toInt($('#k-mod').value, 0), f = $('#k-ini').value.trim(), bad = f !== '' && toInt(f, null) == null;
+    $('#k-inih').textContent = bad ? 'Sabit inisiyatif bir sayı olmalı (ya da boş)' : iniText(m, f === '' ? null : fixedIni(f)) + (f === '' ? ' (boş bırakırsan)' : '');
+    $('#k-inih').classList.toggle('bad', bad);
+  };
+  $('#k-mod').oninput = $('#k-ini').oninput = showIni; showIni();
   $('#sheetBody').onclick = (e) => {
     const szb = e.target.closest('[data-sz]');
     if (szb) { szb.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === szb))); return; }
     const neg = e.target.closest('[data-neg]');
-    if (neg) { const i = $('#' + neg.dataset.neg); i.value = String(-toInt(i.value, 0)); return; }
+    if (neg) { const i = $('#' + neg.dataset.neg); if (i.value.trim() !== '') i.value = String(-toInt(i.value, 0)); i.oninput?.(); return; }
     if (k && e.target.closest('[data-kdup]')) {
       const copy = { ...k, id: recId('k'), name: `${k.name} (kopya)` }; LB.cards.splice(LB.cards.indexOf(k) + 1, 0, copy); if (!libSave()) return;
       toast(`Çoğaltıldı: ${cardLabel(copy)}`); cardSheet(copy, after); return;
@@ -1525,8 +1624,9 @@ function cardSheet(k, after) {
     }
     if (!e.target.closest('[data-ksave]')) return;
     const name = $('#k-name').value.trim(); if (!name) { toast('Bir ad yaz'); $('#k-name').focus(); return; }
+    const fi = $('#k-ini').value.trim(); if (fi && toInt(fi, null) == null) { toast('Sabit inisiyatif bir sayı olmalı (ya da boş)', true); $('#k-ini').focus(); return; }
     const t = $('#k-hpf').value.trim(); if (t && !hpFormula(t)) { toast('Can formülü: ör. 2d8+2 ya da 3d6', true); $('#k-hpf').focus(); return; }
-    const o = cleanCard({ id: k?.id || recId('k'), name, sub: $('#k-sub').value, ac: $('#k-ac').value, max: $('#k-max').value || hpFormula(t)?.avg, hpf: t, mod: $('#k-mod').value,
+    const o = cleanCard({ id: k?.id || recId('k'), name, sub: $('#k-sub').value, ac: $('#k-ac').value, max: $('#k-max').value || hpFormula(t)?.avg, hpf: t, mod: $('#k-mod').value, ini: $('#k-ini').value,
       size: $('#k-size [aria-pressed="true"]')?.dataset.sz, la: $('#k-la').value, lr: $('#k-lr').value, note: $('#k-note').value });
     if (k) Object.assign(k, o); else LB.cards.push(o);
     if (!libSave()) return;
@@ -1539,7 +1639,7 @@ function cardFromForm(c) {
   const name = $('#f-name').value.trim().replace(/\s+\d+$/, ''); if (!name) { toast('Bir ad yaz'); $('#f-name').focus(); return; }
   const sub = $('#f-sub').value.trim();
   const old = LB.cards.find((k) => k.name === name && k.sub === sub);
-  const o = cleanCard({ id: old?.id || recId('k'), name, sub, ac: $('#f-ac').value, max: $('#f-max').value, hpf: old?.hpf, mod: $('#f-mod').value,
+  const o = cleanCard({ id: old?.id || recId('k'), name, sub, ac: $('#f-ac').value, max: $('#f-max').value, hpf: old?.hpf, ini: old?.ini, mod: $('#f-mod').value,
     size: $('#f-size [aria-pressed="true"]')?.dataset.sz, la: $('#f-la').value, lr: $('#f-lr').value, note: $('#f-note').value });
   if (old) Object.assign(old, o); else LB.cards.push(o);
   if (!libSave()) return;
@@ -1691,6 +1791,8 @@ $('#libFile').onchange = () => { const f = $('#libFile').files?.[0]; if (f) libI
 const LIBS = {
   peer: ['https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js', 'sha384-x0YgkOr/3UOZP2CRDxGW9e0Q+2Qjyr3uJrm4xU32Y7ZCNAo7Cc7bjhrZMi/dwczu'],
   qr: ['https://unpkg.com/qrcode-generator@1.4.4/qrcode.js', 'sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k'],
+  // DM3b: the QR reader where the phone has no BarcodeDetector (iPhone)
+  jsqr: ['https://unpkg.com/jsqr@1.4.0/dist/jsQR.js', 'sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx'],
 };
 const LIVE_KEY = 'dmscreen-live-v1', WATCH_KEY = 'dmscreen-watch-v1';
 // Peer ids on the shared public server carry the app's prefix; the code alphabet has no 0/O or 1/I.
@@ -1756,7 +1858,7 @@ function cleanState(s) {
 // info: per connection, the player's own id (pid, kept on their phone), the character they play, a rate bucket.
 // act: "Oyuncular hareket edebilir" (DM3), on by default, kept with the room. ban: players the DM removed (by pid) until
 // the room closes or gets a new code. queue: players' requests that came in while the DM held a token or a template.
-const LV = { on: false, code: '', peer: null, conns: new Set(), info: new Map(), act: loadJSON(LIVE_KEY)?.act !== false, ban: new Set(), queue: [], key: 0, last: '', lock: null, timer: null, msg: '' };
+const LV = { on: false, code: '', peer: null, conns: new Set(), info: new Map(), buckets: new Map(), runs: new Map(), act: loadJSON(LIVE_KEY)?.act !== false, ban: new Set(), queue: [], key: 0, last: '', lock: null, timer: null, msg: '' };
 const liveSave = () => { try { localStorage.setItem(LIVE_KEY, JSON.stringify({ code: LV.code, on: LV.on, act: LV.act })); } catch {} };
 const shareUrl = () => (location.protocol === 'https:' ? location.origin + location.pathname : APP_URL) + '?izle=' + LV.code;
 function liveStatus(msg) {
@@ -1764,6 +1866,9 @@ function liveStatus(msg) {
   const n = LV.conns.size;
   $('#liveBtn').textContent = LV.on ? `Oyunculara açık · ${n}` : 'Oyunculara aç';
   $('#liveBtn').setAttribute('aria-pressed', String(LV.on));
+  // DM3b: the same control at the top, next to Yeni savaş (compact at 390 px)
+  $('#liveTop').textContent = LV.on ? `Açık · ${n}` : 'Oyuncular'; $('#liveTop').setAttribute('aria-pressed', String(LV.on));
+  $('#liveTop').setAttribute('aria-label', LV.on ? `Oyunculara açık, ${n} oyuncu bağlı` : 'Oyunculara aç');
   const el = $('#liveStat');
   if (el) el.textContent = LV.peer?.open && !LV.msg ? (n ? `${n} oyuncu bağlı` : 'Oda açık, oyuncu bekleniyor') : LV.msg || 'Bağlanıyor…';
   // the share sheet's list of connected players (rebuilt only when it changed, so an open menu is not closed under the finger)
@@ -1792,9 +1897,18 @@ async function hostStart() {
   peer.on('open', () => { if (LV.peer === peer) { LV.rjN = 0; liveStatus(''); } });
   peer.on('connection', (conn) => {
     const gone = () => { LV.info.delete(conn); if (LV.conns.delete(conn)) { liveStatus(); wake(); liveSend(); } };
-    LV.info.set(conn, { key: ++LV.key, pid: '', char: null, tb: 15, tt: Date.now() });
+    // DM3b: too many calls still opening (a flood) are dropped at once
+    if (LV.info.size >= MAX_CONNS * 2) { try { conn.close(); } catch {} return; }
+    LV.info.set(conn, { key: ++LV.key, pid: '', char: null });
     guardConn(conn);
-    conn.on('open', () => { if (LV.peer !== peer) { conn.close(); return; } LV.conns.add(conn); conn.send({ t: 'state', at: Date.now(), s: publicState() }); liveStatus(); wake(); });
+    // a call that never opens does not stay in the list (N6)
+    setTimeout(() => { if (!LV.conns.has(conn) && LV.info.delete(conn)) try { conn.close(); } catch {} }, OPEN_MS);
+    conn.on('open', () => {
+      if (LV.peer !== peer || !LV.info.has(conn)) { conn.close(); return; }
+      // the room is full: the player is told so (their view stops), then the call is closed
+      if (LV.conns.size >= MAX_CONNS) { tell(conn, { t: 'full', max: MAX_CONNS }); LV.info.delete(conn); setTimeout(() => { try { conn.close(); } catch {} }, 400); return; }
+      LV.conns.add(conn); conn.send({ t: 'state', at: Date.now(), s: publicState() }); liveStatus(); wake();
+    });
     conn.on('close', gone); conn.on('error', gone);
     // DM3: a player's requests (pick a character, move their token, their templates); checked in liveMsg
     conn.on('data', (m) => liveMsg(conn, m));
@@ -1813,7 +1927,7 @@ async function hostStart() {
   });
 }
 function hostClose() {
-  clearTimeout(LV.timer); clearTimeout(LV.rj); LV.rjN = 0; LV.conns.forEach((c) => c.close()); LV.conns.clear(); LV.info.clear(); LV.queue = [];
+  clearTimeout(LV.timer); clearTimeout(LV.rj); LV.rjN = 0; LV.conns.forEach((c) => c.close()); LV.conns.clear(); LV.info.clear(); LV.buckets.clear(); LV.runs.clear(); LV.queue = [];
   LV.peer?.destroy(); LV.peer = null; LV.last = ''; wake();
 }
 // "Paylaşımı kapat" drops the code too: the next "Oyunculara aç" makes a fresh one (a reload while open keeps it).
@@ -1841,12 +1955,42 @@ function guardConn(conn) {
    the board, the token's size, whole squares; then applies it as the DM's own action (log line, Geri al) and the new
    state goes to everyone. Anything else (wrong type, too big, too often, unknown shape, not a finite number) is dropped
    without a word; a well-formed request the rules refuse gets a short "no" so the player's screen goes back. */
-const PLAYER_AREAS = 5, MSG_MAX = 1200, RATE_MAX = 15, RATE_PER_S = 5;
+const PLAYER_AREAS = 5, MSG_MAX = 1200, RATE_MAX = 15, RATE_PER_S = 5, MAX_CONNS = 12, OPEN_MS = 15000, COALESCE_MS = 3000;
+// DM3b (N1): the rate buckets belong to the player (their pid; before "hello", the call) and to the character they
+// play, not to the call: several calls of one phone or for one character share them.
+function rateOk(me) {
+  const now = Date.now(), keys = [me.pid ? 'p:' + me.pid : 'k:' + me.key].concat(me.char ? ['c:' + me.char] : []);
+  const bs = keys.map((k) => {
+    let b = LV.buckets.get(k); if (!b) LV.buckets.set(k, (b = { tb: RATE_MAX, tt: now }));
+    b.tb = Math.min(RATE_MAX, b.tb + (now - b.tt) * RATE_PER_S / 1000); b.tt = now; return b;
+  });
+  if (LV.buckets.size > 200) for (const [k, b] of LV.buckets) if (now - b.tt > 60000) LV.buckets.delete(k);
+  if (bs.some((b) => b.tb < 1)) return false;
+  bs.forEach((b) => { b.tb -= 1; }); return true;
+}
+// DM3b (N2, fix round 1): a player's actions in quick succession (moves, template add / edit / delete, any mix, each
+// within 3 s of the last) are one undo step. Each player has one open run; it is joined only while the top of the undo
+// stack is still that run's own step (checked by identity: no DM step, Geri al or other player's step in between),
+// otherwise a fresh run starts. The undo stack itself (pushHist) drops player steps before the DM's, so whatever the
+// players do, the DM's own last 60 steps stay undoable. Log: consecutive actions on the same token or template update
+// one line (the total move, the final size); anything else in the run gets its own line.
+function playerStep(c, subj, apply) {
+  const now = Date.now(), run = LV.runs.get(c.id);
+  const join = !!run && now - run.at < COALESCE_MS && histTag.length > 0 && histTag.at(-1) === run.tag;
+  const r = join ? run : { tag: { who: c.id }, subj: null, line: null, ctx: {} };
+  if (!join) { pushHist(JSON.stringify(S), r.tag); LV.runs.set(c.id, r); }
+  r.at = now;
+  const same = join && r.subj === subj && S.log.at(-1) === r.line;
+  if (!same) r.ctx = {};
+  const line = apply(r.ctx, same);
+  if (same) S.log[S.log.length - 1] = `<b>Tur ${S.round}</b> · ${line}`; else log(line);
+  r.subj = subj; r.line = S.log.at(-1);
+  render();
+}
 function liveMsg(conn, m) {
   try {
     const me = LV.info.get(conn); if (!me || !LV.conns.has(conn) || !m || typeof m !== 'object' || Array.isArray(m) || typeof m.t !== 'string') return;
-    const now = Date.now(); me.tb = Math.min(RATE_MAX, me.tb + (now - me.tt) * RATE_PER_S / 1000); me.tt = now;
-    if (me.tb < 1) return; me.tb -= 1;
+    if (!rateOk(me)) return;
     let j = ''; try { j = JSON.stringify(m); } catch { return; } if (!j || j.length > MSG_MAX) return;
     // a token or template held by the DM: the request waits until the finger lifts
     if (UI.gesture && (m.t === 'move' || m.t === 'area')) { if (LV.queue.length < 30) LV.queue.push([conn, m]); return; }
@@ -1892,25 +2036,30 @@ function liveApply(conn, me, m) {
     if (!Number.isInteger(m.gx) || !Number.isInteger(m.gy)) return;
     const s = sz(c); if (m.gx < 0 || m.gy < 0 || m.gx > COLS - s || m.gy > ROWS - s) return no('Harita dışında');
     if (c.gx === m.gx && c.gy === m.gy) return;
-    snap(); const sq = c.gx == null ? 0 : Math.max(Math.abs(m.gx - c.gx), Math.abs(m.gy - c.gy));
-    c.gx = m.gx; c.gy = m.gy; log(`<b>${esc(c.name)}</b> ${sq * 5} ft hareket etti`); render(); return;
+    playerStep(c, 'mv', (ctx, same) => {
+      if (!same) ctx.from = [c.gx, c.gy];
+      const f = ctx.from, sq = f[0] == null ? 0 : Math.max(Math.abs(m.gx - f[0]), Math.abs(m.gy - f[1]));
+      c.gx = m.gx; c.gy = m.gy; return `<b>${esc(c.name)}</b> ${sq * 5} ft hareket etti`;
+    });
+    return;
   }
   const op = m.op;
   if (op === 'add') {
     const a = cleanArea(m.a); if (!a) return;
     if (areas().filter((x) => x.by === c.id).length >= PLAYER_AREAS) return no(`En çok ${PLAYER_AREAS} alan koyabilirsin`);
     a.id = 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); a.by = c.id;
-    snap(); areas().push(a); log(`<b>${esc(c.name)}</b>: ${AREA_NAME[a.shape]} alan eklendi: ${areaLabel(a)}`); render();
+    playerStep(c, 'ar:' + a.id, (ctx) => { ctx.added = true; areas().push(a); return `<b>${esc(c.name)}</b>: ${AREA_NAME[a.shape]} alan eklendi: ${areaLabel(a)}`; });
     tell(conn, { t: 'ok', id: a.id }); return;
   }
   if (op !== 'set' && op !== 'del') return;
   const x = typeof m.id === 'string' ? areaById(m.id) : null;
   if (!x) return no('Bu alan artık yok');
   if (x.by !== c.id) return no('Yalnız kendi koyduğun alanları değiştirebilirsin');
-  if (op === 'del') { snap(); S.areas = areas().filter((y) => y !== x); log(`<b>${esc(c.name)}</b>: ${AREA_NAME[x.shape]} alanını sildi`); render(); return; }
+  if (op === 'del') { playerStep(c, 'ar:' + x.id, (ctx, same) => { S.areas = areas().filter((y) => y !== x); return `<b>${esc(c.name)}</b>: ${AREA_NAME[x.shape]} alan${same && ctx.added ? ' eklendi ve silindi' : 'ını sildi'}`; }); return; }
   const a = cleanArea(m.a); if (!a || a.shape !== x.shape) return;
   if (AREA_KEYS[a.shape].every((k) => a[k] === x[k])) return;
-  snap(); Object.assign(x, a); log(`<b>${esc(c.name)}</b>: ${AREA_NAME[x.shape]} alan: ${areaLabel(x)}`); render();
+  // an edit right after adding the template stays one "eklendi" step with the final size
+  playerStep(c, 'ar:' + x.id, (ctx, same) => { Object.assign(x, a); return `<b>${esc(c.name)}</b>: ${AREA_NAME[x.shape]} alan${same && ctx.added ? ' eklendi: ' : ': '}${areaLabel(x)}`; });
 }
 // A beat every few seconds: a player whose DM went quiet (phone locked, app reloaded) reconnects by itself.
 setInterval(() => { LV.conns.forEach((c) => { if (c.open) try { c.send({ t: 'ping' }); } catch {} }); }, 4000);
@@ -1925,7 +2074,7 @@ async function wake() {
 document.addEventListener('visibilitychange', wake);
 async function liveSheet() {
   if (!LV.on) hostStart();
-  openSheet(`<h3>Oyunculara aç</h3><p class="sub">Oyuncular kendi telefonlarında DM Ekranı → <b>Savaşı izle</b>’ye dokunup bu kodu yazar ya da QR kodu telefonun kamerasıyla okutur. Kim olduklarını seçerler; yalnız kendi pullarını oynatır, kendi alanlarını koyarlar.</p>
+  openSheet(`<h3>Oyunculara aç</h3><p class="sub">Oyuncular: uygulamada <b>Savaşı izle</b> → <b>QR okut</b>, ya da kodu yaz. Kim olduklarını seçerler; yalnız kendi pullarını oynatır, kendi alanlarını koyarlar.</p>
     <div class="lcode" aria-label="Oda kodu">${LV.code}</div>
     <div class="qr" id="liveQr" aria-label="QR kod: uygulamanın bu odalı bağlantısı"></div>
     <p class="lstat" id="liveStat" aria-live="polite"></p>
@@ -1955,7 +2104,7 @@ async function liveSheet() {
     const box = $('#liveQr'); if (box) box.innerHTML = q.createSvgTag({ cellSize: 4, margin: 3, scalable: true });
   } catch { const box = $('#liveQr'); if (box) box.innerHTML = '<p class="sub">QR kod için internet gerekli; kodu yazmak da olur.</p>'; }
 }
-$('#liveBtn').onclick = liveSheet;
+$('#liveBtn').onclick = $('#liveTop').onclick = liveSheet;
 
 /* --- player side: the read-only view --- */
 // me: the character the DM gave this player (DM3); raw: the last state as received (a refused request goes back to it);
@@ -2029,6 +2178,7 @@ function watchMsg(m) {
   }
   if (m.t === 'ok') { if (W.wantSel) { W.wantSel = false; UI.area = cid(m.id) || null; if (!UI.gesture) renderWatchMap(); } return; }
   if (m.t === 'kick') watchStop('DM seni odadan çıkardı');
+  if (m.t === 'full') watchStop(`Oda dolu: en çok ${Number.isInteger(m.max) ? m.max : 12} oyuncu bağlanabilir`);
 }
 function watchRetry(ms = 3000) { clearTimeout(W.timer); if (W.on) W.timer = setTimeout(watchConnect, ms); }
 async function watchConnect() {
@@ -2102,15 +2252,103 @@ function watchStop(why) {
 }
 $('#watchStop').onclick = () => watchStop();
 function watchSheet() {
-  openSheet(`<h3>Savaşı izle</h3><p class="sub">DM’in ekranındaki <b>Oyunculara aç</b> kodunu yaz. DM’in QR kodunu telefonun kamerasıyla okutursan bu ekran kendiliğinden açılır.</p>
-    <div class="fields"><label class="wide">Oda kodu<input id="w-code" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="5" placeholder="ör. K7M2Q"></label></div>
+  openSheet(`<h3>Savaşı izle</h3><p class="sub">DM’in ekranındaki <b>Oyunculara aç</b> kodunu yaz ya da <b>QR okut</b> ile DM’in QR kodunu bu uygulamanın içinde okut.</p>
+    <div class="fields wcode"><label class="wide">Oda kodu<input id="w-code" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="5" placeholder="ör. K7M2Q"></label><button class="btn" type="button" data-wscan="1">QR okut</button></div>
     <p class="sub" style="margin-top:10px">Bizim taraftan kim olduğunu seçersin; DM izin verdikçe yalnız kendi pulunu oynatır, kendi alanlarını koyarsın. Bu cihazdaki kendi savaşın silinmez, değişmez. Bağlantı telefondan telefona: aynı Wi-Fi’de çalışır; bazı mobil ağlar engelleyebilir.</p>
     <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-wgo="1">İzle</button></div>`);
   const go = () => { const c = cleanCode($('#w-code').value); if (!c) { toast('Kod 5 harf / rakam: DM’in ekranındaki gibi yaz', true); $('#w-code').focus(); return; } closeSheet(); watchStart(c); };
   $('#w-code').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
-  $('#sheetBody').onclick = (e) => { if (e.target.closest('[data-wgo]')) go(); };
+  $('#sheetBody').onclick = (e) => { if (e.target.closest('[data-wgo]')) go(); else if (e.target.closest('[data-wscan]')) scanSheet(); };
 }
 $('#watchBtn').onclick = watchSheet;
+
+/* --- DM3b (owner 2026-11-06: "oyuncular qr i kendi uygulamari üzerinden mi okutuyor? telefon kamerasından okutursa chrome
+   açarsa olmaz uygulama üzerinden okutmasi lazım ya da kod girilmesi lazim qr yerine"): the QR reader inside the app ---
+   The rear camera in a sheet (getUserMedia); frames go to the phone's own BarcodeDetector where there is one (Android
+   Chrome, the installed app), otherwise to jsQR (pinned on unpkg, SRI, cached with the other libraries). The DM's QR code
+   still holds the app link with ?izle=CODE (a phone camera stays a last resort); the reader takes the code from the link
+   or from a bare code. The camera stops however the sheet closes. */
+function codeFromQr(text) {
+  const t = String(text ?? '').trim().slice(0, 500);
+  const m = /[?&]izle=([A-Za-z0-9]{5})(?![A-Za-z0-9])/.exec(t); if (m) return cleanCode(m[1]);
+  return t.length <= 8 ? cleanCode(t) : '';
+}
+const QD = { det: undefined, cv: null };
+// One frame (a video, canvas or image) → the QR code's text, or ''. native: false skips BarcodeDetector (tests).
+async function qrDecode(src, native = true) {
+  if (native && QD.det === undefined) {
+    QD.det = null;
+    try { if ('BarcodeDetector' in window && (await BarcodeDetector.getSupportedFormats()).includes('qr_code')) QD.det = new BarcodeDetector({ formats: ['qr_code'] }); } catch {}
+  }
+  if (native && QD.det) { try { const r = await QD.det.detect(src); return r[0]?.rawValue || ''; } catch { return ''; } }
+  await lib('jsqr');
+  const w = src.videoWidth || src.naturalWidth || src.width, h = src.videoHeight || src.naturalHeight || src.height; if (!w || !h) return '';
+  const k = Math.min(1, 640 / Math.max(w, h)), cv = (QD.cv ||= document.createElement('canvas'));
+  cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+  const g = cv.getContext('2d', { willReadFrequently: true }); g.drawImage(src, 0, 0, cv.width, cv.height);
+  const r = jsQR(g.getImageData(0, 0, cv.width, cv.height).data, cv.width, cv.height, { inversionAttempts: 'dontInvert' });
+  return r?.data || '';
+}
+function cameraError(e) {
+  const n = e?.name || '';
+  if (n === 'NotAllowedError' || n === 'SecurityError') return 'Kamera izni verilmedi. Telefonun ayarlarından bu uygulamaya kamera izni ver ya da kodu yaz.';
+  if (n === 'NotFoundError' || n === 'OverconstrainedError' || n === 'NoCamera') return 'Kamera bulunamadı. Kodu yaz.';
+  if (n === 'NotReadableError') return 'Kamera başka bir uygulamada açık. Onu kapatıp tekrar dene ya da kodu yaz.';
+  return 'Kamera açılamadı. Kodu yaz.';
+}
+async function scanSheet() {
+  openSheet(`<h3>QR okut</h3><p class="sub">DM’in ekranındaki QR kodu çerçeveye getir; okununca izleme kendiliğinden başlar.</p>
+    <div class="scan"><video id="qrVideo" playsinline muted autoplay></video><span class="scanframe"></span><button class="scanx" data-sclose aria-label="Kapat">×</button></div>
+    <p class="lstat" id="scanStat" aria-live="polite">Kamera açılıyor…</p>
+    <div class="acts" style="grid-template-columns:1fr 1fr"><button class="btn" data-scode="1">Kodu yaz</button><button class="btn" data-sclose="1">Kapat</button></div>`);
+  // on: the sheet is open; failed: no camera or no reader, nothing more to try
+  const st = { on: true, failed: false, stream: null, timer: null, busy: false, gen: 0 };
+  const say = (t, bad) => { const el = $('#scanStat'); if (el && st.on) { el.textContent = t; el.classList.toggle('bad', !!bad); } };
+  const camOff = () => { st.gen++; clearTimeout(st.timer); st.stream?.getTracks().forEach((t) => t.stop()); st.stream = null; const v = $('#qrVideo'); if (v) v.srcObject = null; };
+  // DM3b fix N5: the camera stops when the app goes to the background (hidden, pagehide) and starts again on return,
+  // only if the reader is still open
+  const onHide = () => { if (document.visibilityState === 'hidden') camOff(); else if (st.on && !st.failed && !st.stream) camOn(); };
+  const onPageHide = () => camOff();
+  const stop = () => { st.on = false; camOff(); document.removeEventListener('visibilitychange', onHide); removeEventListener('pagehide', onPageHide); };
+  onSheetClose = stop;
+  document.addEventListener('visibilitychange', onHide); addEventListener('pagehide', onPageHide);
+  $('#sheetBody').onclick = (e) => {
+    if (e.target.closest('[data-sclose]')) closeSheet();
+    else if (e.target.closest('[data-scode]')) watchSheet();
+  };
+  const tick = async (gen) => {
+    if (!st.on || gen !== st.gen) return;
+    const v = $('#qrVideo');
+    if (v?.readyState >= 2 && !st.busy) {
+      st.busy = true;
+      let text = '';
+      try { text = await qrDecode(v); } catch (e) {
+        // the reader could not be loaded (no internet on first use): say so once, no retry loop (fix N1)
+        if (/^lib /.test(e?.message || '')) { st.busy = false; st.failed = true; say('QR okuyucu yüklenemedi; kodu yaz', true); camOff(); return; }
+      }
+      st.busy = false;
+      if (!st.on || gen !== st.gen) return;
+      if (text) {
+        const code = codeFromQr(text);
+        if (code) { closeSheet(); watchStart(code); return; }
+        say('Bu QR kod bir oda kodu değil: DM’in Oyunculara aç ekranındaki kodu okut', true);
+      }
+    }
+    st.timer = setTimeout(() => tick(gen), 250);
+  };
+  async function camOn() {
+    const gen = ++st.gen;
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) throw Object.assign(new Error('no camera'), { name: 'NoCamera' });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+      if (!st.on || gen !== st.gen || document.visibilityState === 'hidden') { stream.getTracks().forEach((t) => t.stop()); return; }
+      st.stream = stream; const v = $('#qrVideo'); v.srcObject = stream; try { await v.play(); } catch {}
+      say('DM’in QR kodunu çerçeveye getir');
+    } catch (e) { if (gen === st.gen) { st.failed = true; say(cameraError(e), true); } return; }
+    tick(gen);
+  }
+  camOn();
+}
 function wcard(c, pos, now) {
   const ally = c.side === 'ally', down = !ally && c.st === 'down', dying = ally && c.hp === 0 && !c.dead;
   const bloodied = ally ? c.hp > 0 && c.hp <= c.max / 2 : c.st === 'bloodied';
@@ -2149,6 +2387,7 @@ function renderWatchMap() {
   if (!act) { UI.area = null; $('#apick').hidden = true; }
   // the player's own token is marked (me); their own selected template shows its handles, size and who is in it
   const sel = P && UI.area ? P.areas.find((a) => a.id === UI.area) : null;
+  $('#mapView').classList.toggle('asel', !!sel);
   const inside = new Set(P ? P.areas.flatMap((a) => inArea(a).map((c) => c.id)) : []);
   b.innerHTML = !P ? '' : P.areas.map(areaHtml).join('') + P.list.filter((c) => c.gx != null).map((c) => {
     const bar = c.side === 'ally' ? `<span class="hpbar"><s style="width:${Math.max(0, Math.min(100, c.hp / c.max * 100))}%;background:${hpColor(c)}"></s></span>` : '';
