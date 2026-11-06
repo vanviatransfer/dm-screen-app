@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '0f68b3ac71'; window.__BUILT__ = '2026-11-06 21:24';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '8c1a1fa0cf'; window.__BUILT__ = '2026-11-06 23:23';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -342,6 +342,32 @@ body.watch .tok,body.watch .area{cursor:default}
 #liveTop{padding-inline:10px}
 body.watch #liveTop{display:none!important}
 
+/* DM4 (owner: "her başlık ayrıştırma amaçlı soluk farklı renklerde ve her section farklı background renginde olsun ama
+   renkler soluk olsun baya … bizim html karakter uygulamalarımızdaki gibi"): the character apps' hue tiles. Each item
+   sets --h; the background is a pale mix of that hue into the surface, the text a soft light tint of it. Opaque mixes
+   (in srgb), so the contrast is the same wherever the item sits. */
+.fsec{--h:30;margin-top:10px;border:1px solid color-mix(in srgb,hsl(var(--h) 38% 60%) 30%,var(--line));border-left:3px solid hsl(var(--h) 38% 58%);background:color-mix(in srgb,hsl(var(--h) 42% 45%) 10%,var(--surface));border-radius:12px;padding:8px 10px 10px}
+.fsec > h4{margin:0 0 2px;font-family:var(--display);font-weight:700;font-size:.92rem;letter-spacing:.04em;color:hsl(var(--h) 45% 76%)}
+.fsec > .fields{margin-top:4px}
+.fsec .targets{margin:6px 0 2px}
+.fsec.ig{margin-top:8px;display:grid;gap:6px}
+.fsec.ig > h4.ihead{border:0;margin:0 0 4px;padding:0}
+.lh{color:hsl(var(--h) 42% 76%)!important}
+.fields .lh input,.fields .lh .num button{border-color:color-mix(in srgb,hsl(var(--h) 38% 60%) 45%,var(--ctl))}
+.szl{font-size:.78rem;font-weight:700;letter-spacing:.03em}
+.btn.hue,.zoom button.hue,.apick button.hue{background:color-mix(in srgb,hsl(var(--h) 42% 45%) 18%,var(--surface));border-color:color-mix(in srgb,hsl(var(--h) 40% 62%) 55%,var(--line));color:hsl(var(--h) 50% 82%)}
+.btn.hue[aria-pressed="true"],.zoom button.hue[aria-pressed="true"]{background:color-mix(in srgb,hsl(var(--h) 45% 50%) 50%,var(--surface));border-color:hsl(var(--h) 45% 68%);color:hsl(var(--h) 60% 94%)}
+.apick{grid-template-columns:repeat(2,auto)}
+/* on a short screen the control column scrolls inside the map instead of running under the bottom tabs */
+.zoom{max-height:calc(100% - 24px);overflow-y:auto;scrollbar-width:none}
+.apick button.hue{min-width:118px}
+.apick button.hue small{color:hsl(var(--h) 30% 72%)}
+.crow.hue button{background:color-mix(in srgb,hsl(var(--h) 42% 45%) 12%,var(--surface));border-color:color-mix(in srgb,hsl(var(--h) 40% 60%) 40%,var(--line));color:hsl(var(--h) 45% 80%)}
+.crow.hue button[aria-pressed="true"]{background:color-mix(in srgb,hsl(var(--h) 45% 50%) 50%,var(--surface));border-color:hsl(var(--h) 45% 68%);color:hsl(var(--h) 60% 94%);font-weight:700}
+.crow.hue label{color:hsl(var(--h) 32% 74%)}
+.crow.hue input{background:color-mix(in srgb,hsl(var(--h) 42% 45%) 10%,var(--bg));border-color:color-mix(in srgb,hsl(var(--h) 40% 60%) 45%,var(--ctl))}
+.sheet .pad{padding:6px;border-radius:12px;background:color-mix(in srgb,hsl(28 42% 45%) 9%,var(--surface));border:1px solid color-mix(in srgb,hsl(28 38% 60%) 25%,var(--line))}
+
 /* app shell (as in the character apps): install banner, new-version banner, "Güncel sürümü çek" and the version line.
    Own class names: .card is the combatant card here. */
 .appbox{margin:8px 0 4px;background:var(--surface);border:1px solid var(--acc);border-radius:12px;padding:10px 12px;display:grid;gap:8px}
@@ -358,7 +384,7 @@ body.watch #liveTop{display:none!important}
 <header>
   <div class="wrap">
     <div class="hd">
-      <div class="ttl"><h1>DM Ekranı</h1><button class="btn sm" id="newFight">Yeni savaş</button><button class="btn sm" id="liveTop" aria-label="Oyunculara aç">Oyuncular</button></div>
+      <div class="ttl"><h1>DM Ekranı</h1><button class="btn sm hue" style="--h:8" id="newFight">Yeni savaş</button><button class="btn sm hue" style="--h:196" id="liveTop" aria-label="Oyunculara aç">Oyuncular</button></div>
       <div class="ctrls">
         <button class="btn sm" id="prev" aria-label="Önceki sıra" title="Önceki sıra (←)">◀</button>
         <div class="round"><span>Tur</span><b id="round">1</b></div>
@@ -374,11 +400,11 @@ body.watch #liveTop{display:none!important}
   <div class="appbox" id="install" hidden></div>
   <div class="appbox wbar" id="watchBar" hidden><p id="watchMsg"></p><div class="acts2"><button class="btn sm" id="watchPick" hidden>Kimsin?</button><button class="btn sm" id="watchStop">İzlemeyi bırak</button></div></div>
   <div class="tools">
-    <button class="btn sm" id="iniAll">İnisiyatif gir</button>
-    <button class="btn sm" id="multi" aria-pressed="false">Toplu hasar</button>
-    <button class="btn sm" id="rest">Uzun dinlenme</button>
-    <button class="btn sm" id="liveBtn">Oyunculara aç</button>
-    <button class="btn sm" id="watchBtn">Savaşı izle</button>
+    <button class="btn sm hue" style="--h:42" id="iniAll">İnisiyatif gir</button>
+    <button class="btn sm hue" style="--h:350" id="multi" aria-pressed="false">Toplu hasar</button>
+    <button class="btn sm hue" style="--h:150" id="rest">Uzun dinlenme</button>
+    <button class="btn sm hue" style="--h:196" id="liveBtn">Oyunculara aç</button>
+    <button class="btn sm hue" style="--h:262" id="watchBtn">Savaşı izle</button>
   </div>
   <div class="row-h foe">Düşmanlar <small id="foeSum"></small></div>
   <div class="row" id="foes"></div>
@@ -422,19 +448,19 @@ body.watch #liveTop{display:none!important}
   <div id="board"></div>
   <div class="dist" id="dist">Pulu sürükle: hareket · <b>5 ft</b> = 1 kare</div>
   <div class="zoom">
-    <button id="zin" aria-label="Yakınlaştır">+</button>
-    <button id="zout" aria-label="Uzaklaştır">−</button>
-    <button id="zfit" aria-label="Herkesi sığdır" style="font-size:.78rem">Sığdır</button>
-    <button id="zmeasure" aria-label="İki pul arası mesafe ölç" aria-pressed="false" style="font-size:.74rem">Ölç</button>
-    <button id="zreset" aria-label="Dizilişi sıfırla" style="font-size:.7rem;line-height:1.1">Diz</button>
-    <button id="zarea" aria-label="Alan büyüsü şablonu ekle" aria-expanded="false" style="font-size:.74rem">Alan</button>
-    <button id="zsave" aria-label="Bu dizilişi kaydet" style="font-size:.64rem;line-height:1.05">Diziliş kaydet</button>
+    <button class="hue" style="--h:36" id="zin" aria-label="Yakınlaştır">+</button>
+    <button class="hue" style="--h:60" id="zout" aria-label="Uzaklaştır">−</button>
+    <button class="hue" style="--h:180;font-size:.78rem" id="zfit" aria-label="Herkesi sığdır">Sığdır</button>
+    <button class="hue" style="--h:210;font-size:.74rem" id="zmeasure" aria-label="İki pul arası mesafe ölç" aria-pressed="false">Ölç</button>
+    <button class="hue" style="--h:120;font-size:.7rem;line-height:1.1" id="zreset" aria-label="Dizilişi sıfırla">Diz</button>
+    <button class="hue" style="--h:285;font-size:.74rem" id="zarea" aria-label="Alan büyüsü şablonu ekle" aria-expanded="false">Alan</button>
+    <button class="hue" style="--h:330;font-size:.64rem;line-height:1.05" id="zsave" aria-label="Bu dizilişi kaydet">Diziliş kaydet</button>
   </div>
   <div class="apick" id="apick" hidden role="group" aria-label="Alan şekli">
-    <button data-shape="circle">Daire<small>yarıçap</small></button>
-    <button data-shape="square">Kare<small>bir kenar</small></button>
-    <button data-shape="rect">Dikdörtgen<small>iki kenar</small></button>
-    <button data-shape="cone">Koni<small>uzunluk, yön</small></button>
+    <button class="hue" style="--h:28" data-shape="circle">Daire<small>yarıçap</small></button>
+    <button class="hue" style="--h:200" data-shape="square">Kare<small>bir kenar</small></button>
+    <button class="hue" style="--h:140" data-shape="rect">Dikdörtgen<small>iki kenar</small></button>
+    <button class="hue" style="--h:285" data-shape="cone">Koni<small>uzunluk, yön</small></button>
   </div>
   <div class="abar" id="abar" hidden><button class="btn sm pri" data-agrp>Bunlara toplu hasar</button></div>
   <div class="maphint" id="maphint">İki parmakla yakınlaştır · boş yeri sürükle: kaydır · pula dokun: can</div>
@@ -797,12 +823,13 @@ function hpSheet(c, focus) {
   };
 }
 
+// one hue per condition, spread round the colour wheel in the list's order
+const COND_HUE = (k) => Math.round(CONDS.indexOf(k) * 360 / CONDS.length + 8) % 360;
 function condSheet(c) {
   openSheet(`<h3>${esc(c.name)} · durumlar</h3><p class="sub">Dokun: aç / kapat. Süre yazarsan, ${esc(c.name)} kendi sırası başında bir azalır ve bitince kalkar. Exhaustion’da sayı seviyedir (1–6).</p>
-    <div class="clist">${CONDS.map((k) => { const x = c.conds.find((y) => y.k === k); const ex = k === 'Exhaustion'; return `<div class="crow"><button aria-pressed="${!!x}" data-c="${k}">${k}</button><label>${ex ? 'seviye' : 'tur'} <input inputmode="numeric" data-r="${k}" value="${x?.r ?? ''}" placeholder="${ex ? '1' : '—'}" aria-label="${k} ${ex ? 'seviyesi' : 'süresi (tur)'}"></label></div>`; }).join('')}</div>
-    <div class="sec">Concentration</div>
-    <div class="crow"><button aria-pressed="${!!c.conc}" data-conc="1">Concentration</button><span></span></div>
-    <div class="fields"><label class="wide">Hangi büyü<input id="concOn" value="${esc(c.concOn || '')}" placeholder="ör. Hunter's Mark"></label></div>
+    <div class="clist">${CONDS.map((k) => { const x = c.conds.find((y) => y.k === k); const ex = k === 'Exhaustion'; return `<div class="crow hue" style="--h:${COND_HUE(k)}"><button aria-pressed="${!!x}" data-c="${k}">${k}</button><label>${ex ? 'seviye' : 'tur'} <input inputmode="numeric" data-r="${k}" value="${x?.r ?? ''}" placeholder="${ex ? '1' : '—'}" aria-label="${k} ${ex ? 'seviyesi' : 'süresi (tur)'}"></label></div>`; }).join('')}</div>
+    ${sec('Concentration', SEC.conc, `<div class="crow hue" style="--h:${SEC.conc}"><button aria-pressed="${!!c.conc}" data-conc="1">Concentration</button><span></span></div>
+    <div class="fields"><label${lab(SEC.conc, true)}>Hangi büyü<input id="concOn" value="${esc(c.concOn || '')}" placeholder="ör. Hunter's Mark"></label></div>`, false)}
     <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-done="1">Tamam</button></div>`);
   $('#sheetBody').onclick = (e) => {
     const t = e.target.closest('[data-c],[data-conc]');
@@ -822,23 +849,29 @@ function condSheet(c) {
   };
 }
 
-const numField = (id, label, val, wide) => `<label${wide ? ' class="wide"' : ''}>${label}<span class="num"><input id="${id}" inputmode="numeric" value="${val ?? ''}"><button type="button" data-neg="${id}" aria-label="${label}: işareti çevir">±</button></span></label>`;
+// DM4 (owner: "her başlık ayrıştırma amaçlı soluk farklı renklerde ve her section farklı background renginde olsun ama renkler
+// soluk olsun baya … bizim html karakter uygulamalarımızdaki gibi"): the character apps' hue tiles. Every field, section,
+// condition and button has its own hue (--h); head.html turns it into a pale tinted background and a soft light text.
+// The field hues match the fight card's field colours (DM3b).
+const HUE = { name: 38, sub: 28, ini: 42, ac: 207, hp: 18, pp: 160, size: 190, note: 265, la: 330, lr: 300, count: 120, formula: 55 };
+const SEC = { id: 32, fight: 212, hp: 10, sense: 158, note: 268, leg: 328, list: 20, party: 135, foes: 6, conc: 222, players: 196 };
+const sec = (title, h, body, grid = true) => `<div class="fsec" style="--h:${h}"><h4>${title}</h4>${grid ? `<div class="fields">${body}</div>` : body}</div>`;
+const lab = (h, wide) => ` class="lh${wide ? ' wide' : ''}" style="--h:${h}"`;
+const numField = (id, label, val, wide, h) => `<label${h != null ? lab(h, wide) : wide ? ' class="wide"' : ''}>${label}<span class="num"><input id="${id}" inputmode="numeric" value="${val ?? ''}"><button type="button" data-neg="${id}" aria-label="${label}: işareti çevir">±</button></span></label>`;
 function editSheet(c, isNew) {
   openSheet(`<h3>${isNew ? (c.side === 'foe' ? 'Yeni düşman' : 'Yeni oyuncu') : esc(c.name)}</h3><p class="sub">${c.side === 'foe' ? 'Düşman' : 'Oyuncu'} · eksi değer için ± düğmesi</p>
-    <div class="fields">
-      <label class="wide">Ad<input id="f-name" value="${esc(c.name)}" placeholder="${c.side === 'foe' ? 'ör. Goblin' : 'ör. Berathast'}"></label>
-      <label class="wide">Alt yazı<input id="f-sub" value="${esc(c.sub || '')}" placeholder="ör. Lider, Binek, Druid"></label>
-      ${numField('f-init', 'İnisiyatif (toplam)', c.init, c.side === 'ally')}
-      ${c.side === 'foe' ? numField('f-mod', 'İnisiyatif bonusu (zar için)', c.mod) : ''}
-      <label>AC<input id="f-ac" inputmode="numeric" value="${c.ac}"></label>
-      <label>En yüksek can<input id="f-max" inputmode="numeric" value="${c.max}"></label>
-      <label>Şu anki can<input id="f-hp" inputmode="numeric" value="${c.hp}"></label>
-      ${c.side === 'ally' ? `<label>Passive Perception<input id="f-pp" inputmode="numeric" value="${c.pp ?? ''}"></label>` : `<label>Adet${isNew ? '' : ' (kopya ekle)'}<input id="f-n" inputmode="numeric" value="${isNew ? 1 : 0}"></label>`}
-      ${c.side === 'foe' ? `<label>Legendary Action<input id="f-la" inputmode="numeric" value="${c.la?.[1] ?? ''}" placeholder="—"></label><label>Legendary Resistance<input id="f-lr" inputmode="numeric" value="${c.lr?.[1] ?? ''}" placeholder="—"></label>` : ''}
-      <div class="wide"><span style="font-size:.78rem;color:var(--muted);font-weight:700;letter-spacing:.03em">Boyut (haritada)</span>
-        <div class="szseg" id="f-size">${[[1, 'Small / Medium · 1 kare'], [2, 'Large · 2×2'], [3, 'Huge · 3×3'], [4, 'Gargantuan · 4×4']].map(([v, t]) => `<button type="button" data-sz="${v}" aria-pressed="${sz(c) === v}">${t}</button>`).join('')}</div></div>
-      <label class="wide">Not<input id="f-note" value="${esc(c.note || '')}" placeholder="ör. Pack Tactics, Resistance: Fire"></label>
-    </div>
+    ${sec('Kimlik', SEC.id, `<label${lab(HUE.name, true)}>Ad<input id="f-name" value="${esc(c.name)}" placeholder="${c.side === 'foe' ? 'ör. Goblin' : 'ör. Berathast'}"></label>
+      <label${lab(HUE.sub, true)}>Alt yazı<input id="f-sub" value="${esc(c.sub || '')}" placeholder="ör. Lider, Binek, Druid"></label>`)}
+    ${sec('Savaş', SEC.fight, `${numField('f-init', 'İnisiyatif (toplam)', c.init, c.side === 'ally', HUE.ini)}
+      ${c.side === 'foe' ? numField('f-mod', 'İnisiyatif bonusu (zar için)', c.mod, false, HUE.ini) : ''}
+      <label${lab(HUE.ac, c.side === 'foe')}>AC<input id="f-ac" inputmode="numeric" value="${c.ac}"></label>`)}
+    ${sec('Can', SEC.hp, `<label${lab(HUE.hp)}>En yüksek can<input id="f-max" inputmode="numeric" value="${c.max}"></label>
+      <label${lab(HUE.hp)}>Şu anki can<input id="f-hp" inputmode="numeric" value="${c.hp}"></label>`)}
+    ${sec(c.side === 'ally' ? 'Algı / Boyut' : 'Adet / Boyut', SEC.sense, `${c.side === 'ally' ? `<label${lab(HUE.pp, true)}>Passive Perception<input id="f-pp" inputmode="numeric" value="${c.pp ?? ''}"></label>` : `<label${lab(HUE.count, true)}>Adet${isNew ? '' : ' (kopya ekle)'}<input id="f-n" inputmode="numeric" value="${isNew ? 1 : 0}"></label>`}
+      <div class="wide lh" style="--h:${HUE.size}"><span class="szl">Boyut (haritada)</span>
+        <div class="szseg" id="f-size">${[[1, 'Small / Medium · 1 kare'], [2, 'Large · 2×2'], [3, 'Huge · 3×3'], [4, 'Gargantuan · 4×4']].map(([v, t]) => `<button type="button" data-sz="${v}" aria-pressed="${sz(c) === v}">${t}</button>`).join('')}</div></div>`)}
+    ${sec('Not', SEC.note, `<label${lab(HUE.note, true)}>Not<input id="f-note" value="${esc(c.note || '')}" placeholder="ör. Pack Tactics, Resistance: Fire"></label>`)}
+    ${c.side === 'foe' ? sec('Legendary', SEC.leg, `<label${lab(HUE.la)}>Legendary Action<input id="f-la" inputmode="numeric" value="${c.la?.[1] ?? ''}" placeholder="—"></label><label${lab(HUE.lr)}>Legendary Resistance<input id="f-lr" inputmode="numeric" value="${c.lr?.[1] ?? ''}" placeholder="—"></label>`) : ''}
     ${c.side === 'foe' ? '<div class="acts"><button class="btn" data-roll="1">d20 + bonus at</button><button class="btn pri" data-ok="1" style="grid-column:span 2">Kaydet</button></div>' : '<div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-ok="1">Kaydet</button></div>'}
     ${c.side === 'foe' ? '<div class="acts" style="grid-template-columns:1fr"><button class="btn" data-tocard="1">Karta kaydet</button></div>' : ''}
     ${isNew ? '' : '<button class="danger" data-del="1">Savaştan çıkar</button>'}`);
@@ -902,7 +935,7 @@ function iniSheet() {
   // added (not sorted by the default initiatives, which put a slow character under the foes). The fight order still
   // follows initiative after saving. Foes with a fixed initiative (from their card) keep it on "Düşmanlara at".
   const row = (c) => `<div class="irow"><span class="${c.side}">${esc(c.name)}${c.side === 'foe' ? ` <small>${c.fixIni ? 'sabit' : sign(c.mod)}</small>` : ''}</span><input inputmode="numeric" data-ini="${c.id}" value="${c.init}" aria-label="${esc(c.name)} inisiyatifi (toplam)">${c.side === 'foe' ? `<button class="btn sm" data-r1="${c.id}" aria-label="${esc(c.name)} için d20 + bonus at">d20</button>` : '<span></span>'}</div>`;
-  const group = (h, cls, L) => (L.length ? `<p class="ihead ${cls}">${h}</p>${L.map(row).join('')}` : '');
+  const group = (h, cls, L) => (L.length ? `<div class="fsec ig" style="--h:${cls === 'ally' ? SEC.party : SEC.foes}"><h4 class="ihead ${cls}">${h}</h4>${L.map(row).join('')}</div>` : '');
   // During a fight "Kaydet" only fixes values and keeps the turn; "Baştan başlat" starts round 1.
   const running = S.cur != null;
   openSheet(`<h3>İnisiyatif gir</h3><p class="sub">Her biri için toplam inisiyatifi yaz (oyuncular söyler); düşmanlara istersen d20 + bonus at (sabit inisiyatifliler atılmaz).${running ? ' Savaş sürüyor: “Kaydet” sırayı korur.' : ''}</p>
@@ -929,7 +962,7 @@ function groupSheet() {
   if (!targets.length) { toast('Önce kartlara dokunup hedef seç'); return; }
   const st = { v: '' }; const mode = Object.fromEntries(targets.map((c) => [c.id, 'full']));
   openSheet(`<h3>Toplu hasar</h3><p class="sub">ör. Fireball: save’i başaranlar yarı hasar alır. Sonuçlar “Son işlemler”e yazılır.</p>${pad()}
-    <div class="targets">${targets.map((c) => `<div class="trow"><span>${esc(c.name)} <small style="color:var(--muted)">${c.hp}/${c.max}</small></span><span class="seg" data-t="${c.id}"><button data-m="full" aria-pressed="true">Tam</button><button data-m="half" aria-pressed="false">Yarı</button><button data-m="none" aria-pressed="false">Yok</button></span></div>`).join('')}</div>
+    <div class="fsec" style="--h:${SEC.list}"><h4>Hedefler</h4><div class="targets">${targets.map((c) => `<div class="trow"><span>${esc(c.name)} <small style="color:var(--muted)">${c.hp}/${c.max}</small></span><span class="seg" data-t="${c.id}"><button data-m="full" aria-pressed="true">Tam</button><button data-m="half" aria-pressed="false">Yarı</button><button data-m="none" aria-pressed="false">Yok</button></span></div>`).join('')}</div></div>
     <div class="acts" style="grid-template-columns:1fr"><button class="btn dmg" data-do="1">Hasarı uygula</button></div>`);
   const apply = () => {
     const a = +st.v || 0; if (!a) { toast('Önce bir sayı gir'); return; }
@@ -973,8 +1006,8 @@ document.addEventListener('click', (e) => {
 // counts cleared; damage at 0 HP ends it and the saves start again.
 function dsSheet(c) {
   openSheet(`<h3>${esc(c.name)} · death save</h3><p class="sub">${c.stable ? 'Stabil (0 can, Unconscious). Hasar alırsa death save yeniden başlar.' : `Başarılı ${c.ds[0]}/3 · başarısız ${c.ds[1]}/3. 20 atarsa 1 canla kalkar; 1 atarsa iki başarısız sayılır.`}</p>
-    <div class="acts"><button class="btn heal" data-d="s">Başarılı</button><button class="btn dmg" data-d="f">Başarısız</button><button class="btn" data-d="20">20 attı</button></div>
-    <div class="acts"><button class="btn" data-d="1">1 attı</button><button class="btn" data-d="stable">Stabil</button><button class="btn" data-d="reset">Sıfırla</button></div>`);
+    <div class="acts"><button class="btn heal" data-d="s">Başarılı</button><button class="btn dmg" data-d="f">Başarısız</button><button class="btn hue" style="--h:48" data-d="20">20 attı</button></div>
+    <div class="acts"><button class="btn hue" style="--h:0" data-d="1">1 attı</button><button class="btn hue" style="--h:150" data-d="stable">Stabil</button><button class="btn hue" style="--h:220" data-d="reset">Sıfırla</button></div>`);
   $('#sheetBody').onclick = (e) => {
     const d = e.target.closest('[data-d]')?.dataset.d; if (!d) return;
     snap();
@@ -1230,6 +1263,17 @@ function fit() {
   V.x = (m.width - (x1 - x0) * CELL * V.z) / 2 - x0 * CELL * V.z;
   V.y = (m.height - (y1 - y0) * CELL * V.z) / 2 - y0 * CELL * V.z; centreSmall(); applyView();
 }
+// DM4: a new template is brought fully into view, clear of the info box, the control column and the bottom (a cone with
+// its direction handle too), so no part of it starts under the bottom tabs or the buttons.
+function showArea(a) {
+  const m = $('#mapView').getBoundingClientRect(); if (!m.width) return;
+  const b = areaBox(a), pad = a.shape === 'cone' ? 1.2 : 0.4, k = CELL * V.z;
+  const x0 = (b.x - pad) * k + V.x, x1 = (b.x + b.w + pad) * k + V.x, y0 = (b.y - pad) * k + V.y, y1 = (b.y + b.h + pad) * k + V.y;
+  const L = 8, R = m.width - 64, T = 60, B = m.height - 56;
+  if (x1 - x0 > R - L) V.x += (L + R) / 2 - (x0 + x1) / 2; else if (x0 < L) V.x += L - x0; else if (x1 > R) V.x -= x1 - R;
+  if (y1 - y0 > B - T) V.y += (T + B) / 2 - (y0 + y1) / 2; else if (y0 < T) V.y += T - y0; else if (y1 > B) V.y -= y1 - B;
+  applyView();
+}
 (() => {
   const view = $('#mapView'); const pts = new Map(); let drag = null, pan = null, pinch = null, adrag = null;
   // While a token or a template is held, the board is not rebuilt under the finger: the DM applies players' requests,
@@ -1366,7 +1410,14 @@ function fit() {
   $('#zreset').onclick = () => ask('Dizilişi sıfırla', 'Bütün pullar baştaki yerlerine döner.', 'Sıfırla', () => { snap(); S.list.forEach((c) => { c.gx = null; c.gy = null; }); log('Harita dizilişi sıfırlandı'); render(); fit(); });
   $('#zmeasure').onclick = () => { UI.measure = UI.measure ? null : { a: null }; $('#zmeasure').setAttribute('aria-pressed', String(!!UI.measure)); clearMeasure(); $('#dist').innerHTML = UI.measure ? 'Ölç: ilk pula dokun' : 'Pulu sürükle: hareket · <b>5 ft</b> = 1 kare'; renderMap(); };
   // Alan: choose a shape; the template appears in the middle of the current view, selected.
-  const pick = (open) => { $('#apick').hidden = !open; $('#zarea').setAttribute('aria-expanded', String(open)); };
+  // DM4 (owner: "alan secerken koni alt menunun altinda kalıyor"): the chooser (two columns) opens beside the Alan
+  // button but always inside the map view, above the bottom tabs, however short the screen is.
+  const pick = (open) => {
+    const p = $('#apick'); p.hidden = !open; $('#zarea').setAttribute('aria-expanded', String(open));
+    if (!open) return;
+    const v = view.getBoundingClientRect(), z = $('#zarea').getBoundingClientRect();
+    p.style.top = Math.max(8, Math.min(z.top - v.top, v.height - p.offsetHeight - 8)) + 'px';
+  };
   $('#zarea').onclick = () => pick($('#apick').hidden);
   $('#apick').onclick = (e) => {
     const shape = e.target.closest('[data-shape]')?.dataset.shape; if (!shape) return;
@@ -1378,7 +1429,7 @@ function fit() {
     else { a.gx = clamp(Math.round(mx - a.w / 2), 0, COLS - a.w); a.gy = clamp(Math.round(my - a.h / 2), 0, ROWS - a.h); }
     pick(false);
     if (W.on) { if (playerCanAct()) playerArea('add', a); return; }
-    snap(); areas().push(a); UI.area = a.id; log(`${AREA_NAME[shape]} alan eklendi: ${areaLabel(a)}`); render();
+    snap(); areas().push(a); UI.area = a.id; log(`${AREA_NAME[shape]} alan eklendi: ${areaLabel(a)}`); render(); showArea(a);
   };
   $('#board').addEventListener('click', (e) => {
     if (!e.target.closest('[data-adel]') || !UI.area) return;
@@ -1569,22 +1620,20 @@ function addFoeSheet() {
 function cardSheet(k, after) {
   const c = k || { name: '', sub: '', ac: 12, max: 10, hpf: '', mod: 0, ini: null, size: 1, la: null, lr: null, note: '' };
   openSheet(`<h3>${k ? esc(cardLabel(k)) : 'Yeni yaratık kartı'}</h3><p class="sub">Savaşta “+ Düşman ekle” ile istediğin kadar eklenir. Can formülü yazarsan her kopya ister ortalamayı alır, ister kendi canını zarla.</p>
-    <div class="fields">
-      <label class="wide">Ad<input id="k-name" value="${esc(c.name)}" placeholder="ör. Haydut"></label>
-      <label class="wide">Alt yazı<input id="k-sub" value="${esc(c.sub)}" placeholder="ör. okçu, brawler, lider"></label>
-      <label>AC<input id="k-ac" inputmode="numeric" value="${c.ac}"></label>
-      <label>En yüksek can<input id="k-max" inputmode="numeric" value="${c.max}"></label>
-      <label>Can formülü (isteğe bağlı)<input id="k-hpf" value="${esc(c.hpf)}" placeholder="ör. 2d8+2" autocomplete="off" spellcheck="false"></label>
-      <label>&nbsp;<output id="k-avg" class="hint"></output></label>
-      ${numField('k-mod', 'İnisiyatif bonusu', c.mod)}
-      ${numField('k-ini', 'Sabit inisiyatif', c.ini ?? '')}
-      <p class="wide hint inih" id="k-inih"></p>
-      <label>Legendary Action<input id="k-la" inputmode="numeric" value="${c.la ?? ''}" placeholder="—"></label>
-      <label>Legendary Resistance<input id="k-lr" inputmode="numeric" value="${c.lr ?? ''}" placeholder="—"></label>
-      <div class="wide"><span style="font-size:.78rem;color:var(--muted);font-weight:700;letter-spacing:.03em">Boyut (haritada)</span>
-        <div class="szseg" id="k-size">${[[1, 'Small / Medium · 1 kare'], [2, 'Large · 2×2'], [3, 'Huge · 3×3'], [4, 'Gargantuan · 4×4']].map(([v, t]) => `<button type="button" data-sz="${v}" aria-pressed="${(c.size || 1) === v}">${t}</button>`).join('')}</div></div>
-      <label class="wide">Not<input id="k-note" value="${esc(c.note)}" placeholder="ör. Multiattack, Resistance: Fire"></label>
-    </div>
+    ${sec('Kimlik', SEC.id, `<label${lab(HUE.name, true)}>Ad<input id="k-name" value="${esc(c.name)}" placeholder="ör. Haydut"></label>
+      <label${lab(HUE.sub, true)}>Alt yazı<input id="k-sub" value="${esc(c.sub)}" placeholder="ör. okçu, brawler, lider"></label>`)}
+    ${sec('Savaş', SEC.fight, `<label${lab(HUE.ac, true)}>AC<input id="k-ac" inputmode="numeric" value="${c.ac}"></label>
+      ${numField('k-mod', 'İnisiyatif bonusu', c.mod, false, HUE.ini)}
+      ${numField('k-ini', 'Sabit inisiyatif', c.ini ?? '', false, HUE.ini)}
+      <p class="wide hint inih" id="k-inih"></p>`)}
+    ${sec('Can', SEC.hp, `<label${lab(HUE.hp)}>En yüksek can<input id="k-max" inputmode="numeric" value="${c.max}"></label>
+      <label${lab(HUE.formula)}>Can formülü (isteğe bağlı)<input id="k-hpf" value="${esc(c.hpf)}" placeholder="ör. 2d8+2" autocomplete="off" spellcheck="false"></label>
+      <label class="wide"><output id="k-avg" class="hint"></output></label>`)}
+    ${sec('Boyut', SEC.sense, `<div class="wide lh" style="--h:${HUE.size}"><span class="szl">Boyut (haritada)</span>
+        <div class="szseg" id="k-size">${[[1, 'Small / Medium · 1 kare'], [2, 'Large · 2×2'], [3, 'Huge · 3×3'], [4, 'Gargantuan · 4×4']].map(([v, t]) => `<button type="button" data-sz="${v}" aria-pressed="${(c.size || 1) === v}">${t}</button>`).join('')}</div></div>`)}
+    ${sec('Not', SEC.note, `<label${lab(HUE.note, true)}>Not<input id="k-note" value="${esc(c.note)}" placeholder="ör. Multiattack, Resistance: Fire"></label>`)}
+    ${sec('Legendary', SEC.leg, `<label${lab(HUE.la)}>Legendary Action<input id="k-la" inputmode="numeric" value="${c.la ?? ''}" placeholder="—"></label>
+      <label${lab(HUE.lr)}>Legendary Resistance<input id="k-lr" inputmode="numeric" value="${c.lr ?? ''}" placeholder="—"></label>`)}
     <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-ksave="1">Kaydet</button></div>
     ${k ? '<div class="acts" style="grid-template-columns:1fr"><button class="btn" data-kdup="1">Çoğalt</button></div><button class="danger" data-kdel="1">Kartı sil</button>' : ''}`);
   // The formula's average shows as it is typed; an empty max HP (or one still equal to the last average) follows it.
@@ -1651,9 +1700,9 @@ function prepSheet(f, draft) {
   const cnt = draft?.cnt || dict((f?.items || []).map((i) => [i.card, i.n]));
   const name0 = draft ? draft.name : f?.name || '', note0 = draft ? draft.note : f?.note || '';
   openSheet(`<h3>${f ? esc(f.name) : 'Yeni hazır savaş'}</h3><p class="sub">Olası bir savaşın yaratıkları. Oraya gelince “Savaşı başlat”: düşmanlar savaşa girer, bizim taraf kalır, inisiyatif ekranı açılır.</p>
-    <div class="fields"><label class="wide">Ad<input id="p-name" value="${esc(name0)}" placeholder="ör. Yoldaki haydutlar"></label>
-      <label class="wide">Not (isteğe bağlı)<input id="p-note" value="${esc(note0)}" placeholder="ör. Köprüde pusu, okçular arkada"></label></div>
-    ${LB.cards.length ? `<div class="sec">Yaratıklar</div>${counterHtml(cnt)}${rollSeg()}` : '<p class="note">Önce bir yaratık kartı oluştur.</p>'}
+    ${sec('Hazır savaş', SEC.id, `<label${lab(HUE.name, true)}>Ad<input id="p-name" value="${esc(name0)}" placeholder="ör. Yoldaki haydutlar"></label>
+      <label${lab(HUE.note, true)}>Not (isteğe bağlı)<input id="p-note" value="${esc(note0)}" placeholder="ör. Köprüde pusu, okçular arkada"></label>`)}
+    ${LB.cards.length ? sec('Yaratıklar', SEC.list, `${counterHtml(cnt)}${rollSeg()}`, false) : '<p class="note">Önce bir yaratık kartı oluştur.</p>'}
     ${f?.layout ? `<div class="trow"><span class="sub" style="margin:0">Haritadaki diziliş kayıtlı (${f.layout.foes.length + f.layout.allies.length} pul).</span><button class="btn sm" data-play="1">Dizilişi sil</button></div>` : ''}
     <div class="acts" style="grid-template-columns:${f ? '1fr 1fr' : '1fr'}">${f ? '<button class="btn" data-psave="1">Kaydet</button><button class="btn pri" data-pgo="1">Savaşı başlat</button>' : '<button class="btn pri" data-psave="1">Kaydet</button>'}</div>
     <div class="acts" style="grid-template-columns:1fr"><button class="btn" data-newk="1">Yeni kart</button></div>
@@ -2078,8 +2127,8 @@ async function liveSheet() {
     <div class="lcode" aria-label="Oda kodu">${LV.code}</div>
     <div class="qr" id="liveQr" aria-label="QR kod: uygulamanın bu odalı bağlantısı"></div>
     <p class="lstat" id="liveStat" aria-live="polite"></p>
-    <div class="targets" id="livePlayers"></div>
-    <div class="trow lact"><span>Oyuncular hareket edebilir<small>kendi pulunu oynatır, kendi alanlarını koyar (kişi başı en çok ${PLAYER_AREAS})</small></span><button class="btn sm" data-lact="1" aria-pressed="${LV.act}">${LV.act ? 'Açık' : 'Kapalı'}</button></div>
+    <div class="fsec" style="--h:${SEC.players}"><h4>Oyuncular</h4><div class="targets" id="livePlayers"></div>
+    <div class="trow lact"><span>Oyuncular hareket edebilir<small>kendi pulunu oynatır, kendi alanlarını koyar (kişi başı en çok ${PLAYER_AREAS})</small></span><button class="btn sm" data-lact="1" aria-pressed="${LV.act}">${LV.act ? 'Açık' : 'Kapalı'}</button></div></div>
     <p class="sub">Düşmanların yalnız adı ile “Ağır yaralı” / “düştü” durumu görünür; can, AC ve notlar gitmez. Bizim tarafın canları görünür. <b>Çıkar</b> oyuncuyu odadan atar; <b>Yeni kod</b> herkesi düşürür, yeni kodla yeniden katılırlar.</p>
     <p class="note">Bağlantı telefondan telefona: aynı Wi-Fi’de çalışır. Bazı mobil ağlar engelleyebilir; o zaman herkes aynı Wi-Fi’ye bağlansın. İlk bağlantı için internet gerekir.</p>
     <div class="acts"><button class="btn" data-lstop="1">Paylaşımı kapat</button><button class="btn" data-lnew="1">Yeni kod</button><button class="btn pri" data-lok="1">Tamam</button></div>`);
@@ -2176,7 +2225,7 @@ function watchMsg(m) {
     if (W.raw) { if (UI.gesture) { W.next = JSON.parse(W.raw); W.dirty = true; } else W.P = JSON.parse(W.raw); }
     toast(typeof m.why === 'string' ? m.why.slice(0, 80) : 'DM kabul etmedi', true); if (!UI.gesture) render(); return;
   }
-  if (m.t === 'ok') { if (W.wantSel) { W.wantSel = false; UI.area = cid(m.id) || null; if (!UI.gesture) renderWatchMap(); } return; }
+  if (m.t === 'ok') { if (W.wantSel) { W.wantSel = false; UI.area = cid(m.id) || null; if (!UI.gesture) { renderWatchMap(); const a = W.P?.areas.find((x) => x.id === UI.area); if (a) showArea(a); } } return; }
   if (m.t === 'kick') watchStop('DM seni odadan çıkardı');
   if (m.t === 'full') watchStop(`Oda dolu: en çok ${Number.isInteger(m.max) ? m.max : 12} oyuncu bağlanabilir`);
 }
