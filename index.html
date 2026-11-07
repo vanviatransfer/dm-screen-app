@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '0fd1ea7ac5'; window.__BUILT__ = '2026-11-07 00:50';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '120e96cf6a'; window.__BUILT__ = '2026-11-07 13:36';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -210,7 +210,9 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .tok.ally i{background:var(--ally-bg);color:var(--ally);border-color:var(--ally)}
 .tok.now i{box-shadow:0 0 0 3px var(--acc),0 0 14px rgba(217,168,119,.6)}
 .tok.down i{opacity:.4;filter:grayscale(.8)}
-.tok b{position:absolute;bottom:-3px;left:50%;transform:translate(-50%,100%);font-size:calc(var(--cell) * .2);white-space:nowrap;color:var(--ink);background:rgba(0,0,0,.6);border-radius:4px;padding:0 4px;pointer-events:none;max-width:calc(var(--cell) * 2.4);overflow:hidden;text-overflow:ellipsis}
+.tok b{position:absolute;bottom:-3px;left:50%;transform:translate(-50%,100%);font-size:calc(var(--cell) * .2);white-space:nowrap;color:var(--ink);background:rgba(0,0,0,.6);border-radius:4px;padding:0 4px;pointer-events:none;max-width:calc(var(--cell) * 2.4);display:flex}
+.tok b span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tok b .n{flex:none;margin-left:.3em}
 .tok .hpbar{position:absolute;left:12%;right:12%;top:-1px;height:4px;border-radius:2px;background:rgba(0,0,0,.6);overflow:hidden}
 .tok .hpbar s{display:block;height:100%;text-decoration:none}
 .tok.drag{cursor:grabbing;z-index:3}
@@ -1139,6 +1141,17 @@ function drawMeasure(a, b) {
 }
 // "Hobgoblin 2" → HO2, "Hobgoblin Captain" → HC, "Worg" → WO.
 function initials(n) { const p = n.trim().split(/\s+/); const last = p.at(-1); return (p.length > 1 && /^\d+$/.test(last) ? p[0].slice(0, 2) + last : p.length > 1 ? p[0][0] + p[1][0] : n.slice(0, 2)).toUpperCase(); }
+// DM6 (owner 2026-11-07: "Haydut (okçu) 1 olarak gelmeli"): on the map an enemy with a subtitle is named as the cards
+// name it, with its copy number last: "Haydut 1" + "okçu" → "Haydut (okçu) 1". Without a subtitle the name as it is.
+// head / n: the token label shortens head (ellipsis) and always keeps the number.
+function mapName(c) {
+  const name = c.name || '', sub = c.side === 'foe' && c.sub ? c.sub : '';
+  const m = sub ? /^(.*\S)\s+(\d+)$/.exec(name) : null;
+  const head = sub ? `${m ? m[1] : name} (${sub})` : name, n = m ? m[2] : '';
+  return { head, n, full: n ? `${head} ${n}` : head };
+}
+const mapLabel = (c) => mapName(c).full;
+const tokLabel = (c) => { const { head, n } = mapName(c); return `<b><span>${esc(head)}</span>${n ? `<span class="n">${n}</span>` : ''}</b>`; };
 /* ---------- area templates (owner request 2026-11-06): circle, square, rectangle, cone; sizes in whole squares (5 ft) ----------
    Circle: centre on a grid intersection (cx, cy), radius r squares. Square / rectangle: top-left square (gx, gy), w × h squares.
    Cone (DM3, owner 2026-11-06: "bir de alanlara cone ekleyelim"): origin point (ox, oy) on a grid line (an intersection or
@@ -1222,7 +1235,7 @@ function areaHtml(a) {
 function areaInfo(a) {
   const who = inArea(a), owner = a.by ? mapList().find((c) => c.id === a.by) : null;
   const head = a.shape === 'cone' ? `<b>${areaLabel(a)}</b> · yön ${a.ang}°` : `${AREA_NAME[a.shape]}: <b>${areaLabel(a)}</b>`;
-  return `${head}${owner ? ` · koyan: ${esc(owner.name)}` : ''} · ${who.length ? 'İçinde: ' + who.map((c) => esc(c.name)).join(', ') : 'İçinde kimse yok'}`;
+  return `${head}${owner ? ` · koyan: ${esc(mapLabel(owner))}` : ''} · ${who.length ? 'İçinde: ' + who.map((c) => esc(mapLabel(c))).join(', ') : 'İçinde kimse yok'}`;
 }
 const DIST_DEFAULT = 'Pulu sürükle: hareket · <b>5 ft</b> = 1 kare';
 function renderMap() {
@@ -1233,8 +1246,8 @@ function renderMap() {
   const inside = new Set(areas().flatMap((a) => inArea(a).map((c) => c.id)));
   b.innerHTML = areas().map(areaHtml).join('') + S.list.map((c) => {
     const pct = Math.max(0, Math.min(100, (c.hp / c.max) * 100));
-    return `<div class="tok ${c.side}${S.cur === c.id ? ' now' : ''}${!takesTurn(c) ? ' down' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${c.id}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${sz(c)}" role="button" aria-label="${esc(c.name)}, can ${c.hp}/${c.max}">
-      <i><span class="hpbar"><s style="width:${pct}%;background:${hpColor(c)}"></s></span>${esc(initials(c.name))}</i><b>${esc(c.name)}</b></div>`;
+    return `<div class="tok ${c.side}${S.cur === c.id ? ' now' : ''}${!takesTurn(c) ? ' down' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${c.id}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${sz(c)}" role="button" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}, can ${c.hp}/${c.max}">
+      <i><span class="hpbar"><s style="width:${pct}%;background:${hpColor(c)}"></s></span>${esc(initials(c.name))}</i>${tokLabel(c)}</div>`;
   }).join('');
   if (UI.measure?.b) { const a = byId(UI.measure.a), b = byId(UI.measure.b); if (a && b) drawMeasure(a, b); }
   // The selected template's size and the creatures in it; the group-damage button when anyone is in it.
@@ -1368,7 +1381,7 @@ function showArea(a) {
       // Grid distance as the 5e rules count it on a grid: every square is 5 ft, diagonals too.
       const sq = Math.max(Math.abs(gx - drag.from[0]), Math.abs(gy - drag.from[1]));
       const other = mapList().find((o) => o !== drag.c && o.gx != null && gap({ gx, gy, size: s }, o) === 0);
-      $('#dist').innerHTML = `${esc(drag.c.name)}: <b>${sq * 5} ft</b> (${sq} kare)${other ? ` · ${esc(other.name)} bu karede` : ''}`;
+      $('#dist').innerHTML = `${esc(mapLabel(drag.c))}: <b>${sq * 5} ft</b> (${sq} kare)${other ? ` · ${esc(mapLabel(other))} bu karede` : ''}`;
     }
   });
   const end = (e) => {
@@ -1401,8 +1414,8 @@ function showArea(a) {
       } else if (!drag.moved && e.type === 'pointerup' && UI.measure) {
         // Measuring: first tap picks a creature, the second shows the distance; a third tap starts over.
         const m = UI.measure;
-        if (!m.a || m.b) { m.a = drag.c.id; m.b = null; clearMeasure(); $('#dist').innerHTML = `Ölç: ${esc(drag.c.name)} · ikinci pula dokun`; }
-        else if (m.a !== drag.c.id) { m.b = drag.c.id; const a = byId(m.a); $('#dist').innerHTML = `${esc(a.name)} ↔ ${esc(drag.c.name)}: <b>${gap(a, drag.c)} ft</b>`; }
+        if (!m.a || m.b) { m.a = drag.c.id; m.b = null; clearMeasure(); $('#dist').innerHTML = `Ölç: ${esc(mapLabel(drag.c))} · ikinci pula dokun`; }
+        else if (m.a !== drag.c.id) { m.b = drag.c.id; const a = byId(m.a); $('#dist').innerHTML = `${esc(mapLabel(a))} ↔ ${esc(mapLabel(drag.c))}: <b>${gap(a, drag.c)} ft</b>`; }
         renderMap();
       } else if (!drag.moved && e.type === 'pointerup') hpSheet(drag.c);
       else { drag.el.style.left = drag.from[0] * CELL + 'px'; drag.el.style.top = drag.from[1] * CELL + 'px'; }
@@ -1859,7 +1872,8 @@ $('#libFile').onchange = () => { const f = $('#libFile').files?.[0]; if (f) libI
    WebRTC data channel, phone to phone; only the first handshake goes through the free public PeerJS server. No relay
    (TURN): it works on the same Wi-Fi, some mobile networks block it. Needs the network; the app itself still opens offline.
    The DM side filters: players get only what the player view shows. Enemies: name and "Ağır yaralı" / "düştü" (D2),
-   conditions and the Concentration tag; never HP numbers, AC, notes, subtitles or the log. Our side: HP. */
+   conditions and the Concentration tag; never HP numbers, AC, notes or the log. Our side: HP. DM6 (owner 2026-11-07):
+   an enemy's subtitle goes too, the map names it "Haydut (okçu) 1" (mapName). */
 const LIBS = {
   peer: ['https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js', 'sha384-x0YgkOr/3UOZP2CRDxGW9e0Q+2Qjyr3uJrm4xU32Y7ZCNAo7Cc7bjhrZMi/dwczu'],
   qr: ['https://unpkg.com/qrcode-generator@1.4.4/qrcode.js', 'sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k'],
@@ -1900,7 +1914,7 @@ function publicState() {
     list: order().map((c) => {
       const o = { id: c.id, side: c.side, name: c.name, size: sz(c), gx: c.gx, gy: c.gy, turn: takesTurn(c), conds: c.conds.map((x) => ({ k: x.k, r: x.r })), conc: !!c.conc };
       if (c.side === 'ally') Object.assign(o, { hp: c.hp, max: c.max, tmp: c.tmp, concOn: c.concOn || '', ds: [...c.ds], stable: !!c.stable, dead: isDead(c) });
-      else o.st = isDown(c) ? 'down' : c.hp <= c.max / 2 ? 'bloodied' : '';
+      else Object.assign(o, { sub: c.sub || '', st: isDown(c) ? 'down' : c.hp <= c.max / 2 ? 'bloodied' : '' });
       return o;
     }),
     // by: the character a player's template belongs to ('' = the DM's)
@@ -1917,7 +1931,7 @@ function cleanState(s) {
     const o = { id: id(c.id), side: c.side === 'ally' ? 'ally' : 'foe', name: str(c.name), size: Math.max(1, Math.min(4, n(c.size, 1))), gx: c.gx == null ? null : n(c.gx), gy: c.gy == null ? null : n(c.gy), turn: c.turn !== false,
       conds: (Array.isArray(c.conds) ? c.conds : []).slice(0, 20).map((x) => ({ k: str(x?.k), r: x?.r == null ? null : n(x.r) })), conc: !!c.conc };
     if (o.side === 'ally') Object.assign(o, { hp: n(c.hp), max: Math.max(1, n(c.max, 1)), tmp: n(c.tmp), concOn: str(c.concOn), ds: [n(c.ds?.[0]), n(c.ds?.[1])], stable: !!c.stable, dead: !!c.dead });
-    else o.st = c.st === 'down' || c.st === 'bloodied' ? c.st : '';
+    else Object.assign(o, { sub: str(c.sub), st: c.st === 'down' || c.st === 'bloodied' ? c.st : '' });
     return o;
   });
   const areasIn = (Array.isArray(s.areas) ? s.areas : []).slice(0, 80).map((a) => { const g = cleanArea(a); return g && { id: id(a.id), by: id(a.by), ...g }; }).filter(Boolean);
@@ -2427,7 +2441,7 @@ function wcard(c, pos, now) {
   const state = c.dead ? ' · öldü' : down ? ' · düştü' : dying ? (c.stable ? ' · stabil' : ' · ölüyor') : '';
   const shield = Math.max(c.max + (c.tmp || 0), c.max);
   return `<article class="card ro ${c.side}${now ? ' now' : ''}${down ? ' down' : ''}${c.dead ? ' dead' : ''}" data-id="${c.id}">
-    <div class="top"><span class="ini" aria-label="Sırada ${pos}.">${pos}<small>sıra</small></span><span class="name"><b>${esc(c.name)}</b><span>${ally ? 'Biz' : 'Düşman'}${state}</span></span></div>
+    <div class="top"><span class="ini" aria-label="Sırada ${pos}.">${pos}<small>sıra</small></span><span class="name"><b>${esc(c.name)}</b><span>${ally ? 'Biz' : esc(c.sub || 'Düşman')}${state}</span></span></div>
     ${ally ? `<div class="hp" aria-label="Can ${c.hp} / ${c.max}"><span class="nums"><span class="cur">${c.hp}<small> / ${c.max}</small></span>${c.tmp ? `<span class="tmp">+${c.tmp} geçici</span>` : ''}</span>
       <span class="bar"><i style="width:${Math.max(0, c.hp / shield * 100)}%;background:${hpColor(c)}"></i><i class="t" style="width:${(c.tmp || 0) / shield * 100}%"></i></span></div>` : ''}
     ${tags ? `<div class="conds">${tags}</div>` : ''}
@@ -2460,7 +2474,7 @@ function renderWatchMap() {
   const inside = new Set(P ? P.areas.flatMap((a) => inArea(a).map((c) => c.id)) : []);
   b.innerHTML = !P ? '' : P.areas.map(areaHtml).join('') + P.list.filter((c) => c.gx != null).map((c) => {
     const bar = c.side === 'ally' ? `<span class="hpbar"><s style="width:${Math.max(0, Math.min(100, c.hp / c.max * 100))}%;background:${hpColor(c)}"></s></span>` : '';
-    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${esc(c.id)}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${c.size}" aria-label="${esc(c.name)}"><i>${bar}${esc(initials(c.name || '?'))}</i><b>${esc(c.name)}</b></div>`;
+    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${esc(c.id)}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${c.size}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i>${bar}${esc(initials(c.name || '?'))}</i>${tokLabel(c)}</div>`;
   }).join('');
   $('#dist').innerHTML = sel ? areaInfo(sel) : W.conn?.open ? (act ? '<b>Canlı</b> · kendi pulunu sürükle: hareket' : meIn(P) && !P.pl.on ? '<b>Canlı</b> · DM hareketi şu an kapattı' : '<b>Canlı</b> · yalnız izleme') : esc(W.msg || 'Bağlanıyor…');
   applyView();
