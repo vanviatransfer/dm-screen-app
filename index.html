@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '3086e82f04'; window.__BUILT__ = '2026-11-07 14:52';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '26963189ef'; window.__BUILT__ = '2026-11-07 15:13';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -408,7 +408,8 @@ body.watch .sess{display:none!important}
   .hpg .pad button{min-height:44px}
   .hpg .dmod{margin-top:4px}
   /* the fight screen on its side: a lower header (round, buttons, turn strip) and bottom tabs with the icon beside the
-     label leave about 70 px more for the cards; the map and the bars above the tabs follow the tabs' height */
+     label leave about 50 px more for the cards (free height 208 → 257 px, measured at 844 × 390); the map and the bars
+     above the tabs follow the tabs' height */
   .hd{padding-block:5px 4px}
   .round{padding:1px 10px 2px}
   .round span{font-size:.62rem}
@@ -562,14 +563,17 @@ function pushHist(s, tag = null) {
   histDirty = true;
 }
 // DM7 (review item 8): the undo stack is kept with the fight (its own key), so Geri al still works after a reload.
-// Cap: the newest steps up to UNDO_CHARS characters (the storage is shared with the character apps on the same origin);
+// Cap: the newest steps up to UNDO_CHARS characters as stored (each step's JSON-escaped length; the storage is shared
+// with the character apps on the same origin);
 // a full storage keeps fewer steps, never breaks saving the fight. Each step keeps whose it was (DM or a player, DM3b).
 const UNDO_KEY = 'dmscreen-undo-v1', UNDO_CHARS = 400000;
 let histDirty = false;
 function histSave() {
   if (!histDirty) return; histDirty = false;
   let n = 0, used = 0;
-  while (n < history.length && used + history[history.length - 1 - n].length <= UNDO_CHARS) used += history[history.length - 1 - n++].length;
+  // DM7b (review N2): measured as stored, the JSON-escaped string plus its separator
+  const len = (s) => JSON.stringify(s).length + 1;
+  while (n < history.length && used + len(history[history.length - 1 - n]) <= UNDO_CHARS) used += len(history[history.length - 1 - n++]);
   for (; ; n = Math.floor(n / 2)) {
     const h = history.slice(history.length - n), t = histTag.slice(histTag.length - n).map((x) => (x ? { who: String(x.who || '') } : null));
     try { if (n) localStorage.setItem(UNDO_KEY, JSON.stringify({ v: 1, h, t })); else localStorage.removeItem(UNDO_KEY); return; } catch {}
@@ -583,7 +587,18 @@ function histSave() {
     o.h.slice(-HIST_MAX).forEach((s, i, a) => { if (typeof s === 'string') { history.push(s); const t = o.t?.[o.h.length - a.length + i]; histTag.push(t && typeof t === 'object' ? { who: String(t.who || '') } : null); } });
   } catch {}
 })();
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} histSave(); };
+// DM7b (review N1): the fight comes first. If storage is full, the stored undo steps go and the fight is written again;
+// histSave then keeps as many steps as still fit (halving). Only when even that fails is the DM told (once).
+let saveWarned = false;
+function save() {
+  const text = JSON.stringify(S);
+  try { localStorage.setItem(KEY, text); saveWarned = false; }
+  catch {
+    try { localStorage.removeItem(UNDO_KEY); histDirty = true; localStorage.setItem(KEY, text); saveWarned = false; }
+    catch { if (!saveWarned) { saveWarned = true; setTimeout(() => toast('Savaş kaydedilemedi: cihazda yer yok', true)); } return; }
+  }
+  histSave();
+}
 const snap = () => pushHist(JSON.stringify(S));
 const $ = (s) => document.querySelector(s);
 const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -687,16 +702,24 @@ function startTurn(c) {
 // DM7: a condition's duration counts down at the start (at 's', the default) or the end (at 'e') of a creature's turn:
 // the affected creature's own (by empty), or another one's, the source or caster (by = its id; gone from the fight →
 // the creature's own turn again). tick(t, when) counts every duration tied to t's turn start or end.
-const condSrc = (c, x) => (x.by && byId(x.by) ? x.by : c.id);
-function tick(t, when) {
+// DM7b (review N4): a source that no longer takes turns (down, dead) counts as gone too.
+const condSrc = (c, x) => { const s = x.by ? byId(x.by) : null; return s && takesTurn(s) ? s.id : c.id; };
+function tick(t, when, quiet = false) {
   for (const c of S.list) {
     const gone = [];
     c.conds = c.conds.filter((x) => {
       if (x.r == null || x.k === 'Exhaustion' || condSrc(c, x) !== t.id || (x.at === 'e' ? 'e' : 's') !== when) return true;
       x.r -= 1; if (x.r <= 0) { gone.push(x.k); return false; } return true;
     });
-    if (gone.length) { log(`<b>${esc(c.name)}</b>: ${gone.join(', ')} bitti`); toast(`${c.name}: ${gone.join(', ')} bitti`); }
+    if (gone.length) { log(`<b>${esc(c.name)}</b>: ${gone.join(', ')} bitti`); if (!quiet) toast(`${c.name}: ${gone.join(', ')} bitti`); }
   }
+}
+// DM7b (review N4): a creature that takes no turn (a foe down, someone dead) is passed over by "Sıradaki"; its turn's
+// start and end still count its own durations (once per round, quietly: only the log), so they do not freeze while it is
+// out and run on if it is back in the fight.
+function passTurn(c) {
+  if (c.turnRound !== S.round) { c.turnRound = S.round; tick(c, 's', true); }
+  if (c.endRound !== S.round) { c.endRound = S.round; tick(c, 'e', true); }
 }
 // The end of a creature's turn ("Sıradaki" leaves it); once per creature per round, as startTurn.
 function endTurn(c) {
@@ -724,6 +747,7 @@ function step(d) {
     i += d;
     if (i >= ord.length) { i = 0; S.round++; }
     if (i < 0) { i = ord.length - 1; S.round = Math.max(1, S.round - 1); }
+    if (d > 0 && !takesTurn(ord[i])) passTurn(ord[i]);
   } while (!takesTurn(ord[i]) && ++guard < ord.length * 2);
   const c = ord[i]; S.cur = c.id; S.curInit = c.init;
   if (d > 0) { startTurn(c); log(`Sıra: <b>${esc(c.name)}</b>`); }
