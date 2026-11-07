@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '26963189ef'; window.__BUILT__ = '2026-11-07 15:13';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = 'dd0df0c67d'; window.__BUILT__ = '2026-11-07 18:24';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -205,13 +205,15 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .szseg{display:flex;flex-wrap:wrap;gap:6px}
 .szseg button{min-height:40px;padding:0 10px;border:1px solid var(--ctl);border-radius:10px;background:var(--bg);font-size:.86rem}
 .szseg button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);font-weight:700}
-.tok i{width:86%;height:86%;border-radius:50%;display:grid;place-items:center;font-style:normal;font-family:var(--display);font-weight:700;font-size:calc(var(--cell) * .3 * var(--sz,1));border:2px solid;box-shadow:0 2px 6px rgba(0,0,0,.5);position:relative}
+.tok i{width:86%;height:86%;border-radius:50%;display:grid;place-items:center;font-style:normal;font-family:var(--display);font-weight:700;font-size:calc(var(--cell) * .3 * var(--sz,1) * min(1, 3 / var(--tn,3)));white-space:nowrap;border:2px solid;box-shadow:0 2px 6px rgba(0,0,0,.5);position:relative}
 .tok.foe i{background:var(--foe-bg);color:var(--foe);border-color:var(--foe)}
 .tok.ally i{background:var(--ally-bg);color:var(--ally);border-color:var(--ally)}
 .tok.now i{box-shadow:0 0 0 3px var(--acc),0 0 14px rgba(217,168,119,.6)}
 .tok.down i{opacity:.4;filter:grayscale(.8)}
-.tok b{position:absolute;bottom:-3px;left:50%;transform:translate(-50%,100%);font-size:calc(var(--cell) * .2);white-space:nowrap;color:var(--ink);background:rgba(0,0,0,.6);border-radius:4px;padding:0 4px;pointer-events:none;max-width:calc(var(--cell) * var(--lw,2.4));display:flex}
-.tok b span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tok b{position:absolute;bottom:-3px;left:50%;transform:translate(-50%,100%);font-size:calc(var(--cell) * .2);line-height:1.15;white-space:nowrap;color:var(--ink);background:rgba(0,0,0,.6);border-radius:4px;padding:0 4px;pointer-events:none;max-width:calc(var(--cell) * var(--lw,2.4));display:flex;flex-direction:column;align-items:center}
+/* DM8 (review item 1): one or two lines (body.html fitLabel); the number ends the last line and is never cut */
+.tok b .ln{display:flex;max-width:100%;min-width:0}
+.tok b .ln > span:first-child{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .tok b .n{flex:none;margin-left:.3em}
 .tok .hpbar{position:absolute;left:12%;right:12%;top:-1px;height:4px;border-radius:2px;background:rgba(0,0,0,.6);overflow:hidden}
 .tok .hpbar s{display:block;height:100%;text-decoration:none}
@@ -231,7 +233,8 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .alabel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--hz,1));background:rgba(0,0,0,.65);color:var(--acc);font-weight:700;font-size:13px;padding:1px 7px;border-radius:6px;white-space:nowrap;pointer-events:none}
 .area.live .alabel{background:var(--acc);color:var(--acc-ink);font-size:15px}
 .ah{position:absolute;width:calc(36px * var(--hz,1));height:calc(36px * var(--hz,1));transform:translate(-50%,-50%);display:grid;place-items:center;touch-action:none;z-index:2}
-.ah::after{content:"";width:45%;height:45%;border-radius:50%;background:var(--acc);border:2px solid var(--acc-ink)}
+/* DM8 (review item 4): the dot at most .36 of a square, so zoomed out (Sığdır on a phone on its side) it does not hide a token */
+.ah::after{content:"";width:min(45%,calc(var(--cell) * .36));height:min(45%,calc(var(--cell) * .36));border-radius:50%;background:var(--acc);border:2px solid var(--acc-ink)}
 .ah[data-h="n"],.ah[data-h="s"]{cursor:ns-resize} .ah[data-h="e"],.ah[data-h="w"],.ah[data-h="r"]{cursor:ew-resize} .ah[data-h="nw"],.ah[data-h="se"]{cursor:nwse-resize} .ah[data-h="ne"],.ah[data-h="sw"]{cursor:nesw-resize}
 .adel{position:absolute;right:0;top:0;transform:translate(50%,-50%);width:calc(36px * var(--hz,1));height:calc(36px * var(--hz,1));border-radius:50%;background:var(--foe);color:#2a0d09;font-weight:700;font-size:calc(20px * var(--hz,1));line-height:1;display:grid;place-items:center;z-index:2}
 .tok.inarea i{outline:3px solid var(--acc);outline-offset:3px}
@@ -244,7 +247,7 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .aorg{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--acc);transform:translate(-50%,-50%) scale(var(--hz,1));pointer-events:none}
 .ah[data-h="o"],.ah[data-h="len"]{cursor:move}
 .ah[data-h="rot"]{cursor:grab}
-.ah[data-h="rot"]::after{width:52%;height:52%;background:var(--bg);border:3px solid var(--acc)}
+.ah[data-h="rot"]::after{width:min(52%,calc(var(--cell) * .4));height:min(52%,calc(var(--cell) * .4));background:var(--bg);border:3px solid var(--acc)}
 /* a player's template (DM3): the party's green */
 .area.pl{background:rgba(127,191,127,.16);border-color:var(--ally)}
 .area.pl.on{background:rgba(127,191,127,.26)}
@@ -394,6 +397,15 @@ body.watch .sess{display:none!important}
 
 /* DM7: the Can sheet's Resistance / Vulnerability row; a condition's timing choice shows only while the condition is on */
 .dmod{margin-top:10px;font-size:.84rem;color:var(--muted)}
+.dmod + .dmod{margin-top:6px}
+.dmod > span:first-child{white-space:nowrap}
+/* DM8 (review item 6): Toplu hasar: per target the save and Resistance / Vulnerability, under one heading row */
+.tg2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px 10px;align-items:center}
+.tg2 > span:first-child{grid-column:1 / -1}
+.tg2 > .seg{justify-self:start}
+.tg2.thead{font-size:.74rem;color:var(--muted);margin-bottom:-4px}
+.tg2.thead > span:first-child{display:none}
+.targets .trow.tg2 + .trow.tg2{border-top:1px solid var(--line);padding-top:6px}
 .crow .ctime{display:none;grid-column:1 / -1;min-height:38px;border:1px solid color-mix(in srgb,hsl(var(--h) 40% 60%) 45%,var(--ctl));border-radius:10px;background:color-mix(in srgb,hsl(var(--h) 42% 45%) 10%,var(--bg));color:hsl(var(--h) 45% 82%);font:inherit;font-size:.84rem;padding:0 8px}
 .crow:has(> button[aria-pressed="true"]):not(:has(input:placeholder-shown)) .ctime{display:block}
 .improw small{display:block;color:var(--muted);font-size:.8rem;font-weight:400}
@@ -407,6 +419,11 @@ body.watch .sess{display:none!important}
   .hpg .amt output{min-height:42px;margin:0 0 6px;font-size:1.6rem}
   .hpg .pad button{min-height:44px}
   .hpg .dmod{margin-top:4px}
+  /* DM8: a Toplu hasar target on one line: name, save, Resistance / Vulnerability */
+  .hpg .tg2{grid-template-columns:minmax(0,1fr) 136px 156px}
+  .hpg .tg2 > span:first-child{grid-column:auto}
+  .hpg .tg2.thead > span:first-child{display:block}
+  .hpg .tg2 .seg button{min-height:36px}
   /* the fight screen on its side: a lower header (round, buttons, turn strip) and bottom tabs with the icon beside the
      label leave about 50 px more for the cards (free height 208 → 257 px, measured at 844 × 390); the map and the bars
      above the tabs follow the tabs' height */
@@ -781,6 +798,8 @@ function condWhen(c, x) {
   const by = x.by && x.by !== c.id ? byId(x.by) : null, e = x.at === 'e';
   return by ? ` · ${by.name} ${e ? 'sonunda' : 'başında'}` : e ? ' · sıra sonunda' : '';
 }
+// DM8 (review item 7): what Exhaustion does (2024): d20 tests −2 per level, speed −5 ft per level; level 6 is death.
+const exText = (r) => (r >= 6 ? `${r} · ölüm` : `${r} · d20 −${2 * r}, hız −${5 * r} ft`);
 function dots(n, on, cls = '') { let h = ''; for (let k = 0; k < n; k++) h += `<s class="${cls}${k < on ? ' on' : ''}"></s>`; return h; }
 function card(c, pos) {
   const now = S.cur === c.id;
@@ -788,7 +807,7 @@ function card(c, pos) {
   const hpPct = Math.max(0, (c.hp / Math.max(shield, c.max)) * 100), tmpPct = (c.tmp / Math.max(shield, c.max)) * 100;
   const bloodied = c.hp > 0 && c.hp <= c.max / 2;
   const conds = (bloodied ? '<span class="tg bl" title="Can en yüksek canın yarısı ya da altında">Ağır yaralı</span>' : '')
-    + c.conds.map((x) => `<span class="tg">${esc(x.k)}${x.r != null ? ` <em>${x.k === 'Exhaustion' ? x.r + '. seviye' : x.r + ' tur' + esc(condWhen(c, x))}</em>` : ''}</span>`).join('')
+    + c.conds.map((x) => `<span class="tg">${esc(x.k)}${x.r != null ? ` <em>${x.k === 'Exhaustion' ? exText(x.r) : x.r + ' tur' + esc(condWhen(c, x))}</em>` : ''}</span>`).join('')
     + (c.conc ? `<span class="tg conc">Concentration${c.concOn ? ' · ' + esc(c.concOn) : ''}</span>` : '');
   const dying = c.side === 'ally' && c.hp === 0 && !isDead(c);
   const res = [
@@ -845,7 +864,7 @@ function render() {
 /* ---------- sheets ---------- */
 let lastFocus = null;
 function openSheet(html) {
-  sheetDone();
+  sheetDone(); $('#sheetBody').oninput = null;
   lastFocus = document.activeElement;
   if ($('#sheet').hidden) pushLayer('sheet');
   $('#sheetBody').innerHTML = `<div class="grab"></div>${html}`; $('#scrim').hidden = false; $('#sheet').hidden = false;
@@ -859,7 +878,7 @@ function sheetDone() { const f = onSheetClose; onSheetClose = null; try { f?.();
 function closeSheet() {
   sheetDone();
   if ($('#sheet').hidden) return;
-  $('#scrim').hidden = true; $('#sheet').hidden = true; $('#sheet').style.transform = ''; $('#sheetBody').onclick = null; $('#sheetBody').onchange = null; padKeys = null; document.documentElement.style.overflow = ''; lastFocus?.focus?.({ preventScroll: true });
+  $('#scrim').hidden = true; $('#sheet').hidden = true; $('#sheet').style.transform = ''; $('#sheetBody').onclick = null; $('#sheetBody').onchange = null; $('#sheetBody').oninput = null; padKeys = null; document.documentElement.style.overflow = ''; lastFocus?.focus?.({ preventScroll: true });
   dropLayer('sheet');
 }
 $('#scrim').onclick = closeSheet;
@@ -925,26 +944,36 @@ function padInput(e, st) {
 // The number pad also takes the keyboard on a tablet or computer: digits, Backspace, Enter (= the sheet's main action).
 let padKeys = null;
 // DM7: damage modifiers, as Toplu hasar's Tam / Yarı / Yok: Resistance halves (rounded down), Vulnerability doubles.
-const DMOD = { full: [1, ''], half: [0.5, ' · Resistance'], double: [2, ' · Vulnerability'], none: [0, ''] };
-const modAmt = (a, m) => Math.floor(a * DMOD[m][0]);
-const dmodSeg = (attr, none) => `<button data-${attr}="full" aria-pressed="true">Tam</button><button data-${attr}="half" aria-pressed="false" title="Resistance: yarı hasar">Yarı</button>`
-  + `<button data-${attr}="double" aria-pressed="false" title="Vulnerability: iki kat hasar">×2</button>${none ? `<button data-${attr}="none" aria-pressed="false">Yok</button>` : ''}`;
+const DMOD = { full: [1, ''], half: [0.5, ' · Resistance'], double: [2, ' · Vulnerability'] };
+// DM8 (review item 6): the save (Tam / Yarı / Yok) and Resistance / Vulnerability are chosen apart and stack, each
+// halving rounded down at its own step (2024): 11, save Yarı → 5, Resistance → 2.
+const SMOD = { full: [1, ''], half: [0.5, ' · save: yarı'], none: [0, ''] };
+const modAmt = (a, m, s = 'full') => Math.floor(Math.floor(a * SMOD[s][0]) * DMOD[m][0]);
+const modNote = (m, s = 'full') => SMOD[s][1] + DMOD[m][1];
+const dmodSeg = (attr) => `<button data-${attr}="full" aria-pressed="true">Tam</button><button data-${attr}="half" aria-pressed="false" title="Resistance: yarı hasar">Yarı</button>`
+  + `<button data-${attr}="double" aria-pressed="false" title="Vulnerability: iki kat hasar">×2</button>`;
+const saveSeg = (attr, none) => `<button data-${attr}="full" aria-pressed="true">Tam</button><button data-${attr}="half" aria-pressed="false" title="Save başarılı: yarı hasar">Yarı</button>`
+  + (none ? `<button data-${attr}="none" aria-pressed="false" title="Save başarılı: hasar yok">Yok</button>` : '');
 function hpSheet(c, focus) {
   const st = { v: '' };
-  let mod = 'full';
-  const dying = c.side === 'ally' && c.hp === 0;
+  let mod = 'full', sv = 'full';
+  const dying = c.side === 'ally' && c.hp === 0 && !isDead(c);
   // DM6 N2: the title is the map's full label ("Haydut (okçu) 1"), so a token shortened on the map is named in full here.
   // DM7 (review item 2): in a short landscape view the numbers sit beside the buttons (.hpg), all on screen.
-  openSheet(`<div class="hpg"><h3>${esc(mapLabel(c))}</h3><p class="sub">Can ${c.hp} / ${c.max}${c.tmp ? ` · geçici ${c.tmp}` : ''} · AC ${c.ac}${c.conc ? ' · Concentration' : ''}${isDown(c) ? ' · düştü' : ''}</p><div class="padbox">${pad()}</div>
+  openSheet(`<div class="hpg"><h3>${esc(mapLabel(c))}</h3><p class="sub">Can ${c.hp} / ${c.max}${c.tmp ? ` · geçici ${c.tmp}` : ''} · AC ${c.ac}${c.conc ? ' · Concentration' : ''}${isDead(c) ? ' · öldü' : isDown(c) ? ' · düştü' : ''}</p><div class="padbox">${pad()}</div>
+    <div class="trow dmod"><span>Save</span><span class="seg" id="dsave">${saveSeg('sv')}</span></div>
     <div class="trow dmod"><span>Resistance / Vulnerability</span><span class="seg" id="dmod">${dmodSeg('dm')}</span></div>
     <div class="acts"><button class="btn dmg" data-do="dmg">Hasar</button><button class="btn heal" data-do="heal">İyileş</button><button class="btn tmpb" data-do="tmp">Geçici can</button></div>
     ${dying ? '<div class="crit"><button class="btn sm" aria-pressed="false" data-crit="1">Kritik vuruş</button><span class="sub" style="margin:0">0 candayken hasar 1, kritik 2 başarısız death save; en yüksek can kadar hasar öldürür.</span></div>' : ''}
     ${c.conc ? '<p class="note">Concentration açık: hasarda Constitution save DC’si gösterilir.</p>' : ''}</div>`);
   const act = (d) => {
     const a = +st.v || 0; if (!a) { toast('Önce bir sayı gir'); return; }
+    // DM8 (review item 3): a dead creature takes no damage, healing or temporary HP here, and no undo step is recorded;
+    // the DM brings one back on purpose with Şu anki can in the edit sheet (or Geri al).
+    if (isDead(c)) { toast(`${c.name} öldü`, true); return; }
     if (d === 'dmg' && isDown(c)) { toast(`${c.name} zaten düştü`); return; }
     snap();
-    if (d === 'dmg') damage(c, modAmt(a, mod), $('[data-crit]')?.getAttribute('aria-pressed') === 'true', DMOD[mod][1]).forEach(([t, bad]) => toast(t, bad)); else if (d === 'heal') heal(c, a);
+    if (d === 'dmg') damage(c, modAmt(a, mod, sv), $('[data-crit]')?.getAttribute('aria-pressed') === 'true', modNote(mod, sv)).forEach(([t, bad]) => toast(t, bad)); else if (d === 'heal') heal(c, a);
     else { c.tmp = Math.max(c.tmp, a); log(`<b>${esc(c.name)}</b> ${a} geçici can (üst üste binmez, yüksek olan kalır)`); }
     padKeys = null; closeSheet(); render();
   };
@@ -953,6 +982,7 @@ function hpSheet(c, focus) {
     if (padInput(e, st)) return;
     const cr = e.target.closest('[data-crit]'); if (cr) { cr.setAttribute('aria-pressed', String(cr.getAttribute('aria-pressed') !== 'true')); return; }
     const m = e.target.closest('[data-dm]'); if (m) { mod = m.dataset.dm; m.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === m))); return; }
+    const s = e.target.closest('[data-sv]'); if (s) { sv = s.dataset.sv; s.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === s))); return; }
     const d = e.target.closest('[data-do]')?.dataset.do; if (!d) return;
     act(d);
   };
@@ -970,11 +1000,16 @@ function timeSel(c, k, x) {
     + others.map((o) => opt('s:' + o.id, `${o.name} sırası başında`) + opt('e:' + o.id, `${o.name} sırası sonunda`)).join('') + '</select>';
 }
 function condSheet(c) {
-  openSheet(`<h3>${esc(c.name)} · durumlar</h3><p class="sub">Dokun: aç / kapat. Süre yazarsan, ${esc(c.name)} kendi sırası başında bir azalır ve bitince kalkar; süre yazınca altında çıkan seçimle sırası sonunda ya da başka birinin (ör. büyüyü yapanın) sırasında azalır. Exhaustion’da sayı seviyedir (1–6; 6 ölüm).</p>
+  openSheet(`<h3>${esc(c.name)} · durumlar</h3><p class="sub">Dokun: aç / kapat. Süre yazarsan, ${esc(c.name)} kendi sırası başında bir azalır ve bitince kalkar; süre yazınca altında çıkan seçimle sırası sonunda ya da başka birinin (ör. büyüyü yapanın) sırasında azalır. Exhaustion’da sayı seviyedir (1–6; her seviye d20 −2, hız −5 ft; 6 ölüm). Kapalı bir duruma sayı yazmak onu açar.</p>
     <div class="clist">${CONDS.map((k) => { const x = c.conds.find((y) => y.k === k); const ex = k === 'Exhaustion'; return `<div class="crow hue" style="--h:${COND_HUE(k)}"><button aria-pressed="${!!x}" data-c="${k}">${k}</button><label>${ex ? 'seviye' : 'tur'} <input inputmode="numeric" data-r="${k}" value="${x?.r ?? ''}" placeholder="${ex ? '1' : '—'}" aria-label="${k} ${ex ? 'seviyesi' : 'süresi (tur)'}"></label>${ex ? '' : timeSel(c, k, x)}</div>`; }).join('')}</div>
     ${sec('Concentration', SEC.conc, `<div class="crow hue" style="--h:${SEC.conc}"><button aria-pressed="${!!c.conc}" data-conc="1">Concentration</button><span></span></div>
     <div class="fields"><label${lab(SEC.conc, true)}>Hangi büyü<input id="concOn" value="${esc(c.concOn || '')}" placeholder="ör. Hunter's Mark"></label></div>`, false)}
     <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-done="1">Tamam</button></div>`);
+  // DM8 (review item 8): typing a duration (or an Exhaustion level) for a condition that is off switches it on
+  $('#sheetBody').oninput = (e) => {
+    const k = e.target.dataset?.r; if (!k || !e.target.value.trim()) return;
+    document.querySelector(`[data-c="${k}"]`)?.setAttribute('aria-pressed', 'true');
+  };
   $('#sheetBody').onclick = (e) => {
     const t = e.target.closest('[data-c],[data-conc]');
     if (t) { t.setAttribute('aria-pressed', String(t.getAttribute('aria-pressed') !== 'true')); return; }
@@ -1112,17 +1147,18 @@ function iniSheet() {
 function groupSheet() {
   const targets = [...UI.sel].map(byId).filter(Boolean);
   if (!targets.length) { toast('Önce kartlara dokunup hedef seç'); return; }
-  const st = { v: '' }; const mode = Object.fromEntries(targets.map((c) => [c.id, 'full']));
-  // DM7: ×2 (Vulnerability) next to Tam / Yarı / Yok; a foe already down is listed but takes nothing (no new log lines)
-  openSheet(`<div class="hpg"><h3>Toplu hasar</h3><p class="sub">ör. Fireball: save’i başaranlar yarı hasar alır. Yarı: save ya da Resistance; ×2: Vulnerability. Sonuçlar “Son işlemler”e yazılır.</p><div class="padbox">${pad()}</div>
-    <div class="fsec" style="--h:${SEC.list}"><h4>Hedefler</h4><div class="targets">${targets.map((c) => `<div class="trow"><span>${esc(c.name)} <small style="color:var(--muted)">${isDown(c) ? 'düştü' : `${c.hp}/${c.max}`}</small></span><span class="seg" data-t="${c.id}">${dmodSeg('m', true)}</span></div>`).join('')}</div></div>
+  const st = { v: '' }; const mode = Object.fromEntries(targets.map((c) => [c.id, 'full'])), save = Object.fromEntries(targets.map((c) => [c.id, 'full']));
+  // DM7: a foe already down is listed but takes nothing (no new log lines).
+  // DM8 (review item 6): per target the save (Tam / Yarı / Yok) and Resistance / Vulnerability (Tam / Yarı / ×2), stacked.
+  openSheet(`<div class="hpg"><h3>Toplu hasar</h3><p class="sub">ör. Fireball: save’i başaranlar yarı hasar alır. Save ile Resistance / Vulnerability birlikte uygulanır (yarı + yarı: dörtte bir, her adımda aşağı yuvarlanır). Sonuçlar “Son işlemler”e yazılır.</p><div class="padbox">${pad()}</div>
+    <div class="fsec" style="--h:${SEC.list}"><h4>Hedefler</h4><div class="targets"><div class="tg2 thead" aria-hidden="true"><span></span><span>Save</span><span>Resistance / Vulnerability</span></div>${targets.map((c) => `<div class="trow tg2"><span>${esc(c.name)} <small style="color:var(--muted)">${isDead(c) ? 'öldü' : isDown(c) ? 'düştü' : `${c.hp}/${c.max}`}</small></span><span class="seg" data-t="${c.id}" aria-label="${esc(c.name)}: save">${saveSeg('s', true)}</span><span class="seg" data-t="${c.id}" aria-label="${esc(c.name)}: Resistance / Vulnerability">${dmodSeg('m')}</span></div>`).join('')}</div></div>
     <div class="acts" style="grid-template-columns:1fr"><button class="btn dmg" data-do="1">Hasarı uygula</button></div></div>`);
   const apply = () => {
     const a = +st.v || 0; if (!a) { toast('Önce bir sayı gir'); return; }
     snap();
     // One summary toast instead of one per target (only the last three toasts stay on screen); details go to the log.
     const msgs = [], hit = targets.filter((c) => !isDown(c) && !isDead(c));
-    for (const c of hit) { const md = mode[c.id]; if (md !== 'none') msgs.push(...damage(c, modAmt(a, md), false, DMOD[md][1])); }
+    for (const c of hit) { const md = mode[c.id], sv = save[c.id]; if (sv !== 'none') msgs.push(...damage(c, modAmt(a, md, sv), false, modNote(md, sv))); }
     const conc = msgs.filter(([t]) => t.includes('Concentration')).length;
     const bad = msgs.filter(([, b]) => b).map(([t]) => t);
     toast(`${a} hasar · ${hit.length} hedef${conc ? ` · ${conc} Concentration save` : ''}${bad.length ? ' · ' + bad.join(' · ') : ''}`, bad.length > 0);
@@ -1131,8 +1167,8 @@ function groupSheet() {
   padKeys = { st, enter: apply };
   $('#sheetBody').onclick = (e) => {
     if (padInput(e, st)) return;
-    const m = e.target.closest('[data-m]');
-    if (m) { const seg = m.parentElement; mode[seg.dataset.t] = m.dataset.m; seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === m))); return; }
+    const m = e.target.closest('[data-m],[data-s]');
+    if (m) { const seg = m.parentElement; if (m.dataset.m) mode[seg.dataset.t] = m.dataset.m; else save[seg.dataset.t] = m.dataset.s; seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === m))); return; }
     if (e.target.closest('[data-do]')) apply();
   };
 }
@@ -1214,9 +1250,10 @@ $('#newFight').onclick = () => ask('Yeni savaş', 'Düşmanlar silinir, tur 1’
 function newFight() {
   snap(); resetFight(); log('Yeni savaş: düşmanlar temizlendi'); render(); iniSheet();
 }
-// Foes out, round 1, our side's fight state cleared (HP kept). The library (cards, prepared fights) is not touched.
+// Foes out, round 1, our side's fight state cleared (HP kept). DM8 (review item 2): a character at 0 HP keeps Unconscious and
+// Prone (2024: Unconscious includes Prone), as healing does. The library (cards, prepared fights) is not touched.
 function resetFight() {
-  S.list = S.list.filter((c) => c.side === 'ally'); S.list.forEach((c) => { c.conds = c.conds.filter((x) => x.k === 'Exhaustion' || (x.k === 'Unconscious' && c.hp === 0)); c.conc = false; c.concOn = ''; c.tmp = 0; c.react = false; c.turnRound = null; c.endRound = null; c.gx = null; c.gy = null; });
+  S.list = S.list.filter((c) => c.side === 'ally'); S.list.forEach((c) => { c.conds = c.conds.filter((x) => x.k === 'Exhaustion' || ((x.k === 'Unconscious' || x.k === 'Prone') && c.hp === 0)); c.conc = false; c.concOn = ''; c.tmp = 0; c.react = false; c.turnRound = null; c.endRound = null; c.gx = null; c.gy = null; });
   S.round = 1; S.cur = null; S.curInit = null; S.areas = []; S.prep = null; UI.area = null; UI.multi = false; UI.sel.clear();
 }
 document.addEventListener('keydown', (e) => {
@@ -1288,8 +1325,37 @@ function drawMeasure(a, b) {
   const [x1, y1] = c(a), [x2, y2] = c(b);
   $('#board').insertAdjacentHTML('beforeend', `<svg id="measureLine" width="${COLS * CELL}" height="${ROWS * CELL}"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#8fc1e0" stroke-width="3" stroke-dasharray="8 6"/></svg>`);
 }
-// "Hobgoblin 2" → HO2, "Hobgoblin Captain" → HC, "Worg" → WO.
-function initials(n) { const p = n.trim().split(/\s+/); const last = p.at(-1); return (p.length > 1 && /^\d+$/.test(last) ? p[0].slice(0, 2) + last : p.length > 1 ? p[0][0] + p[1][0] : n.slice(0, 2)).toUpperCase(); }
+// DM8 (review item 1): the text on a token. The first letter of each word before the copy number, a one-word name its
+// first two letters: "Hobgoblin Devastator 1" → HD1, "Hobgoblin 2" → HO2, "Hobgoblin Captain" → HC, "Worg" → WO.
+// Different creatures on the same map never share a text: where two would, the subtitle's initials are added
+// ("Haydut 1" okçu / kılıç → HAO1 / HAK1), then more letters of the last word (Goblin Archer / Archmage → GARCHE / GARCHM).
+// Only creatures with the very same full label (two "Hobgoblin 1") can still look alike.
+function tokCands(c) {
+  const letters = (s) => s.replace(/[^\p{L}\p{N}]/gu, '');
+  const m = /^(.*\S)\s+(\d+)$/.exec((c.name || '').trim()), n = m ? m[2] : '';
+  const w = (m ? m[1] : c.name || '').split(/\s+/).map(letters).filter(Boolean);
+  if (!w.length) return [n || '?'];
+  const si = c.side === 'foe' && c.sub ? c.sub.split(/\s+/).map(letters).filter(Boolean).map((x) => x[0]).join('') : '';
+  const lead = w.length > 1 ? w.slice(0, -1).map((x) => x[0]).join('') : '', last = w.at(-1), start = w.length > 1 ? 1 : 2;
+  const out = [lead + last.slice(0, start)];
+  if (si) out.push(out[0] + si);
+  for (let j = start + 1; j <= last.length; j++) out.push(lead + last.slice(0, j) + si);
+  return [...new Set(out.map((t) => t.toUpperCase() + n))];
+}
+function tokTexts(L) {
+  const cand = new Map(L.map((c) => [c.id, tokCands(c)])), lvl = new Map(L.map((c) => [c.id, 0]));
+  const txt = (c) => { const a = cand.get(c.id); return a[Math.min(lvl.get(c.id), a.length - 1)]; };
+  for (let guard = 0; guard < 40; guard++) {
+    const by = new Map(); L.forEach((c) => { const t = txt(c); by.set(t, [...(by.get(t) || []), c]); });
+    let moved = false;
+    for (const g of by.values()) {
+      if (new Set(g.map(mapLabel)).size < 2) continue;
+      for (const c of g) if (lvl.get(c.id) < cand.get(c.id).length - 1) { lvl.set(c.id, lvl.get(c.id) + 1); moved = true; }
+    }
+    if (!moved) break;
+  }
+  return new Map(L.map((c) => [c.id, txt(c)]));
+}
 // DM6 (owner 2026-11-07: "Haydut (okçu) 1 olarak gelmeli"): on the map an enemy with a subtitle is named as the cards
 // name it, with its copy number last: "Haydut 1" + "okçu" → "Haydut (okçu) 1". Without a subtitle the name as it is.
 // head / n: the token label shortens head (ellipsis) and always keeps the number.
@@ -1311,8 +1377,52 @@ function labelW(c, L) {
   for (const o of L) if (o !== c && o.gx != null && o.gy + sz(o) === y) d = Math.min(d, Math.abs(o.gx + sz(o) / 2 - x));
   return Math.max(0.6, d - 0.06).toFixed(2);
 }
-// the space between the parts is not drawn (flex) but keeps the label's text "Hobgoblin 1"
-const tokLabel = (c) => { const { head, n } = mapName(c); return `<b><span>${esc(head)}</span>${n ? ` <span class="n">${n}</span>` : ''}</b>`; };
+// DM8 (review item 1): text widths on the map, measured in the label's own font (board pixels, so the same at any zoom).
+// Measured again once the web font has loaded.
+const MEAS = { ctx: null, fam: '', cache: new Map() };
+function textW(s, px = CELL * .2) {
+  const k = px + '|' + s; if (MEAS.cache.has(k)) return MEAS.cache.get(k);
+  if (!MEAS.ctx) { MEAS.ctx = document.createElement('canvas').getContext('2d'); MEAS.fam = getComputedStyle(document.body).fontFamily; }
+  MEAS.ctx.font = `700 ${px}px ${MEAS.fam}`; const w = MEAS.ctx.measureText(s).width; MEAS.cache.set(k, w); return w;
+}
+document.fonts?.addEventListener?.('loadingdone', () => { MEAS.cache.clear(); if (UI.map) renderMap(); });
+// DM8 (review item 1): a label that does not fit its width (labelW) first goes on two lines at a space, keeping the words
+// and their order ("Haydut" / "(okçu) 1", "Hobgoblin" / "Devastator 1"), so the subtitle shows; if that is still too wide,
+// the widest word loses letters one by one ("Hobgoblin" → "Hobg.", "(okçu)" → "(ok.)"), so "Hobgoblin 1" and
+// "Hobgoblin Devastator 1" stay apart ("Hob. 1" / "H. D. 1") where the old ellipsis made both "Hobg… 1". The number
+// is never cut. What still does not fit (a single huge word) ends in an ellipsis.
+function fitLabel(head, n, maxW) {
+  const parts = head.split(/\s+/).filter(Boolean).map((w) => { const m = /^([^\p{L}\p{N}]*)(.*?)([^\p{L}\p{N}]*)$/u.exec(w); return { pre: m[1], core: m[2], post: m[3], k: m[2].length }; });
+  const word = (p) => (p.k < p.core.length ? p.pre + p.core.slice(0, p.k) + '.' + p.post : p.pre + p.core + p.post);
+  const numW = n ? textW(n) + CELL * .2 * .3 : 0, W = (s) => textW(s);
+  const lay = () => {
+    const ws = parts.map(word);
+    if (W(ws.join(' ')) + numW <= maxW) return [ws.join(' ')];
+    let best = null;
+    for (let k = 1; k < ws.length; k++) {
+      const a = ws.slice(0, k).join(' '), b = ws.slice(k).join(' '), m = Math.max(W(a), W(b) + numW);
+      if (m <= maxW && (!best || m < best[0])) best = [m, [a, b]];
+    }
+    return best && best[1];
+  };
+  for (let guard = 0; guard < 400; guard++) {
+    const r = lay(); if (r) return r;
+    // the widest word that can still lose a letter ("Hobgoblin" → "Hobgobl." → … → "H."; a shortened word, its dot
+    // included, is always shorter than the word)
+    const next = (q) => (q.k >= q.core.length ? q.core.length - 2 : q.k - 1);
+    let p = null;
+    for (const q of parts) if (next(q) >= 1 && (!p || W(word(q)) > W(word(p)))) p = q;
+    if (!p) break;
+    p.k = next(p);
+  }
+  return [parts.map(word).join(' ')];
+}
+// the label's lines; the number sits at the end of the last one. The space between a line's parts is not drawn (flex)
+// but keeps the label's text "Hobgoblin 1".
+const tokLabel = (c, lw) => {
+  const { head, n } = mapName(c), lines = fitLabel(head, n, CELL * lw - 9);
+  return `<b>${lines.map((l, i) => `<span class="ln"><span>${esc(l)}</span>${n && i === lines.length - 1 ? ` <span class="n">${n}</span>` : ''}</span>`).join(' ')}</b>`;
+};
 /* ---------- area templates (owner request 2026-11-06): circle, square, rectangle, cone; sizes in whole squares (5 ft) ----------
    Circle: centre on a grid intersection (cx, cy), radius r squares. Square / rectangle: top-left square (gx, gy), w × h squares.
    Cone (DM3, owner 2026-11-06: "bir de alanlara cone ekleyelim"): origin point (ox, oy) on a grid line (an intersection or
@@ -1373,6 +1483,19 @@ const AREA_HANDLES = { circle: ['r'], square: ['se'], rect: ['nw', 'n', 'ne', 'e
 const HANDLE_POS = { r: [100, 50], se: [100, 100], nw: [0, 0], n: [50, 0], ne: [100, 0], e: [100, 50], s: [50, 100], sw: [0, 100], w: [0, 50] };
 // Whether this map's user may change the template: the DM any; a player only their own, while the DM lets players act.
 const canEditArea = (a) => (W.on ? !!a?.by && a.by === W.me && playerCanAct() : true);
+// DM8 (review item 4): the template's × goes where it covers no token: the first free one of the candidate spots (a
+// point in squares x, y plus a screen offset dx, dy that stays the same at any zoom): a rectangle's corners and edges
+// just outside it, the spots around a cone's origin. None free: the first.
+function delBtn(bx, cands) {
+  // a token counts with its label below it (half a square)
+  const R = 20 / V.z, toks = mapList().filter((c) => c.gx != null);
+  const free = ([x, y, dx, dy]) => {
+    const cx = x * CELL + dx / V.z, cy = y * CELL + dy / V.z;
+    return !toks.some((c) => { const l = c.gx * CELL, r = (c.gx + sz(c)) * CELL, t = c.gy * CELL, b = (c.gy + sz(c) + 0.5) * CELL; return Math.hypot(cx - Math.max(l, Math.min(r, cx)), cy - Math.max(t, Math.min(b, cy))) < R; });
+  };
+  const [x, y, dx, dy] = cands.find(free) || cands[0];
+  return `<button class="adel" data-adel aria-label="Alanı sil" style="left:calc(${((x - bx.x) * CELL).toFixed(1)}px + ${dx.toFixed(2)}px * var(--hz,1));top:calc(${((y - bx.y) * CELL).toFixed(1)}px + ${dy.toFixed(2)}px * var(--hz,1));right:auto;transform:translate(-50%,-50%)">×</button>`;
+}
 function areaHtml(a) {
   const bx = areaBox(a), on = UI.area === a.id && canEditArea(a), px = (x, y) => [(x - bx.x) * CELL, (y - bx.y) * CELL];
   const cls = `area ${a.shape}${on ? ' on' : ''}${a.by ? ' pl' : ''}${W.on && a.by && a.by === W.me ? ' mine' : ''}`;
@@ -1383,14 +1506,49 @@ function areaHtml(a) {
     const [lx, ly] = px(a.ox + a.len * ux * 2 / 3, a.oy + a.len * uy * 2 / 3);
     const hs = on ? `<span class="ah" data-h="o" style="left:${ox}px;top:${oy}px"></span><span class="ah" data-h="len" style="left:${tx}px;top:${ty}px"></span>`
       + `<span class="ah" data-h="rot" style="left:calc(${tx}px + ${(ux * 46).toFixed(2)}px * var(--hz,1));top:calc(${ty}px + ${(uy * 46).toFixed(2)}px * var(--hz,1))"></span>`
-      + `<button class="adel" data-adel aria-label="Alanı sil" style="left:calc(${ox}px - ${(ux * 40).toFixed(2)}px * var(--hz,1));top:calc(${oy}px - ${(uy * 40).toFixed(2)}px * var(--hz,1));right:auto;transform:translate(-50%,-50%)">×</button>` : '';
+      + delBtn(bx, [[a.ox, a.oy, -ux * 40, -uy * 40], [a.ox, a.oy, uy * 40, -ux * 40], [a.ox, a.oy, -uy * 40, ux * 40], [a.ox, a.oy, -ux * 80, -uy * 80]]) : '';
     return `<div class="${cls}" data-area="${esc(a.id)}" style="${box}" aria-label="${areaLabel(a)}">
     <svg width="${bx.w * CELL}" height="${bx.h * CELL}"><polygon points="${p.map((q) => q.map((n) => n.toFixed(1)).join(',')).join(' ')}"/></svg>
     <span class="aorg" style="left:${ox}px;top:${oy}px"></span><span class="alabel" style="left:${lx}px;top:${ly}px">${areaLabel(a)}</span>${hs}</div>`;
   }
   return `<div class="${cls}" data-area="${esc(a.id)}" style="${box}" aria-label="${AREA_NAME[a.shape]} ${areaLabel(a)}">
     <span class="alabel">${areaLabel(a)}</span>
-    ${on ? AREA_HANDLES[a.shape].map((h) => `<span class="ah" data-h="${h}" style="left:${HANDLE_POS[h][0]}%;top:${HANDLE_POS[h][1]}%"></span>`).join('') + '<button class="adel" data-adel aria-label="Alanı sil">×</button>' : ''}</div>`;
+    ${on ? AREA_HANDLES[a.shape].map((h) => `<span class="ah" data-h="${h}" style="left:${HANDLE_POS[h][0]}%;top:${HANDLE_POS[h][1]}%"></span>`).join('')
+      + delBtn(bx, [[1, 0, 12, -12], [0, 0, -12, -12], [1, 1, 12, 12], [0, 1, -12, 12], [.5, 0, 0, -26], [1, .5, 26, 0], [.5, 1, 0, 26], [0, .5, -26, 0]].map(([fx, fy, dx, dy]) => [bx.x + fx * bx.w, bx.y + fy * bx.h, dx, dy])) : ''}</div>`;
+}
+// DM8 (review item 5): a new template opens in the middle of the view, as before, unless its size label would land on
+// another template's label there; then it moves by whole squares (down, up, right, left, further each time) to the
+// nearest place where its label is clear. A label's box: its point (the middle; a cone's at 2/3 of its length) and its
+// on-screen size (13 px bold text, 7 px padding, about 20 px tall; the same at any zoom), in board pixels.
+function labelBox(a) {
+  const k = 1 / V.z, w = (textW(areaLabel(a), 13) + 14) * k, h = 20 * k;
+  let x, y;
+  if (a.shape === 'cone') { const [ux, uy] = coneDir(a); x = (a.ox + a.len * ux * 2 / 3) * CELL; y = (a.oy + a.len * uy * 2 / 3) * CELL; }
+  else { const b = areaBox(a); x = (b.x + b.w / 2) * CELL; y = (b.y + b.h / 2) * CELL; }
+  return { l: x - w / 2, r: x + w / 2, t: y - h / 2, b: y + h / 2 };
+}
+// Its handles (the new template opens selected) keep off the other labels too.
+function handlePts(a) {
+  if (a.shape === 'cone') { const [ux, uy] = coneDir(a); return [[a.ox, a.oy], [a.ox + a.len * ux, a.oy + a.len * uy]]; }
+  const b = areaBox(a); return (a.shape === 'circle' ? [[100, 50]] : AREA_HANDLES[a.shape].map((h) => HANDLE_POS[h])).map(([fx, fy]) => [b.x + fx / 100 * b.w, b.y + fy / 100 * b.h]);
+}
+function clearLabel(a) {
+  const others = mapAreas().map(labelBox), g = 2 / V.z, hr = 18 / V.z;
+  const hits = () => {
+    const m = labelBox(a);
+    return others.some((o) => (m.l < o.r + g && o.l < m.r + g && m.t < o.b + g && o.t < m.b + g)
+      || handlePts(a).some(([x, y]) => x * CELL > o.l - hr && x * CELL < o.r + hr && y * CELL > o.t - hr && y * CELL < o.b + hr));
+  };
+  if (!hits()) return;
+  const keys = AREA_KEYS[a.shape].slice(0, 2), orig = keys.map((k) => a[k]);
+  const hi = a.shape === 'circle' || a.shape === 'cone' ? [COLS, ROWS] : [COLS - a.w, ROWS - a.h];
+  for (let d = 1; d <= 12; d++) {
+    for (const [dx, dy] of [[0, d], [0, -d], [d, 0], [-d, 0]]) {
+      a[keys[0]] = Math.max(0, Math.min(hi[0], orig[0] + dx)); a[keys[1]] = Math.max(0, Math.min(hi[1], orig[1] + dy));
+      if (!hits()) return;
+    }
+  }
+  a[keys[0]] = orig[0]; a[keys[1]] = orig[1];
 }
 // The info line for the selected template: its size, who placed it (a player's) and who is in it.
 function areaInfo(a) {
@@ -1405,10 +1563,11 @@ function renderMap() {
   const b = $('#board'); b.style.setProperty('--cell', CELL + 'px'); b.style.width = COLS * CELL + 'px'; b.style.height = ROWS * CELL + 'px';
   if (UI.area && !areaById(UI.area)) UI.area = null;
   const inside = new Set(areas().flatMap((a) => inArea(a).map((c) => c.id)));
+  const tt = tokTexts(S.list);
   b.innerHTML = areas().map(areaHtml).join('') + S.list.map((c) => {
-    const pct = Math.max(0, Math.min(100, (c.hp / c.max) * 100));
-    return `<div class="tok ${c.side}${S.cur === c.id ? ' now' : ''}${!takesTurn(c) ? ' down' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${c.id}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${sz(c)};--lw:${labelW(c, S.list)}" role="button" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}, can ${c.hp}/${c.max}">
-      <i><span class="hpbar"><s style="width:${pct}%;background:${hpColor(c)}"></s></span>${esc(initials(c.name))}</i>${tokLabel(c)}</div>`;
+    const pct = Math.max(0, Math.min(100, (c.hp / c.max) * 100)), lw = labelW(c, S.list), tx = tt.get(c.id);
+    return `<div class="tok ${c.side}${S.cur === c.id ? ' now' : ''}${!takesTurn(c) ? ' down' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${c.id}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${sz(c)};--lw:${lw};--tn:${tx.length}" role="button" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}, can ${c.hp}/${c.max}">
+      <i><span class="hpbar"><s style="width:${pct}%;background:${hpColor(c)}"></s></span>${esc(tx)}</i>${tokLabel(c, lw)}</div>`;
   }).join('');
   if (UI.measure?.b) { const a = byId(UI.measure.a), b = byId(UI.measure.b); if (a && b) drawMeasure(a, b); }
   // The selected template's size and the creatures in it; the group-damage button when anyone is in it.
@@ -1434,16 +1593,33 @@ function zMin() { const r = $('#mapView').getBoundingClientRect(); return Math.m
 function zoomAt(f, cx, cy) { const z = Math.max(zMin(), Math.min(3, V.z * f)); const k = z / V.z; V.x = cx - (cx - V.x) * k; V.y = cy - (cy - V.y) * k; V.z = z; centreSmall(); applyView(); }
 // Fit the tokens (with two squares around them), not the whole board, so a phone shows readable squares. Tokens far
 // apart: zoomed out until everyone is in view.
+// DM8 (review item 4): fitted to the part of the view the tokens can really use. The usable part is the view less what
+// lies on it: either below the info box and above the hint (A), or the full height beside them (B, a phone on its side),
+// both left of the map buttons; whichever shows the squares larger. Around the tokens: one square at the sides (labels),
+// half a square above (the HP bar), one below (labels). Before, 70 px came off a view only about 257 px tall on its side
+// and two squares went round the tokens: 0.35 zoom, squares of 17 px. A square stays at least FIT_MIN (28 px) wherever
+// the tokens still fit the whole view at that size.
+const FIT_MIN = 28 / CELL;
 function fit() {
-  const m = $('#mapView').getBoundingClientRect();
+  const m = $('#mapView').getBoundingClientRect(); if (!m.width || !m.height) return;
   // the player view fits the tokens the DM sent
   const L = W.on ? (W.P?.list || []).filter((c) => c.gx != null) : (place(), S.list); if (!L.length) return;
   const xs = L.map((c) => c.gx), ys = L.map((c) => c.gy);
-  const x0 = Math.max(0, Math.min(...xs) - 2), x1 = Math.min(COLS, Math.max(...L.map((c) => c.gx + sz(c))) + 2);
-  const y0 = Math.max(0, Math.min(...ys) - 2), y1 = Math.min(ROWS, Math.max(...L.map((c) => c.gy + sz(c))) + 2);
-  V.z = Math.max(zMin(), Math.min(1.6, Math.min(m.width / ((x1 - x0) * CELL), (m.height - 70) / ((y1 - y0) * CELL))));
-  V.x = (m.width - (x1 - x0) * CELL * V.z) / 2 - x0 * CELL * V.z;
-  V.y = (m.height - (y1 - y0) * CELL * V.z) / 2 - y0 * CELL * V.z; centreSmall(); applyView();
+  const x0 = Math.max(0, Math.min(...xs) - 1), x1 = Math.min(COLS, Math.max(...L.map((c) => c.gx + sz(c))) + 1);
+  const y0 = Math.max(0, Math.min(...ys) - 0.5), y1 = Math.min(ROWS, Math.max(...L.map((c) => c.gy + sz(c))) + 1);
+  const box = (s) => { const e = $(s); if (!e || e.hidden || !e.offsetWidth) return null; const q = e.getBoundingClientRect(); return { l: q.left - m.left, r: q.right - m.left, t: q.top - m.top, b: q.bottom - m.top }; };
+  const d = box('#dist'), z = box('.zoom'), h = box('#maphint'), g = 6, right = (z ? z.l : m.width) - g;
+  const A = { l: g, r: right, t: (d ? d.b : 0) + g, b: (h ? h.t : m.height) - g };
+  const B = { l: Math.max(d ? d.r : 0, h ? h.r : 0) + g, r: right, t: g, b: m.height - g };
+  const bw = (x1 - x0) * CELL, bh = (y1 - y0) * CELL, zOf = (a) => Math.min((a.r - a.l) / bw, (a.b - a.t) / bh);
+  let a = zOf(B) > zOf(A) ? B : A; const za = zOf(a);
+  // below 28 px the tokens may go under the info box or the hint, as long as all of them stay in the view (DM2: Sığdır
+  // shows everyone; tokens too far apart for that zoom out as before)
+  const C = { l: 0, r: m.width, t: 0, b: m.height }, zc = Math.min(FIT_MIN, zOf(C));
+  if (za < zc) a = C;
+  V.z = Math.max(zMin(), Math.min(1.6, Math.max(za, zc)));
+  V.x = (a.l + a.r) / 2 - (x0 + x1) / 2 * CELL * V.z;
+  V.y = (a.t + a.b) / 2 - (y0 + y1) / 2 * CELL * V.z; centreSmall(); renderMap();
 }
 // DM4: a new template is brought fully into view, clear of the info box, the control column and the bottom (a cone with
 // its direction handle too), so no part of it starts under the bottom tabs or the buttons.
@@ -1607,6 +1783,7 @@ function showArea(a) {
     // a cone starts at the grid corner left of the view's middle and points right
     else if (shape === 'cone') { a.ox = clamp(Math.round(mx - a.len / 2), 0, COLS); a.oy = clamp(Math.round(my), 0, ROWS); }
     else { a.gx = clamp(Math.round(mx - a.w / 2), 0, COLS - a.w); a.gy = clamp(Math.round(my - a.h / 2), 0, ROWS - a.h); }
+    clearLabel(a);
     pick(false);
     if (W.on) { if (playerCanAct()) playerArea('add', a); return; }
     snap(); areas().push(a); UI.area = a.id; log(`${AREA_NAME[shape]} alan eklendi: ${areaLabel(a)}`); render(); showArea(a);
@@ -2138,7 +2315,7 @@ function publicState() {
   return {
     v: 1, round: S.round, cur: S.cur,
     list: order().map((c) => {
-      const o = { id: c.id, side: c.side, name: c.name, size: sz(c), gx: c.gx, gy: c.gy, turn: takesTurn(c), conds: c.conds.map((x) => ({ k: x.k, r: x.r })), conc: !!c.conc };
+      const o = { id: c.id, side: c.side, name: c.name, size: sz(c), gx: c.gx, gy: c.gy, turn: takesTurn(c), conds: c.conds.map((x) => ({ k: x.k, r: x.r, w: condWhen(c, x).replace(/^ · /, '') })), conc: !!c.conc };
       if (c.side === 'ally') Object.assign(o, { hp: c.hp, max: c.max, tmp: c.tmp, concOn: c.concOn || '', ds: [...c.ds], stable: !!c.stable, dead: isDead(c) });
       else Object.assign(o, { sub: c.sub || '', st: isDead(c) ? 'dead' : isDown(c) ? 'down' : c.hp <= c.max / 2 ? 'bloodied' : '' });
       return o;
@@ -2155,7 +2332,7 @@ function cleanState(s) {
   const n = (v, d = 0) => (Number.isFinite(+v) ? +v : d), id = (v) => String(v ?? '').replace(/[^\w-]/g, '').slice(0, 40), str = (v) => String(v ?? '').slice(0, 80);
   const list = s.list.slice(0, 60).map((c) => {
     const o = { id: id(c.id), side: c.side === 'ally' ? 'ally' : 'foe', name: str(c.name), size: Math.max(1, Math.min(4, n(c.size, 1))), gx: c.gx == null ? null : n(c.gx), gy: c.gy == null ? null : n(c.gy), turn: c.turn !== false,
-      conds: (Array.isArray(c.conds) ? c.conds : []).slice(0, 20).map((x) => ({ k: str(x?.k), r: x?.r == null ? null : n(x.r) })), conc: !!c.conc };
+      conds: (Array.isArray(c.conds) ? c.conds : []).slice(0, 20).map((x) => ({ k: str(x?.k), r: x?.r == null ? null : n(x.r), w: str(x?.w) })), conc: !!c.conc };
     if (o.side === 'ally') Object.assign(o, { hp: n(c.hp), max: Math.max(1, n(c.max, 1)), tmp: n(c.tmp), concOn: str(c.concOn), ds: [n(c.ds?.[0]), n(c.ds?.[1])], stable: !!c.stable, dead: !!c.dead });
     else Object.assign(o, { sub: str(c.sub), st: ['down', 'dead', 'bloodied'].includes(c.st) ? c.st : '' });
     return o;
@@ -2677,7 +2854,7 @@ function wcard(c, pos, now) {
   const ally = c.side === 'ally', down = !ally && (c.st === 'down' || c.st === 'dead'), dying = ally && c.hp === 0 && !c.dead;
   const bloodied = ally ? c.hp > 0 && c.hp <= c.max / 2 : c.st === 'bloodied';
   const tags = (bloodied ? '<span class="tg bl">Ağır yaralı</span>' : '')
-    + c.conds.map((x) => `<span class="tg">${esc(x.k)}${x.r != null ? ` <em>${x.k === 'Exhaustion' ? x.r + '. seviye' : x.r + ' tur'}</em>` : ''}</span>`).join('')
+    + c.conds.map((x) => `<span class="tg">${esc(x.k)}${x.r != null ? ` <em>${x.k === 'Exhaustion' ? exText(x.r) : x.r + ' tur' + (x.w ? ' · ' + esc(x.w) : '')}</em>` : ''}</span>`).join('')
     + (c.conc ? `<span class="tg conc">Concentration${ally && c.concOn ? ' · ' + esc(c.concOn) : ''}</span>` : '');
   const state = c.dead || c.st === 'dead' ? ' · öldü' : down ? ' · düştü' : dying ? (c.stable ? ' · stabil' : ' · ölüyor') : '';
   const shield = Math.max(c.max + (c.tmp || 0), c.max);
@@ -2713,9 +2890,11 @@ function renderWatchMap() {
   const sel = P && UI.area ? P.areas.find((a) => a.id === UI.area) : null;
   $('#mapView').classList.toggle('asel', !!sel);
   const inside = new Set(P ? P.areas.flatMap((a) => inArea(a).map((c) => c.id)) : []);
-  b.innerHTML = !P ? '' : P.areas.map(areaHtml).join('') + P.list.filter((c) => c.gx != null).map((c) => {
+  const on = P ? P.list.filter((c) => c.gx != null) : [], tt = tokTexts(on);
+  b.innerHTML = !P ? '' : P.areas.map(areaHtml).join('') + on.map((c) => {
+    const lw = labelW(c, P.list), tx = tt.get(c.id);
     const bar = c.side === 'ally' ? `<span class="hpbar"><s style="width:${Math.max(0, Math.min(100, c.hp / c.max * 100))}%;background:${hpColor(c)}"></s></span>` : '';
-    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${esc(c.id)}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${c.size};--lw:${labelW(c, P.list)}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i>${bar}${esc(initials(c.name || '?'))}</i>${tokLabel(c)}</div>`;
+    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${esc(c.id)}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${c.size};--lw:${lw};--tn:${tx.length}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i>${bar}${esc(tx)}</i>${tokLabel(c, lw)}</div>`;
   }).join('');
   $('#dist').innerHTML = sel ? areaInfo(sel) : W.conn?.open ? (act ? '<b>Canlı</b> · kendi pulunu sürükle: hareket' : meIn(P) && !P.pl.on ? '<b>Canlı</b> · DM hareketi şu an kapattı' : '<b>Canlı</b> · yalnız izleme') : esc(W.msg || 'Bağlanıyor…');
   applyView();
