@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = 'dd0df0c67d'; window.__BUILT__ = '2026-11-07 18:24';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '98dea2a7a2'; window.__BUILT__ = '2026-11-07 18:50';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -215,6 +215,8 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .tok b .ln{display:flex;max-width:100%;min-width:0}
 .tok b .ln > span:first-child{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .tok b .n{flex:none;margin-left:.3em}
+/* DM8b (review N2): a token right below: the label on one line, smaller, inside its own square, clear of that token and its HP bar */
+.tok b.lt{bottom:calc(var(--cell) * .14);transform:translate(-50%,0);font-size:calc(var(--cell) * .17);line-height:1.1}
 .tok .hpbar{position:absolute;left:12%;right:12%;top:-1px;height:4px;border-radius:2px;background:rgba(0,0,0,.6);overflow:hidden}
 .tok .hpbar s{display:block;height:100%;text-decoration:none}
 .tok.drag{cursor:grabbing;z-index:3}
@@ -1006,13 +1008,19 @@ function condSheet(c) {
     <div class="fields"><label${lab(SEC.conc, true)}>Hangi büyü<input id="concOn" value="${esc(c.concOn || '')}" placeholder="ör. Hunter's Mark"></label></div>`, false)}
     <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-done="1">Tamam</button></div>`);
   // DM8 (review item 8): typing a duration (or an Exhaustion level) for a condition that is off switches it on
+  // DM8b (review N4): only a positive number switches it on; if the typing alone switched it on (byType) and the field
+  // is emptied again or holds 0, it goes off again. A tap on the condition itself is the DM's own choice and ends that.
+  const byType = new Set();
   $('#sheetBody').oninput = (e) => {
-    const k = e.target.dataset?.r; if (!k || !e.target.value.trim()) return;
-    document.querySelector(`[data-c="${k}"]`)?.setAttribute('aria-pressed', 'true');
+    const k = e.target.dataset?.r; if (!k) return;
+    const b = document.querySelector(`[data-c="${k}"]`); if (!b) return;
+    const on = b.getAttribute('aria-pressed') === 'true', v = toInt(e.target.value, 0);
+    if (v > 0 && !on) { b.setAttribute('aria-pressed', 'true'); byType.add(k); }
+    else if (v <= 0 && on && byType.has(k)) { b.setAttribute('aria-pressed', 'false'); byType.delete(k); }
   };
   $('#sheetBody').onclick = (e) => {
     const t = e.target.closest('[data-c],[data-conc]');
-    if (t) { t.setAttribute('aria-pressed', String(t.getAttribute('aria-pressed') !== 'true')); return; }
+    if (t) { if (t.dataset.c) byType.delete(t.dataset.c); t.setAttribute('aria-pressed', String(t.getAttribute('aria-pressed') !== 'true')); return; }
     if (!e.target.closest('[data-done]')) return;
     snap();
     const wasDead = isDead(c);
@@ -1388,18 +1396,19 @@ function textW(s, px = CELL * .2) {
 document.fonts?.addEventListener?.('loadingdone', () => { MEAS.cache.clear(); if (UI.map) renderMap(); });
 // DM8 (review item 1): a label that does not fit its width (labelW) first goes on two lines at a space, keeping the words
 // and their order ("Haydut" / "(okçu) 1", "Hobgoblin" / "Devastator 1"), so the subtitle shows; if that is still too wide,
-// the widest word loses letters one by one ("Hobgoblin" → "Hobg.", "(okçu)" → "(ok.)"), so "Hobgoblin 1" and
-// "Hobgoblin Devastator 1" stay apart ("Hob. 1" / "H. D. 1") where the old ellipsis made both "Hobg… 1". The number
-// is never cut. What still does not fit (a single huge word) ends in an ellipsis.
-function fitLabel(head, n, maxW) {
+// the widest word loses letters one by one ("Hobgoblin" → "Hobgobl." → "Hobgob." …, "(okçu)" → "(ok.)"), so
+// "Hobgoblin 1" and "Hobgoblin Devastator 1" stay apart (side by side at Sığdır on a phone: "Hobgo. 1" /
+// "Hobgob. Devast. 1") where the old ellipsis made both "Hobg… 1". The number is never cut. What still does not fit (a
+// single huge word) ends in an ellipsis. one: a single line only; px: the font size (board pixels).
+function fitLabel(head, n, maxW, one = false, px = CELL * .2) {
   const parts = head.split(/\s+/).filter(Boolean).map((w) => { const m = /^([^\p{L}\p{N}]*)(.*?)([^\p{L}\p{N}]*)$/u.exec(w); return { pre: m[1], core: m[2], post: m[3], k: m[2].length }; });
   const word = (p) => (p.k < p.core.length ? p.pre + p.core.slice(0, p.k) + '.' + p.post : p.pre + p.core + p.post);
-  const numW = n ? textW(n) + CELL * .2 * .3 : 0, W = (s) => textW(s);
+  const numW = n ? textW(n, px) + px * .3 : 0, W = (s) => textW(s, px);
   const lay = () => {
     const ws = parts.map(word);
     if (W(ws.join(' ')) + numW <= maxW) return [ws.join(' ')];
     let best = null;
-    for (let k = 1; k < ws.length; k++) {
+    for (let k = 1; !one && k < ws.length; k++) {
       const a = ws.slice(0, k).join(' '), b = ws.slice(k).join(' '), m = Math.max(W(a), W(b) + numW);
       if (m <= maxW && (!best || m < best[0])) best = [m, [a, b]];
     }
@@ -1417,11 +1426,20 @@ function fitLabel(head, n, maxW) {
   }
   return [parts.map(word).join(' ')];
 }
+// DM8b (review N2): a label hangs below its token, into the square below. When a token stands right there (its top row
+// is the next row and it lies under the label's width), the label would cover that token's HP bar and the top of its
+// circle; it then stays on one line in a smaller font (.17 of a square) and sits inside its own square, above its bottom
+// edge and above the HP bar of the token below (class lt). The full label stays in the title as before.
+function labelTight(c, L, lw) {
+  const y = c.gy + sz(c), x = c.gx + sz(c) / 2;
+  return L.some((o) => o !== c && o.gx != null && o.gy === y && o.gx < x + lw / 2 && o.gx + sz(o) > x - lw / 2);
+}
 // the label's lines; the number sits at the end of the last one. The space between a line's parts is not drawn (flex)
 // but keeps the label's text "Hobgoblin 1".
-const tokLabel = (c, lw) => {
-  const { head, n } = mapName(c), lines = fitLabel(head, n, CELL * lw - 9);
-  return `<b>${lines.map((l, i) => `<span class="ln"><span>${esc(l)}</span>${n && i === lines.length - 1 ? ` <span class="n">${n}</span>` : ''}</span>`).join(' ')}</b>`;
+const tokLabel = (c, lw, L = []) => {
+  const tight = labelTight(c, L, +lw), { head, n } = mapName(c);
+  const lines = tight ? fitLabel(head, n, CELL * lw - 9, true, CELL * .17) : fitLabel(head, n, CELL * lw - 9);
+  return `<b${tight ? ' class="lt"' : ''}>${lines.map((l, i) => `<span class="ln"><span>${esc(l)}</span>${n && i === lines.length - 1 ? ` <span class="n">${n}</span>` : ''}</span>`).join(' ')}</b>`;
 };
 /* ---------- area templates (owner request 2026-11-06): circle, square, rectangle, cone; sizes in whole squares (5 ft) ----------
    Circle: centre on a grid intersection (cx, cy), radius r squares. Square / rectangle: top-left square (gx, gy), w × h squares.
@@ -1488,12 +1506,27 @@ const canEditArea = (a) => (W.on ? !!a?.by && a.by === W.me && playerCanAct() : 
 // just outside it, the spots around a cone's origin. None free: the first.
 function delBtn(bx, cands) {
   // a token counts with its label below it (half a square)
+  // DM8b (review N1): the map's own controls (the button column, the info box, the hint, the group-damage bar, the
+  // shape chooser) count as taken too, measured on screen, so the × never lands under a button (near the right edge the
+  // left corners come first that way); a spot off the view counts as taken as well
   const R = 20 / V.z, toks = mapList().filter((c) => c.gx != null);
-  const free = ([x, y, dx, dy]) => {
+  const mv = $('#mapView'), m = mv.getBoundingClientRect();
+  const ctl = ['.zoom', '#dist', '#maphint', '#abar', '#apick'].map((s) => mv.querySelector(s)).filter((e) => e && !e.hidden && e.offsetWidth).map((e) => e.getBoundingClientRect());
+  const onView = ([x, y, dx, dy]) => {
     const cx = x * CELL + dx / V.z, cy = y * CELL + dy / V.z;
-    return !toks.some((c) => { const l = c.gx * CELL, r = (c.gx + sz(c)) * CELL, t = c.gy * CELL, b = (c.gy + sz(c) + 0.5) * CELL; return Math.hypot(cx - Math.max(l, Math.min(r, cx)), cy - Math.max(t, Math.min(b, cy))) < R; });
+    if (m.width) {
+      const sx = m.left + V.x + cx * V.z, sy = m.top + V.y + cy * V.z, r = 20;
+      if (sx - r < m.left || sx + r > m.right || sy - r < m.top || sy + r > m.bottom) return false;
+      if (ctl.some((q) => Math.hypot(sx - Math.max(q.left, Math.min(q.right, sx)), sy - Math.max(q.top, Math.min(q.bottom, sy))) < r)) return false;
+    }
+    return true;
   };
-  const [x, y, dx, dy] = cands.find(free) || cands[0];
+  const free = (p) => {
+    const [x, y, dx, dy] = p, cx = x * CELL + dx / V.z, cy = y * CELL + dy / V.z;
+    return onView(p) && !toks.some((c) => { const l = c.gx * CELL, r = (c.gx + sz(c)) * CELL, t = c.gy * CELL, b = (c.gy + sz(c) + 0.5) * CELL; return Math.hypot(cx - Math.max(l, Math.min(r, cx)), cy - Math.max(t, Math.min(b, cy))) < R; });
+  };
+  // none free of tokens: the first clear of the controls at least
+  const [x, y, dx, dy] = cands.find(free) || cands.find(onView) || cands[0];
   return `<button class="adel" data-adel aria-label="Alanı sil" style="left:calc(${((x - bx.x) * CELL).toFixed(1)}px + ${dx.toFixed(2)}px * var(--hz,1));top:calc(${((y - bx.y) * CELL).toFixed(1)}px + ${dy.toFixed(2)}px * var(--hz,1));right:auto;transform:translate(-50%,-50%)">×</button>`;
 }
 function areaHtml(a) {
@@ -1567,7 +1600,7 @@ function renderMap() {
   b.innerHTML = areas().map(areaHtml).join('') + S.list.map((c) => {
     const pct = Math.max(0, Math.min(100, (c.hp / c.max) * 100)), lw = labelW(c, S.list), tx = tt.get(c.id);
     return `<div class="tok ${c.side}${S.cur === c.id ? ' now' : ''}${!takesTurn(c) ? ' down' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${c.id}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${sz(c)};--lw:${lw};--tn:${tx.length}" role="button" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}, can ${c.hp}/${c.max}">
-      <i><span class="hpbar"><s style="width:${pct}%;background:${hpColor(c)}"></s></span>${esc(tx)}</i>${tokLabel(c, lw)}</div>`;
+      <i><span class="hpbar"><s style="width:${pct}%;background:${hpColor(c)}"></s></span>${esc(tx)}</i>${tokLabel(c, lw, S.list)}</div>`;
   }).join('');
   if (UI.measure?.b) { const a = byId(UI.measure.a), b = byId(UI.measure.b); if (a && b) drawMeasure(a, b); }
   // The selected template's size and the creatures in it; the group-damage button when anyone is in it.
@@ -1758,13 +1791,15 @@ function showArea(a) {
       else { drag.el.style.left = drag.from[0] * CELL + 'px'; drag.el.style.top = drag.from[1] * CELL + 'px'; }
       drag = null;
     }
+    // DM8b (N1): a selected template's × is placed again for the view the pan or pinch left (clear of the buttons)
+    if (!pts.size && (pan?.moved || pinch) && UI.area && !drag && !adrag) renderMap();
     if (!pts.size) pan = null;
     gestureEnd();
   };
   view.addEventListener('pointerup', end); view.addEventListener('pointercancel', end);
   view.addEventListener('wheel', (e) => { e.preventDefault(); const p = local(e); zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, p.x, p.y); }, { passive: false });
   const mid = () => { const r = view.getBoundingClientRect(); return [r.width / 2, r.height / 2]; };
-  $('#zin').onclick = () => zoomAt(1.25, ...mid()); $('#zout').onclick = () => zoomAt(1 / 1.25, ...mid()); $('#zfit').onclick = fit;
+  $('#zin').onclick = () => { zoomAt(1.25, ...mid()); if (UI.area) renderMap(); }; $('#zout').onclick = () => { zoomAt(1 / 1.25, ...mid()); if (UI.area) renderMap(); }; $('#zfit').onclick = fit;
   $('#zreset').onclick = () => ask('Dizilişi sıfırla', 'Bütün pullar baştaki yerlerine döner.', 'Sıfırla', () => { snap(); S.list.forEach((c) => { c.gx = null; c.gy = null; }); log('Harita dizilişi sıfırlandı'); render(); fit(); });
   $('#zmeasure').onclick = () => { UI.measure = UI.measure ? null : { a: null }; $('#zmeasure').setAttribute('aria-pressed', String(!!UI.measure)); clearMeasure(); $('#dist').innerHTML = UI.measure ? 'Ölç: ilk pula dokun' : 'Pulu sürükle: hareket · <b>5 ft</b> = 1 kare'; renderMap(); };
   // Alan: choose a shape; the template appears in the middle of the current view, selected.
@@ -1786,7 +1821,7 @@ function showArea(a) {
     clearLabel(a);
     pick(false);
     if (W.on) { if (playerCanAct()) playerArea('add', a); return; }
-    snap(); areas().push(a); UI.area = a.id; log(`${AREA_NAME[shape]} alan eklendi: ${areaLabel(a)}`); render(); showArea(a);
+    snap(); areas().push(a); UI.area = a.id; log(`${AREA_NAME[shape]} alan eklendi: ${areaLabel(a)}`); render(); showArea(a); renderMap();
   };
   $('#board').addEventListener('click', (e) => {
     if (!e.target.closest('[data-adel]') || !UI.area) return;
@@ -2894,7 +2929,7 @@ function renderWatchMap() {
   b.innerHTML = !P ? '' : P.areas.map(areaHtml).join('') + on.map((c) => {
     const lw = labelW(c, P.list), tx = tt.get(c.id);
     const bar = c.side === 'ally' ? `<span class="hpbar"><s style="width:${Math.max(0, Math.min(100, c.hp / c.max * 100))}%;background:${hpColor(c)}"></s></span>` : '';
-    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${esc(c.id)}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${c.size};--lw:${lw};--tn:${tx.length}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i>${bar}${esc(tx)}</i>${tokLabel(c, lw)}</div>`;
+    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${esc(c.id)}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${c.size};--lw:${lw};--tn:${tx.length}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i>${bar}${esc(tx)}</i>${tokLabel(c, lw, P.list)}</div>`;
   }).join('');
   $('#dist').innerHTML = sel ? areaInfo(sel) : W.conn?.open ? (act ? '<b>Canlı</b> · kendi pulunu sürükle: hareket' : meIn(P) && !P.pl.on ? '<b>Canlı</b> · DM hareketi şu an kapattı' : '<b>Canlı</b> · yalnız izleme') : esc(W.msg || 'Bağlanıyor…');
   applyView();
