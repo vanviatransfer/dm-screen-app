@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '98dea2a7a2'; window.__BUILT__ = '2026-11-07 18:50';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = 'c9cd4a8730'; window.__BUILT__ = '2026-11-19 16:39';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -229,33 +229,37 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .maphint{position:absolute;left:12px;bottom:12px;z-index:4;font-size:.78rem;color:var(--muted);background:rgba(0,0,0,.45);border-radius:8px;padding:4px 8px}
 
 /* area templates (owner request 2026-11-06): above the grid, below the tokens; --hz keeps handles and labels the same size on screen */
-.area{position:absolute;background:rgba(217,168,119,.2);border:2px dashed var(--acc);touch-action:none;cursor:move}
+/* DM9: --ac is the template's colour: the one its placer chose (inline), else the DM's amber or (.pl) a player's green */
+.area{--ac:var(--acc);position:absolute;background:color-mix(in srgb,var(--ac) 20%,transparent);border:2px dashed var(--ac);touch-action:none;cursor:move}
 .area.circle{border-radius:50%}
-.area.on{background:rgba(217,168,119,.3);border-width:3px}
-.alabel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--hz,1));background:rgba(0,0,0,.65);color:var(--acc);font-weight:700;font-size:13px;padding:1px 7px;border-radius:6px;white-space:nowrap;pointer-events:none}
-.area.live .alabel{background:var(--acc);color:var(--acc-ink);font-size:15px}
+.area.on{background:color-mix(in srgb,var(--ac) 30%,transparent);border-width:3px}
+.alabel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--hz,1));background:rgba(0,0,0,.65);color:var(--ac,var(--acc));font-weight:700;font-size:13px;padding:1px 7px;border-radius:6px;white-space:nowrap;pointer-events:none}
+.area.live .alabel{background:var(--ac);color:var(--acc-ink);font-size:15px}
 .ah{position:absolute;width:calc(36px * var(--hz,1));height:calc(36px * var(--hz,1));transform:translate(-50%,-50%);display:grid;place-items:center;touch-action:none;z-index:2}
 /* DM8 (review item 4): the dot at most .36 of a square, so zoomed out (Sığdır on a phone on its side) it does not hide a token */
-.ah::after{content:"";width:min(45%,calc(var(--cell) * .36));height:min(45%,calc(var(--cell) * .36));border-radius:50%;background:var(--acc);border:2px solid var(--acc-ink)}
+.ah::after{content:"";width:min(45%,calc(var(--cell) * .36));height:min(45%,calc(var(--cell) * .36));border-radius:50%;background:var(--ac,var(--acc));border:2px solid var(--acc-ink)}
 .ah[data-h="n"],.ah[data-h="s"]{cursor:ns-resize} .ah[data-h="e"],.ah[data-h="w"],.ah[data-h="r"]{cursor:ew-resize} .ah[data-h="nw"],.ah[data-h="se"]{cursor:nwse-resize} .ah[data-h="ne"],.ah[data-h="sw"]{cursor:nesw-resize}
 .adel{position:absolute;right:0;top:0;transform:translate(50%,-50%);width:calc(36px * var(--hz,1));height:calc(36px * var(--hz,1));border-radius:50%;background:var(--foe);color:#2a0d09;font-weight:700;font-size:calc(20px * var(--hz,1));line-height:1;display:grid;place-items:center;z-index:2}
 .tok.inarea i{outline:3px solid var(--acc);outline-offset:3px}
 /* cone (DM3): an SVG triangle in its bounding box; only the triangle and the controls take touches */
 .area.cone{background:none;border:0;pointer-events:none}
 .area.cone svg{position:absolute;left:0;top:0;overflow:visible}
-.area.cone polygon{fill:rgba(217,168,119,.2);stroke:var(--acc);stroke-width:2;stroke-dasharray:8 6;stroke-linejoin:round;pointer-events:auto;cursor:move}
-.area.cone.on polygon{fill:rgba(217,168,119,.3);stroke-width:3}
+.area.cone polygon{fill:color-mix(in srgb,var(--ac) 20%,transparent);stroke:var(--ac);stroke-width:2;stroke-dasharray:8 6;stroke-linejoin:round;pointer-events:auto;cursor:move}
+.area.cone.on polygon{fill:color-mix(in srgb,var(--ac) 30%,transparent);stroke-width:3}
 .area.cone .ah,.area.cone .adel{pointer-events:auto}
-.aorg{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--acc);transform:translate(-50%,-50%) scale(var(--hz,1));pointer-events:none}
+.aorg{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--ac,var(--acc));transform:translate(-50%,-50%) scale(var(--hz,1));pointer-events:none}
 .ah[data-h="o"],.ah[data-h="len"]{cursor:move}
 .ah[data-h="rot"]{cursor:grab}
-.ah[data-h="rot"]::after{width:min(52%,calc(var(--cell) * .4));height:min(52%,calc(var(--cell) * .4));background:var(--bg);border:3px solid var(--acc)}
-/* a player's template (DM3): the party's green */
-.area.pl{background:rgba(127,191,127,.16);border-color:var(--ally)}
-.area.pl.on{background:rgba(127,191,127,.26)}
+.ah[data-h="rot"]::after{width:min(52%,calc(var(--cell) * .4));height:min(52%,calc(var(--cell) * .4));background:var(--bg);border:3px solid var(--ac,var(--acc))}
+/* a player's template without a chosen colour (DM3): the party's green */
+.area.pl{--ac:var(--ally)}
 .area.cone.pl{background:none}
-.area.cone.pl polygon{fill:rgba(127,191,127,.16);stroke:var(--ally)}
-.area.pl .alabel{color:var(--ally)}
+/* DM9: the colour row of the Alan chooser, across both columns */
+.acol{grid-column:1 / -1;display:grid;gap:4px}
+.acol small{font-size:.72rem;color:var(--muted)}
+.acol [role=radiogroup]{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.apick .asw{height:40px;min-height:40px;min-width:0;border-radius:8px;border:2px solid color-mix(in srgb,var(--ac) 60%,var(--line));background:color-mix(in srgb,var(--ac) 35%,var(--surface));padding:0}
+.apick .asw[aria-checked="true"]{background:var(--ac);border-color:var(--ink);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ac)}
 .apick{position:absolute;right:68px;top:262px;z-index:5;display:grid;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow)}
 .apick button{min-height:44px;min-width:132px;border:1px solid var(--ctl);border-radius:10px;background:var(--bg);font-weight:700;display:grid;justify-items:start;padding:4px 12px;text-align:left}
 .apick small{font-weight:500;font-size:.72rem;color:var(--muted)}
@@ -518,7 +522,8 @@ body.watch .sess{display:none!important}
     <button class="hue" style="--h:285;font-size:.74rem" id="zarea" aria-label="Alan büyüsü şablonu ekle" aria-expanded="false">Alan</button>
     <button class="hue" style="--h:330;font-size:.64rem;line-height:1.05" id="zsave" aria-label="Bu dizilişi kaydet">Diziliş kaydet</button>
   </div>
-  <div class="apick" id="apick" hidden role="group" aria-label="Alan şekli">
+  <div class="apick" id="apick" hidden role="group" aria-label="Alan rengi ve şekli">
+    <div class="acol" id="acol"><small>Önce renk, sonra şekil</small><div role="radiogroup" aria-label="Alan rengi"></div></div>
     <button class="hue" style="--h:28" data-shape="circle">Daire<small>yarıçap</small></button>
     <button class="hue" style="--h:200" data-shape="square">Kare<small>bir kenar</small></button>
     <button class="hue" style="--h:140" data-shape="rect">Dikdörtgen<small>iki kenar</small></button>
@@ -1450,6 +1455,29 @@ const tokLabel = (c, lw, L = []) => {
 const AREA_DEFAULT = { circle: { r: 4 }, square: { w: 3, h: 3 }, rect: { w: 6, h: 2 }, cone: { len: 3, ang: 0 } };
 const AREA_NAME = { circle: 'Daire', square: 'Kare', rect: 'Dikdörtgen', cone: 'Koni' };
 const AREA_KEYS = { circle: ['cx', 'cy', 'r'], square: ['gx', 'gy', 'w', 'h'], rect: ['gx', 'gy', 'w', 'h'], cone: ['ox', 'oy', 'len', 'ang'] };
+// DM9 (owner 2026-11-19: "dm ve oyuncular alan koyarken renk secsinler once"): the DM and every player pick a colour
+// in the Alan chooser before the shape; the template keeps it (`col`, an index into this list) on every screen. The
+// last choice is remembered on this device, the DM's and the player's apart; the first time the DM gets red (the
+// foes' side) and a player green (ours). A template without `col` (older fights) keeps the old look: the DM's amber,
+// a player's green.
+const AREA_COLORS = [['Kırmızı', '#e9786a'], ['Turuncu', '#eb9a4e'], ['Sarı', '#e4cd5c'], ['Yeşil', '#86cf97'],
+  ['Turkuaz', '#5cc8bf'], ['Mavi', '#74a9ec'], ['Mor', '#b68ce8'], ['Pembe', '#ea8bc2']];
+const ACOL_KEY = 'dmscreen-area-color-v1';
+const okCol = (n) => Number.isInteger(n) && n >= 0 && n < AREA_COLORS.length;
+const colOf = (a) => (okCol(a?.col) ? { col: a.col } : {});
+const colName = (a) => (okCol(a?.col) ? ` (${AREA_COLORS[a.col][0].toLocaleLowerCase('tr')})` : '');
+function areaColor() {
+  const role = W.on ? 'pl' : 'dm';
+  try { const o = JSON.parse(localStorage.getItem(ACOL_KEY)); if (o && okCol(o[role])) return o[role]; } catch {}
+  return role === 'pl' ? 3 : 0;
+}
+function setAreaColor(n) {
+  if (!okCol(n)) return;
+  let o = null; try { o = JSON.parse(localStorage.getItem(ACOL_KEY)); } catch {}
+  const keep = {}; if (o && typeof o === 'object') for (const r of ['dm', 'pl']) if (okCol(o[r])) keep[r] = o[r];
+  keep[W.on ? 'pl' : 'dm'] = n;
+  try { localStorage.setItem(ACOL_KEY, JSON.stringify(keep)); } catch {}
+}
 const AREA_MAX = 24;
 const areas = () => (Array.isArray(S.areas) ? S.areas : (S.areas = []));
 const areaById = (id) => areas().find((a) => a.id === id) || null;
@@ -1488,6 +1516,9 @@ function snapAngle(d) { d = ((d % 360) + 360) % 360; const n = Math.round(d / 45
 // One template's shape and numbers, checked and clamped onto the board (a player's request, the player view's copy of
 // the DM's state). Anything that is not a finite number makes the whole template invalid (null).
 function cleanArea(o) {
+  const g = cleanGeom(o); return g && { ...g, ...colOf(o) };
+}
+function cleanGeom(o) {
   if (!o || typeof o !== 'object' || typeof o.shape !== 'string' || !Object.hasOwn(AREA_NAME, o.shape)) return null;
   const v = AREA_KEYS[o.shape].map((k) => o[k]); if (!v.every((x) => typeof x === 'number' && Number.isFinite(x))) return null;
   const cl = (x, lo, hi) => Math.max(lo, Math.min(hi, x)), R = Math.round;
@@ -1532,7 +1563,7 @@ function delBtn(bx, cands) {
 function areaHtml(a) {
   const bx = areaBox(a), on = UI.area === a.id && canEditArea(a), px = (x, y) => [(x - bx.x) * CELL, (y - bx.y) * CELL];
   const cls = `area ${a.shape}${on ? ' on' : ''}${a.by ? ' pl' : ''}${W.on && a.by && a.by === W.me ? ' mine' : ''}`;
-  const box = `left:${bx.x * CELL}px;top:${bx.y * CELL}px;width:${bx.w * CELL}px;height:${bx.h * CELL}px`;
+  const box = `left:${bx.x * CELL}px;top:${bx.y * CELL}px;width:${bx.w * CELL}px;height:${bx.h * CELL}px${okCol(a.col) ? `;--ac:${AREA_COLORS[a.col][1]}` : ''}`;
   if (a.shape === 'cone') {
     // An SVG triangle in the template's bounding box; only the triangle and the controls take touches.
     const p = conePts(a).map(([x, y]) => px(x, y)), [ux, uy] = coneDir(a), [ox, oy] = p[0], [tx, ty] = px(a.ox + a.len * ux, a.oy + a.len * uy);
@@ -1807,13 +1838,28 @@ function showArea(a) {
   // button but always inside the map view, above the bottom tabs, however short the screen is.
   const pick = (open) => {
     const p = $('#apick'); p.hidden = !open; $('#zarea').setAttribute('aria-expanded', String(open));
-    if (open) placePick();
+    if (open) { colRow(); placePick(); }
   };
   $('#zarea').onclick = () => pick($('#apick').hidden);
+  // the colour row: one swatch per colour, the current choice checked
+  const colRow = () => {
+    const cur = areaColor();
+    $('#acol [role=radiogroup]').innerHTML = AREA_COLORS.map(([n, c], i) => `<button type="button" class="asw" role="radio" data-col="${i}" style="--ac:${c}" aria-label="${n}" title="${n}" aria-checked="${i === cur}" tabindex="${i === cur ? 0 : -1}"></button>`).join('');
+  };
+  // a radio group (review note): one tab stop, the arrow keys (and Home / End) move the choice
+  $('#acol').addEventListener('keydown', (e) => {
+    const k = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key], n = AREA_COLORS.length;
+    if (k == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    const i = e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : (areaColor() + k + n) % n;
+    setAreaColor(i); colRow(); $(`#acol [data-col="${i}"]`).focus();
+  });
   $('#apick').onclick = (e) => {
+    const sw = e.target.closest('[data-col]');
+    if (sw) { setAreaColor(Number(sw.dataset.col)); colRow(); return; }
     const shape = e.target.closest('[data-shape]')?.dataset.shape; if (!shape) return;
     const [cx, cy] = mid(), mx = (cx - V.x) / (CELL * V.z), my = (cy - V.y) / (CELL * V.z);
-    const a = { id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), shape, ...AREA_DEFAULT[shape] };
+    const a = { id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), shape, ...AREA_DEFAULT[shape], col: areaColor() };
     if (shape === 'circle') { a.cx = clamp(Math.round(mx), 0, COLS); a.cy = clamp(Math.round(my), 0, ROWS); }
     // a cone starts at the grid corner left of the view's middle and points right
     else if (shape === 'cone') { a.ox = clamp(Math.round(mx - a.len / 2), 0, COLS); a.oy = clamp(Math.round(my), 0, ROWS); }
@@ -1821,7 +1867,7 @@ function showArea(a) {
     clearLabel(a);
     pick(false);
     if (W.on) { if (playerCanAct()) playerArea('add', a); return; }
-    snap(); areas().push(a); UI.area = a.id; log(`${AREA_NAME[shape]} alan eklendi: ${areaLabel(a)}`); render(); showArea(a); renderMap();
+    snap(); areas().push(a); UI.area = a.id; log(`${AREA_NAME[shape]} alan eklendi${colName(a)}: ${areaLabel(a)}`); render(); showArea(a); renderMap();
   };
   $('#board').addEventListener('click', (e) => {
     if (!e.target.closest('[data-adel]') || !UI.area) return;
@@ -2356,7 +2402,7 @@ function publicState() {
       return o;
     }),
     // by: the character a player's template belongs to ('' = the DM's)
-    areas: areas().map((a) => ({ id: a.id, shape: a.shape, by: a.by || '', ...areaGeom(a) })),
+    areas: areas().map((a) => ({ id: a.id, shape: a.shape, by: a.by || '', ...areaGeom(a), ...colOf(a) })),
     // DM3: whether players may act now, and the characters connected players have taken
     pl: { on: LV.act, taken: [...new Set([...LV.info.values()].map((o) => o.char).filter(Boolean))] },
   };
@@ -2577,7 +2623,7 @@ function liveApply(conn, me, m) {
     const a = cleanArea(m.a); if (!a) return;
     if (areas().filter((x) => x.by === c.id).length >= PLAYER_AREAS) return no(`En çok ${PLAYER_AREAS} alan koyabilirsin`);
     a.id = 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); a.by = c.id;
-    playerStep(c, 'ar:' + a.id, (ctx) => { ctx.added = true; areas().push(a); return `<b>${esc(c.name)}</b>: ${AREA_NAME[a.shape]} alan eklendi: ${areaLabel(a)}`; });
+    playerStep(c, 'ar:' + a.id, (ctx) => { ctx.added = true; areas().push(a); return `<b>${esc(c.name)}</b>: ${AREA_NAME[a.shape]} alan eklendi${colName(a)}: ${areaLabel(a)}`; });
     tell(conn, { t: 'ok', id: a.id }); return;
   }
   if (op !== 'set' && op !== 'del') return;
@@ -2588,7 +2634,7 @@ function liveApply(conn, me, m) {
   const a = cleanArea(m.a); if (!a || a.shape !== x.shape) return;
   if (AREA_KEYS[a.shape].every((k) => a[k] === x[k])) return;
   // an edit right after adding the template stays one "eklendi" step with the final size
-  playerStep(c, 'ar:' + x.id, (ctx, same) => { Object.assign(x, a); return `<b>${esc(c.name)}</b>: ${AREA_NAME[x.shape]} alan${same && ctx.added ? ' eklendi: ' : ': '}${areaLabel(x)}`; });
+  playerStep(c, 'ar:' + x.id, (ctx, same) => { Object.assign(x, a); return `<b>${esc(c.name)}</b>: ${AREA_NAME[x.shape]} alan${same && ctx.added ? ` eklendi${colName(x)}: ` : ': '}${areaLabel(x)}`; });
 }
 // A beat every few seconds: a player whose DM went quiet (phone locked, app reloaded) reconnects by itself.
 setInterval(() => { LV.conns.forEach((c) => { if (c.open) try { c.send({ t: 'ping' }); } catch {} }); }, 4000);
@@ -2671,7 +2717,7 @@ function playerMove(c, [gx, gy]) {
   renderWatchMap();
 }
 function playerArea(op, a) {
-  const geom = { shape: a.shape, ...areaGeom(a) };
+  const geom = { shape: a.shape, ...areaGeom(a), ...colOf(a) };
   if (op === 'add') { W.wantSel = true; wsend({ t: 'area', op, a: geom }); return; }
   if (op === 'del') { wsend({ t: 'area', op, id: a.id }); forViews((P) => { P.areas = P.areas.filter((x) => x.id !== a.id); }); UI.area = null; renderWatchMap(); return; }
   wsend({ t: 'area', op: 'set', id: a.id, a: geom });
