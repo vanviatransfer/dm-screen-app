@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '6f4c50ad60'; window.__BUILT__ = '2026-11-20 01:56';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '5fdd47e1b6'; window.__BUILT__ = '2026-11-20 02:23';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -239,6 +239,7 @@ body.watch .tok.me{z-index:4}
 .picv{width:64px;height:64px;border-radius:50%;background:#211a14 center/cover no-repeat;border:2px solid var(--ctl);flex:none}
 .pill.dash{border-color:#7fc96a;color:#bfe8a8}
 .pill.dash.on{background:#3c6a2e;color:#eaffdf;border-color:#9fe07a}
+.pill.dash:disabled{opacity:.55;border-style:dashed;cursor:default}
 .tok.drag i{transform:scale(1.12)}
 .ghost{position:absolute;width:var(--cell);height:var(--cell);border:2px dashed var(--acc);border-radius:50%;opacity:.6;pointer-events:none}
 .zoom{position:absolute;right:12px;top:12px;display:grid;gap:6px;z-index:4}
@@ -906,6 +907,11 @@ function condWhen(c, x) {
 // DM8 (review item 7): what Exhaustion does (2024): d20 tests −2 per level, speed −5 ft per level; level 6 is death.
 const exText = (r) => (r >= 6 ? `${r} · ölüm` : `${r} · d20 −${2 * r}, hız −${5 * r} ft`);
 function dots(n, on, cls = '') { let h = ''; for (let k = 0; k < n; k++) h += `<s class="${cls}${k < on ? ' on' : ''}"></s>`; return h; }
+function dashPill(c, now, attr = 'data-act="dash"') {
+  const base = c.speed ?? 30;
+  if (!now) return `<button class="pill dash" ${attr} disabled title="Dash sırası gelince kullanılır">Dash · ${base} → ${base * 2} ft · sırası gelince</button>`;
+  return `<button class="pill dash${c.dash ? ' on' : ''}" ${attr} aria-pressed="${!!c.dash}" title="Dokun: Dash (bu tur hız iki katı)">${c.dash ? `Dash açık · ${base * 2} ft` : `Dash · ${base} → ${base * 2} ft`} · kalan ${Math.max(0, base * (c.dash ? 2 : 1) - (c.used || 0))} ft</button>`;
+}
 function card(c, pos) {
   const now = S.cur === c.id;
   const shield = c.max + c.tmp;
@@ -920,7 +926,9 @@ function card(c, pos) {
     dying && !c.stable ? `<button class="pill ds" data-act="ds" title="Dokun: başarılı / başarısız ekle">Death save <span class="dots">${dots(3, c.ds[0], 's')}</span><span class="dots">${dots(3, c.ds[1], 'f')}</span></button>` : '',
     !isDown(c) && !isDead(c) ? `<button class="pill${c.react ? ' used' : ''}" data-act="react" title="Dokun: kullanıldı / hazır">Reaction</button>` : '',
     // DM15 (owner: "karaktere sıra gelince dash seçeneği olsun yürüme hızını ikiye katlasin"): on its turn, beside the map's
-    now && takesTurn(c) ? `<button class="pill dash${c.dash ? ' on' : ''}" data-act="dash" aria-pressed="${!!c.dash}" title="Dokun: Dash (bu tur hız iki katı)">Dash · hız ${spdOf(c)} ft · kalan ${leftOf(c)} ft</button>` : '',
+    // DM17 (owner 2026-11-19: "dash her karakterde olmalı / hızı ikiye katliyor tur gelince kullanilabilir / dm de kullanabilir
+    // / 30 ft ise dash açınca 60 ft oluyor"): on every creature's card; usable on its own turn (a new turn ends it)
+    takesTurn(c) ? dashPill(c, now) : '',
     c.la ? `<button class="pill" data-act="la" title="Dokun: bir Legendary Action harca">Legendary Action <span class="dots">${dots(c.la[1], c.la[0])}</span></button>` : '',
     c.lr ? `<button class="pill" data-act="lr" title="Dokun: bir Legendary Resistance harca">Legendary Resistance <span class="dots">${dots(c.lr[1], c.lr[0])}</span></button>` : '',
   ].join('');
@@ -1303,7 +1311,7 @@ document.addEventListener('click', (e) => {
   const c = byId(cardEl.dataset.id);
   if (UI.multi) { UI.sel.has(c.id) ? UI.sel.delete(c.id) : UI.sel.add(c.id); render(); return; }
   const act = e.target.closest('[data-act]')?.dataset.act; if (!act) return;
-  if (act === 'dash') { snap(); c.dash = !c.dash; log(`<b>${esc(c.name)}</b> ${c.dash ? 'Dash: hız bu tur iki katı' : 'Dash geri alındı'}`); render(); return; }
+  if (act === 'dash') { if (S.cur !== c.id) { toast('Dash sırası gelince kullanılır'); return; } snap(); c.dash = !c.dash; log(`<b>${esc(c.name)}</b> ${c.dash ? 'Dash: hız bu tur iki katı' : 'Dash geri alındı'}`); render(); return; }
   if (act === 'react') { snap(); c.react = !c.react; log(`<b>${esc(c.name)}</b> Reaction ${c.react ? 'kullandı' : 'geri aldı'}`); render(); return; }
   if (act === 'la') { snap(); c.la[0] = c.la[0] > 0 ? c.la[0] - 1 : c.la[1]; log(`<b>${esc(c.name)}</b> Legendary Action: ${c.la[0]}/${c.la[1]}`); render(); return; }
   if (act === 'lr') { snap(); c.lr[0] = c.lr[0] > 0 ? c.lr[0] - 1 : c.lr[1]; log(`<b>${esc(c.name)}</b> Legendary Resistance: ${c.lr[0]}/${c.lr[1]}`); render(); return; }
@@ -2090,7 +2098,18 @@ const ftTxt = (n) => `${n} ft`;
 function moveBar() {
   const c = UI.map ? mover() : null, bar = $('#movebar');
   if (UI.pend && (!c || UI.pend.id !== c.id)) UI.pend = null;
-  bar.hidden = !c; document.body.classList.toggle('movebar', !!c); if (!c) return;
+  // DM17 (owner: "dash i harita sekmesinde acabilmeli oyuncu"): a player with a character sees the bar on the map all
+  // the time: Dash greyed until their turn
+  const me = !c && UI.map && W.on && !UI.wall && !UI.align ? meIn(W.P) : null;
+  bar.hidden = !c && !me; document.body.classList.toggle('movebar', !bar.hidden);
+  const db = bar.querySelector('[data-mdash]');
+  if (me) {
+    const base = me.speed ?? 30;
+    $('#moveTxt').innerHTML = `<b>${esc(me.name)}</b> · hız ${ftTxt(base)} · Dash ile ${ftTxt(base * 2)} · sıran gelince yürürsün`;
+    db.disabled = true; db.setAttribute('aria-pressed', 'false'); bar.querySelector('[data-mok]').hidden = bar.querySelector('[data-mno]').hidden = true; return;
+  }
+  db.disabled = false;
+  if (!c) return;
   const p = pendFor(c);
   $('#moveTxt').innerHTML = `<b>${esc(mapLabel(c))}</b> · hız ${ftTxt(spdOf(c))}${c.dash ? ' (Dash)' : ''} · kalan <b>${ftTxt(leftOf(c))}</b>${p ? ` · bu hareket <b>${ftTxt(p.cost)}</b>` : ' · yeşil karelere sürükle'}`;
   bar.querySelector('[data-mdash]').setAttribute('aria-pressed', String(!!c.dash));
@@ -2560,7 +2579,7 @@ function showTab(map, lib = false) {
   if (lib) { scrollTo(0, 0); renderLib(); }
   else if (map) {
     scrollTo(0, 0); document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().bottom + 'px');
-    mapLayout(); if (!V.fitted) { fit(); V.fitted = true; }
+    mapLayout(); if (!V.fitted) { fit(); V.fitted = true; } else renderMap(); // DM17: the walking bar and green squares as they are now
   } else if (W.on ? W.P?.cur : S.cur) reveal(W.on ? W.P.cur : S.cur);
 }
 $('#tabFight').onclick = () => showTab(false); $('#tabMap').onclick = () => showTab(true); $('#tabLib').onclick = () => { if (!W.on) showTab(false, true); };
@@ -3780,7 +3799,7 @@ function wcard(c, pos, now) {
     ${ally ? `<div class="hp" aria-label="Can ${c.hp} / ${c.max}"><span class="nums"><span class="cur">${c.hp}<small> / ${c.max}</small></span>${c.tmp ? `<span class="tmp">+${c.tmp} geçici</span>` : ''}</span>
       <span class="bar"><i style="width:${Math.max(0, c.hp / shield * 100)}%;background:${hpColor(c)}"></i><i class="t" style="width:${(c.tmp || 0) / shield * 100}%"></i></span></div>` : ''}
     ${tags ? `<div class="conds">${tags}</div>` : ''}
-    ${ally && c.id === W.me && now && c.turn !== false ? `<div class="res"><button class="pill dash${c.dash ? ' on' : ''}" data-wdash aria-pressed="${!!c.dash}">Dash · hız ${(c.speed ?? 30) * (c.dash ? 2 : 1)} ft · kalan ${Math.max(0, (c.speed ?? 30) * (c.dash ? 2 : 1) - (c.used || 0))} ft</button></div>` : ''}
+    ${ally && c.id === W.me && c.turn !== false ? `<div class="res">${dashPill(c, now, 'data-wdash')}</div>` : ally && c.dash && now ? `<div class="res"><span class="pill dash on">Dash açık · ${(c.speed ?? 30) * 2} ft</span></div>` : ''}
     ${dying && !c.stable ? `<div class="res"><span class="pill ds">Death save <span class="dots">${dots(3, c.ds[0], 's')}</span><span class="dots">${dots(3, c.ds[1], 'f')}</span></span></div>` : ''}
   </article>`;
 }
