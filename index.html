@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = 'c9cd4a8730'; window.__BUILT__ = '2026-11-19 16:39';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '3c163fb127'; window.__BUILT__ = '2026-11-20 00:06';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -194,9 +194,12 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 
 /* grid map */
 #mapView{position:fixed;left:0;right:0;top:var(--hdh,120px);bottom:calc(61px + env(safe-area-inset-bottom,0px));overflow:hidden;touch-action:none;background:#15110e}
-#board{position:absolute;left:0;top:0;transform-origin:0 0;background-color:#211a14;
-  background-image:linear-gradient(#4a3c30 var(--gl,1px),transparent var(--gl,1px)),linear-gradient(90deg,#4a3c30 var(--gl,1px),transparent var(--gl,1px));
-  background-size:var(--cell) var(--cell);border:1px solid var(--ctl)}
+#board{position:absolute;left:0;top:0;transform-origin:0 0;background-color:#211a14;border:1px solid var(--ctl)}
+/* DM12: the board's layers: painted textures (#terrain), grid lines (#grid), then obstacles, templates and tokens (#layer) */
+#terrain,#grid,#layer{position:absolute;left:0;top:0;width:100%;height:100%}
+#terrain,#grid{pointer-events:none}
+#grid{background-image:linear-gradient(#4a3c30 var(--gl,1px),transparent var(--gl,1px)),linear-gradient(90deg,#4a3c30 var(--gl,1px),transparent var(--gl,1px));background-size:var(--cell) var(--cell)}
+#board.bg #grid,#board.ter #grid{background-image:linear-gradient(rgba(0,0,0,.42) var(--gl,1px),transparent var(--gl,1px)),linear-gradient(90deg,rgba(0,0,0,.42) var(--gl,1px),transparent var(--gl,1px))}
 .ttl{display:flex;align-items:center;gap:10px}
 .tok{position:absolute;width:calc(var(--cell) * var(--sz,1));height:calc(var(--cell) * var(--sz,1));display:grid;place-items:center;touch-action:none;cursor:grab}
 .tok.pick i{box-shadow:0 0 0 3px #8fc1e0,0 0 14px rgba(143,193,224,.6)}
@@ -264,6 +267,43 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .apick button{min-height:44px;min-width:132px;border:1px solid var(--ctl);border-radius:10px;background:var(--bg);font-weight:700;display:grid;justify-items:start;padding:4px 12px;text-align:left}
 .apick small{font-weight:500;font-size:.72rem;color:var(--muted)}
 .abar{position:absolute;left:12px;bottom:48px;z-index:4}
+/* DM12: the drawing bar: tools (a swatch each) in a row that scrolls sideways, then brush size and the actions */
+.drawbar{position:absolute;left:12px;right:68px;bottom:12px;z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;display:grid;gap:6px;box-shadow:var(--shadow)}
+.dtools{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px}
+.dtools button{flex:none;width:58px;display:grid;justify-items:center;gap:2px;font-size:.66rem;font-weight:700;line-height:1.1;color:var(--ink);padding:3px 2px;border:1px solid var(--ctl);border-radius:10px;background:var(--bg);text-align:center}
+.dtools button i{width:36px;height:36px;border-radius:7px;background-size:cover;border:1px solid var(--line);display:block}
+.dtools button[aria-checked="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.dtools .sw-wall{background:repeating-linear-gradient(45deg,#0f0b08 0 5px,#6e5034 5px 8px);border-color:#f0c48e}
+.dtools .sw-erase{background:linear-gradient(135deg,transparent 45%,var(--foe) 45% 55%,transparent 55%),#211a14}
+.drow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dsz{display:flex;gap:4px;align-items:center;margin-right:auto}
+.dsz small{font-size:.72rem;color:var(--muted)}
+.dsz button{width:36px;min-height:36px;border:1px solid var(--ctl);border-radius:8px;background:var(--bg);font-weight:700}
+.dsz button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+body.wallmode .maphint,body.aligning .maphint{display:none}
+/* DM13: the map picture's credit (CC BY / Dyson), the align bar, the grid switched off */
+.mapcredit{position:absolute;right:68px;bottom:4px;z-index:3;font-size:.62rem;color:var(--muted);background:rgba(0,0,0,.55);border-radius:6px;padding:1px 6px;max-width:calc(100% - 90px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+#board.nogrid #grid{display:none}
+.imgbar .drow{gap:4px}
+.imgbar .drow small{font-size:.72rem;color:var(--muted)}
+.imgbar .drow > button:not(.btn){min-width:38px;min-height:38px;border:1px solid var(--ctl);border-radius:8px;background:var(--bg);font-weight:700}
+.imgbar #imgw{font-family:var(--display);font-size:1.1rem;min-width:34px;text-align:center;color:var(--acc)}
+.imgbar #imggrid[aria-pressed="false"]{opacity:.7}
+.bgs img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:#211a14}
+.credits{font-size:.74rem}
+.mapc{display:grid;gap:4px}
+.mapc > button:first-child{display:grid;gap:4px;padding:6px;border:1px solid var(--ctl);border-radius:12px;background:var(--bg);font-size:.84rem;font-weight:700;color:var(--ink)}
+/* DM10 (owner 2026-11-19): a chosen background (CC0 photo texture, tiled every --bgs, darkened by --bgd) under the grid,
+   whose lines turn dark so they show on light ground too; obstacle squares (one SVG path) above the ground, below templates */
+#board.bg{background-image:linear-gradient(rgba(18,13,9,var(--bgd,.3)),rgba(18,13,9,var(--bgd,.3))),var(--bgi);background-size:auto,var(--bgs) var(--bgs)}
+#walls{position:absolute;left:0;top:0;pointer-events:none}
+body.wallmode #mapView{cursor:crosshair}
+.bgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin:10px 0}
+.bgs button{display:grid;gap:4px;padding:6px;border:1px solid var(--ctl);border-radius:12px;background:var(--bg);font-size:.84rem;font-weight:700;color:var(--ink)}
+.bgs button i{display:block;aspect-ratio:1;border-radius:8px;background:#211a14;background-size:cover;border:1px solid var(--line)}
+.bgs button[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.bgs canvas{display:block;width:100%;aspect-ratio:1;border-radius:8px;border:1px solid var(--line)}
+.bgs small{font-size:.7rem;font-weight:500;color:var(--muted);line-height:1.2}
 /* DM3b (N5): a selected template's handles and × stay usable: the hint steps aside, and the info boxes let touches
    through to what is under them */
 #mapView.asel .maphint{display:none}
@@ -310,7 +350,7 @@ body.watch #tabLib,body.watch #zsave{display:none!important}
 .scanx{position:absolute;right:8px;top:8px;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:1.5rem;line-height:1;display:grid;place-items:center}
 .lstat.bad{color:var(--warn)}
 .wempty{color:var(--muted);margin:0;padding:12px 4px}
-body.watch #newFight,body.watch #prev,body.watch #next,body.watch .tools,body.watch .log,body.watch .help,body.watch #zmeasure,body.watch #zreset,body.watch .abar{display:none!important}
+body.watch #newFight,body.watch #prev,body.watch #next,body.watch .tools,body.watch .log,body.watch .help,body.watch #zreset,body.watch #zwall,body.watch #zbg,body.watch .abar{display:none!important}
 /* DM3: a player who may act (body.pact) gets the Alan chooser; their own token is marked */
 body.watch:not(.pact) #zarea,body.watch:not(.pact) .apick{display:none!important}
 body.watch .tok.me i{outline:3px dashed var(--ally);outline-offset:3px}
@@ -520,6 +560,8 @@ body.watch .sess{display:none!important}
     <button class="hue" style="--h:210;font-size:.74rem" id="zmeasure" aria-label="İki pul arası mesafe ölç" aria-pressed="false">Ölç</button>
     <button class="hue" style="--h:120;font-size:.7rem;line-height:1.1" id="zreset" aria-label="Dizilişi sıfırla">Diz</button>
     <button class="hue" style="--h:285;font-size:.74rem" id="zarea" aria-label="Alan büyüsü şablonu ekle" aria-expanded="false">Alan</button>
+    <button class="hue" style="--h:12;font-size:.74rem" id="zwall" aria-label="Haritayı çiz: zemin boya, engel koy" aria-pressed="false">Çiz</button>
+    <button class="hue" style="--h:90;font-size:.7rem" id="zbg" aria-label="Haritanın zeminini seç">Zemin</button>
     <button class="hue" style="--h:330;font-size:.64rem;line-height:1.05" id="zsave" aria-label="Bu dizilişi kaydet">Diziliş kaydet</button>
   </div>
   <div class="apick" id="apick" hidden role="group" aria-label="Alan rengi ve şekli">
@@ -530,6 +572,16 @@ body.watch .sess{display:none!important}
     <button class="hue" style="--h:285" data-shape="cone">Koni<small>uzunluk, yön</small></button>
   </div>
   <div class="abar" id="abar" hidden><button class="btn sm pri" data-agrp>Bunlara toplu hasar</button></div>
+  <div class="drawbar imgbar" id="imgbar" hidden role="group" aria-label="Resmi ızgaraya hizala">
+    <div class="drow"><small>Genişlik</small><button data-dw="-1">−1</button><button data-dw="-0.1">−0,1</button><b id="imgw">40</b><small>kare</small><button data-dw="0.1">+0,1</button><button data-dw="1">+1</button></div>
+    <div class="drow"><small>Kaydır</small><button data-dx="-0.1" aria-label="Sola">←</button><button data-dy="-0.1" aria-label="Yukarı">↑</button><button data-dy="0.1" aria-label="Aşağı">↓</button><button data-dx="0.1" aria-label="Sağa">→</button><button data-dx="-1" aria-label="Bir kare sola">⇐</button><button data-dx="1" aria-label="Bir kare sağa">⇒</button><button data-dy="-1" aria-label="Bir kare yukarı">⇑</button><button data-dy="1" aria-label="Bir kare aşağı">⇓</button></div>
+    <div class="drow"><button class="btn sm" id="imggrid" aria-pressed="true">Izgara</button><button class="btn sm" data-irm="1">Resmi kaldır</button><button class="btn sm pri" data-idone="1">Bitti</button></div>
+  </div>
+  <div class="mapcredit" id="mapcredit" hidden></div>
+  <div class="drawbar" id="wallbar" hidden role="group" aria-label="Harita çiz">
+    <div class="dtools" role="radiogroup" aria-label="Çizim aracı"></div>
+    <div class="drow"><span class="dsz" aria-label="Fırça"><small>Fırça</small><button data-brush="1" aria-label="Fırça 1 kare">1</button><button data-brush="2" aria-label="Fırça 2 × 2">2</button><button data-brush="3" aria-label="Fırça 3 × 3">3</button></span><button class="btn sm" data-wclear>Temizle</button><button class="btn sm" data-wsave>Kaydet</button><button class="btn sm pri" data-wdone>Bitti</button></div>
+  </div>
   <div class="maphint" id="maphint">İki parmakla yakınlaştır · boş yeri sürükle: kaydır · pula dokun: can</div>
 </div>
 
@@ -574,7 +626,7 @@ const sample = () => ({
 });
 let S; try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch { S = sample(); }
 if (!S || S.v !== 2 || !Array.isArray(S.list)) S = sample();
-const UI = { multi: false, sel: new Set(), map: false, measure: null, area: null, gesture: false };
+const UI = { multi: false, sel: new Set(), map: false, measure: null, area: null, gesture: false, wall: false, tool: 'wall', brush: 1 };
 const history = [];
 // DM3b: who made each undo step, kept in step with `history`: null = the DM, an object = a player's run (playerStep).
 // When the stack is full the oldest player step goes first (its change then undoes together with the step before it),
@@ -1303,6 +1355,8 @@ function place() {
   const cover = (c, x, y) => { const s = []; for (let i = 0; i < sz(c); i++) for (let j = 0; j < sz(c); j++) s.push((x + i) + ',' + (y + j)); return s; };
   const on = S.list.filter((c) => c.gx != null);
   on.forEach((c) => cover(c, c.gx, c.gy).forEach((k) => taken.add(k)));
+  // DM11: never on an obstacle square
+  (Array.isArray(S.walls) ? S.walls : []).forEach((k) => taken.add((k % COLS) + ',' + Math.floor(k / COLS)));
   let ax, ay;
   if (on.length) {
     const al = on.filter((c) => c.side === 'ally'), fo = on.filter((c) => c.side === 'foe');
@@ -1332,11 +1386,18 @@ function gap(a, b) {
   return Math.max(gx, gy) * 5;
 }
 function clearMeasure() { $('#measureLine')?.remove(); }
+// the Ölç line's text, from the creatures' squares now (DM and player view)
+function measureText() {
+  const m = UI.measure; if (!m) return '';
+  const L = mapList(), a = L.find((x) => x.id === m.a && x.gx != null), b = L.find((x) => x.id === m.b && x.gx != null);
+  if (a && b) return `${esc(mapLabel(a))} ↔ ${esc(mapLabel(b))}: <b>${gap(a, b)} ft</b>`;
+  return a ? `Ölç: ${esc(mapLabel(a))} · ikinci pula dokun` : 'Ölç: ilk pula dokun';
+}
 function drawMeasure(a, b) {
   clearMeasure();
   const c = (x) => [(x.gx + sz(x) / 2) * CELL, (x.gy + sz(x) / 2) * CELL];
   const [x1, y1] = c(a), [x2, y2] = c(b);
-  $('#board').insertAdjacentHTML('beforeend', `<svg id="measureLine" width="${COLS * CELL}" height="${ROWS * CELL}"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#8fc1e0" stroke-width="3" stroke-dasharray="8 6"/></svg>`);
+  $('#layer').insertAdjacentHTML('beforeend', `<svg id="measureLine" width="${COLS * CELL}" height="${ROWS * CELL}"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#8fc1e0" stroke-width="3" stroke-dasharray="8 6"/></svg>`);
 }
 // DM8 (review item 1): the text on a token. The first letter of each word before the copy number, a one-word name its
 // first two letters: "Hobgoblin Devastator 1" → HD1, "Hobgoblin 2" → HO2, "Hobgoblin Captain" → HC, "Worg" → WO.
@@ -1620,6 +1681,298 @@ function areaInfo(a) {
   const head = a.shape === 'cone' ? `<b>${areaLabel(a)}</b> · yön ${a.ang}°` : `${AREA_NAME[a.shape]}: <b>${areaLabel(a)}</b>`;
   return `${head}${owner ? ` · koyan: ${esc(mapLabel(owner))}` : ''} · ${who.length ? 'İçinde: ' + who.map((c) => esc(mapLabel(c))).join(', ') : 'İçinde kimse yok'}`;
 }
+/* ---------- DM10 (owner 2026-11-19): ground backgrounds and obstacle squares ----------
+   "savaş alanına birkaç tane hazir arkaplan seçme seçeneği olsun / İnternetten bulup uygun olarak koyabilirsin": CC0 photo
+   textures from Poly Haven (bg/README.md), tiled. build.mjs fills BG_SRC: data URIs in the single file, bg/<id>.webp in
+   pwa/. t: one tile in squares (about the photo's real size, at least 2 so the repeat shows less), d: how much darker.
+   "dm istediği kareleri alan koyarak kapatabilmeli engel olarak": the DM marks squares as obstacles (S.walls: square
+   numbers gy * COLS + gx). Players see them; a player's token cannot be put on one (the DM's own can, the DM decides). */
+const BG_SRC = {"camur": "bg/camur.webp", "cayir": "bg/cayir.webp", "cimen": "bg/cimen.webp", "col": "bg/col.webp", "dere": "bg/dere.webp", "kaldirim": "bg/kaldirim.webp", "kar": "bg/kar.webp", "magara": "bg/magara.webp", "orman": "bg/orman.webp", "su": "bg/su.webp", "tahta": "bg/tahta.webp", "toprak": "bg/toprak.webp", "zindan": "bg/zindan.webp"};
+// code: the texture's letter in a hand-drawn map (S.ter, DM12); never change a letter (saved maps use them)
+const BGS = [['cayir', 'Çayır', 10, .3, 'c'], ['cimen', 'Çimen', 2, .3, 'i'], ['orman', 'Orman', 2, .3, 'o'], ['camur', 'Çamur', 2, .3, 'u'], ['toprak', 'Toprak yol', 3, .35, 't'],
+  ['dere', 'Dere yatağı', 3, .3, 'r'], ['su', 'Su', 4, .05, 's'], ['col', 'Çöl', 10, .5, 'l'], ['kar', 'Kar', 3, .6, 'k'], ['kaldirim', 'Kaldırım', 2, .4, 'd'],
+  ['tahta', 'Tahta zemin', 2, .15, 'h'], ['magara', 'Mağara', 3, .35, 'm'], ['zindan', 'Zindan', 3, .25, 'z']].map(([id, name, t, d, code]) => ({ id, name, t, d, code }));
+const bgById = (id) => (typeof id === 'string' && BG_SRC[id] && BGS.find((b) => b.id === id)) || null;
+const mapBg = () => (W.on ? W.P?.bg : S.bg) || '';
+function boardBg(b) {
+  const g = bgById(mapBg()), id = g ? g.id : '';
+  if (b.dataset.bg === id) return; b.dataset.bg = id;
+  b.classList.toggle('bg', !!g);
+  if (g) { b.style.setProperty('--bgi', `url("${BG_SRC[g.id]}")`); b.style.setProperty('--bgs', g.t * CELL + 'px'); b.style.setProperty('--bgd', String(g.d)); }
+  else b.style.removeProperty('--bgi');
+}
+const CELLS = COLS * ROWS;
+const cleanWalls = (v) => [...new Set((Array.isArray(v) ? v.slice(0, CELLS) : []).filter((n) => Number.isInteger(n) && n >= 0 && n < CELLS))].sort((a, b) => a - b);
+const walls = () => (Array.isArray(S.walls) ? S.walls : (S.walls = []));
+const mapWalls = () => (W.on ? W.P?.walls || [] : walls());
+// does a size × size creature on (gx, gy) stand on an obstacle square?
+function onWall(L, gx, gy, s = 1) {
+  if (!L.length) return false; const set = new Set(L);
+  for (let i = 0; i < s; i++) for (let j = 0; j < s; j++) if (set.has((gy + j) * COLS + gx + i)) return true;
+  return false;
+}
+// one SVG path for every obstacle square: dark, hatched, a light edge so it reads on any ground
+function wallsHtml(L) {
+  if (!L.length) return '';
+  const set = new Set(L), has = (x, y) => x >= 0 && y >= 0 && x < COLS && y < ROWS && set.has(y * COLS + x);
+  const d = L.map((k) => `M${(k % COLS) * CELL} ${Math.floor(k / COLS) * CELL}h${CELL}v${CELL}h-${CELL}z`).join('');
+  // DM11: the light edge only where an obstacle meets open ground (a block of obstacles reads as one piece)
+  let e = '';
+  for (const k of L) { const x = k % COLS, y = (k - x) / COLS, X = x * CELL, Y = y * CELL;
+    if (!has(x, y - 1)) e += `M${X} ${Y}h${CELL}`; if (!has(x, y + 1)) e += `M${X} ${Y + CELL}h${CELL}`;
+    if (!has(x - 1, y)) e += `M${X} ${Y}v${CELL}`; if (!has(x + 1, y)) e += `M${X + CELL} ${Y}v${CELL}`; }
+  return `<svg id="walls" width="${COLS * CELL}" height="${ROWS * CELL}" aria-hidden="true"><defs><pattern id="wpat" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#0f0b08"/><rect width="4" height="12" fill="#6e5034"/></pattern></defs><path d="${d}" fill="url(#wpat)" fill-opacity=".95"/><path d="${e}" fill="none" stroke="#f0c48e" stroke-width="3" stroke-linecap="square"/></svg>`;
+}
+function drawWalls() { $('#walls')?.remove(); $('#layer').insertAdjacentHTML('afterbegin', wallsHtml(mapWalls())); }
+/* DM12 (owner 2026-11-19: "harita çizme özelliği getirelim … ya da map in alt texture ini değiştirebilelim engelleri
+   kendimiz cizeriz / texture cizebilmeliyiz elle"): the DM draws the map by hand. Çiz → a tool (Engel, Silgi, or a
+   texture) and a brush of 1, 2 or 3 squares; touch or drag. A texture covers the squares it is painted on (S.ter: one
+   letter per square, '.' = the map's ground shows through); Silgi takes textures and obstacles off. A drawn map can be
+   kept (Kayıtlar: LB.maps) and opened again from the Harita sheet. The generated "ready maps" of DM11 are gone (owner:
+   "senin yaptıkların güzel durmuyor"). */
+const TER_CODES = new Map(BGS.map((g) => [g.code, g]));
+const NO_TER = '.'.repeat(CELLS);
+const cleanTer = (v) => (typeof v === 'string' && v.length === CELLS && v !== NO_TER && /^[.a-z]*$/.test(v) && [...new Set(v)].every((ch) => ch === '.' || TER_CODES.has(ch)) ? v : '');
+const mapTer = () => (W.on ? W.P?.ter : S.ter) || '';
+let terShown = null;
+// The board's lasting layers: the painted textures (one SVG, a pattern per texture, a path per texture), the grid lines
+// above them, then #layer (obstacles, templates, tokens), which every render rebuilds.
+function boardLayers(b) {
+  if ($('#layer')) return;
+  const pat = (g) => { const w = g.t * CELL; return `<pattern id="tp-${g.id}" patternUnits="userSpaceOnUse" width="${w}" height="${w}"><image href="${BG_SRC[g.id]}" width="${w}" height="${w}" preserveAspectRatio="none"/><rect width="${w}" height="${w}" fill="#120d09" fill-opacity="${g.d}"/></pattern>`; };
+  b.innerHTML = `<svg id="terrain" width="${COLS * CELL}" height="${ROWS * CELL}" aria-hidden="true"><defs>${BGS.filter((g) => BG_SRC[g.id]).map(pat).join('')}</defs><image id="mapimage" display="none" preserveAspectRatio="none"/>${BGS.map((g) => `<path data-t="${g.code}" fill="url(#tp-${g.id})"/>`).join('')}</svg><div id="grid"></div><div id="layer"></div>`;
+  terShown = null;
+}
+function drawTerrain() {
+  drawMapImage();
+  const s = cleanTer(mapTer()); if (s === terShown) return; terShown = s;
+  const d = {};
+  for (let k = 0; k < s.length; k++) { const ch = s[k]; if (ch !== '.') d[ch] = (d[ch] || '') + `M${(k % COLS) * CELL} ${(k - (k % COLS)) / COLS * CELL}h${CELL}v${CELL}h-${CELL}z`; }
+  $('#terrain').querySelectorAll('path').forEach((p) => p.setAttribute('d', d[p.dataset.t] || ''));
+  $('#board').classList.toggle('ter', !!s);
+}
+const TOOLS = () => [{ id: 'wall', name: 'Engel' }, { id: 'erase', name: 'Silgi' }, ...BGS.map((g) => ({ id: g.id, name: g.name, g }))];
+const toolName = () => TOOLS().find((t) => t.id === UI.tool)?.name || 'Engel';
+const DRAW_HINT = () => `Çiz: <b>${esc(toolName())}</b> · fırça ${UI.brush}×${UI.brush} · dokun ya da sürükle · iki parmakla kaydır · engel <b>${walls().length} kare</b>`;
+function drawBar() {
+  $('#wallbar .dtools').innerHTML = TOOLS().map((t) => `<button type="button" role="radio" data-tool="${t.id}" aria-checked="${t.id === UI.tool}"><i class="${t.g ? '' : 'sw-' + t.id}"${t.g ? ` style="background-image:url('${BG_SRC[t.g.id]}')"` : ''}></i>${esc(t.name)}</button>`).join('');
+  $('#wallbar').querySelectorAll('[data-brush]').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.brush) === UI.brush)));
+}
+function setWallMode(on) {
+  UI.wall = !!on && !W.on;
+  if (UI.wall) { UI.measure = null; clearMeasure(); $('#zmeasure').setAttribute('aria-pressed', 'false'); UI.area = null; $('#apick').hidden = true; $('#zarea').setAttribute('aria-expanded', 'false'); drawBar(); }
+  $('#zwall').setAttribute('aria-pressed', String(UI.wall)); document.body.classList.toggle('wallmode', UI.wall);
+  $('#wallbar').hidden = !UI.wall;
+  $('#dist').innerHTML = UI.wall ? DRAW_HINT() : DIST_DEFAULT; UI.distArea = false;
+  renderMap();
+}
+function clearSheet() {
+  const nw = walls().length, nt = [...(S.ter || '')].filter((ch) => ch !== '.').length;
+  if (!nw && !nt) { toast('Haritada çizim yok'); return; }
+  openSheet(`<h3>Temizle</h3><p class="sub">Geri al ile dönülür.</p><div class="acts" style="grid-template-columns:1fr">${nw ? `<button class="btn" data-cl="w">Engelleri sil (${nw} kare)</button>` : ''}${nt ? `<button class="btn" data-cl="t">Boyanan zemini sil (${nt} kare)</button>` : ''}${nw && nt ? '<button class="btn" data-cl="a">Hepsini sil</button>' : ''}<button class="btn pri" data-no="1">Vazgeç</button></div>`);
+  $('#sheetBody').onclick = (e) => {
+    if (e.target.closest('[data-no]')) { closeSheet(); return; }
+    const k = e.target.closest('[data-cl]')?.dataset.cl; if (!k) return;
+    snap(); if (k !== 't') S.walls = []; if (k !== 'w') S.ter = '';
+    log(k === 'w' ? 'Engeller temizlendi' : k === 't' ? 'Boyanan zemin temizlendi' : 'Harita çizimi temizlendi'); closeSheet(); render(); if (UI.wall) $('#dist').innerHTML = DRAW_HINT();
+  };
+}
+// tokens standing on an obstacle go to the nearest free spot (no other token there either)
+function offWalls() {
+  const W2 = new Set(walls()), L = S.list.filter((c) => c.gx != null), moved = [];
+  const free = (c, x, y) => { const s = sz(c); if (x < 0 || y < 0 || x > COLS - s || y > ROWS - s) return false; for (let i = 0; i < s; i++) for (let j = 0; j < s; j++) if (W2.has((y + j) * COLS + x + i)) return false; return !L.some((o) => o !== c && o.gx < x + s && x < o.gx + sz(o) && o.gy < y + s && y < o.gy + sz(o)); };
+  for (const c of L) {
+    if (free(c, c.gx, c.gy)) continue;
+    let best = null; for (let d = 1; d < COLS && !best; d++) for (let i = -d; i <= d && !best; i++) for (const j of [-d, d]) { if (free(c, c.gx + i, c.gy + j)) { best = [c.gx + i, c.gy + j]; break; } if (free(c, c.gx + j, c.gy + i)) { best = [c.gx + j, c.gy + i]; break; } }
+    if (best) { [c.gx, c.gy] = best; moved.push(c.name); }
+  }
+  return moved;
+}
+// a small picture of a map: its ground, painted squares and obstacles
+function mapThumb(cv, m) {
+  const x = cv.getContext('2d'), n = cv.width / COLS, imgs = {};
+  const fill = (id) => { const g = bgById(id), im = imgs[id]; if (!g || !im?.naturalWidth) return '#2a2119'; const p = x.createPattern(im, 'repeat'), sc = g.t * n / im.naturalWidth; p.setTransform?.(new DOMMatrix([sc, 0, 0, sc, 0, 0])); return p; };
+  const draw = () => {
+    x.fillStyle = m.bg ? fill(m.bg) : '#211a14'; x.fillRect(0, 0, cv.width, cv.height);
+    const t = m.ter || ''; for (let k = 0; k < t.length; k++) if (t[k] !== '.') { const g = TER_CODES.get(t[k]); if (g) { x.fillStyle = fill(g.id); x.fillRect((k % COLS) * n, Math.floor(k / COLS) * n, n, n); } }
+    x.fillStyle = 'rgba(18,13,9,.25)'; x.fillRect(0, 0, cv.width, cv.height);
+    x.fillStyle = '#120d09'; (m.walls || []).forEach((k) => x.fillRect((k % COLS) * n, Math.floor(k / COLS) * n, n, n));
+  };
+  const ids = new Set([m.bg, ...[...new Set(m.ter || '')].map((ch) => TER_CODES.get(ch)?.id)].filter((id) => id && BG_SRC[id]));
+  ids.forEach((id) => { const im = imgs[id] = new Image(); im.onload = draw; im.src = BG_SRC[id]; });
+  draw();
+}
+const cleanMap = (o) => { if (!o || typeof o !== 'object') return null; const name = clip(o.name); if (!name) return null; return { id: cleanId(o.id) || recId('m'), name, bg: bgById(o.bg)?.id || '', walls: cleanWalls(o.walls), ter: cleanTer(o.ter), img: cleanImg(o.img), grid: o.grid !== false }; };
+const mapById = (id) => (LB.maps || []).find((m) => m.id === id) || null;
+function openMap(m) {
+  snap(); S.bg = m.bg; S.walls = [...m.walls]; S.ter = m.ter; S.img = m.img ? { ...m.img } : null; S.grid = m.grid; const moved = offWalls();
+  log(`Harita açıldı: <b>${esc(m.name)}</b>${moved.length ? ` (engelden çekilen: ${esc(moved.join(', '))})` : ''}`); render(); fit();
+}
+function saveMapSheet() {
+  if (!S.bg && !walls().length && !cleanTer(S.ter) && !S.img) { toast('Haritada kaydedilecek bir şey yok: önce zemin seç ya da çiz'); return; }
+  openSheet(`<h3>Haritayı kaydet</h3><p class="sub">Zemin, boyanan kareler ve engeller kaydedilir (pullar değil). Zemin düğmesinin sayfasında açılır; yedek dosyasına da girer.</p>
+    <div class="fields"><label class="wide">Ad<input id="m-name" placeholder="ör. Köprü başı"></label></div>
+    <div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-msave="1">Kaydet</button></div>`);
+  $('#sheetBody').onclick = (e) => {
+    if (!e.target.closest('[data-msave]')) return;
+    const name = $('#m-name').value.trim(); if (!name) { toast('Bir ad yaz'); $('#m-name').focus(); return; }
+    const m = cleanMap({ id: recId('m'), name, bg: S.bg, walls: walls(), ter: S.ter, img: S.img, grid: S.grid });
+    (LB.maps ||= []).push(m); if (!libSave()) return; closeSheet(); toast(`Harita kaydedildi: ${m.name}`);
+  };
+}
+/* DM13 (owner 2026-11-19, option 3: ready maps found online + the DM's own picture): a map picture on the board
+   (S.img: { src, x, y, w, h } in squares; src "r:<id>" one of ours, "u:<hash>" a picture the DM loaded). It lies over
+   the ground and under painted squares, the grid, obstacles and tokens, so the DM can still paint and block squares on
+   it. Ready maps: CC BY 4.0 (freefantasymaps.org) and Dyson Logos's free licence, fitted to our grid at 48 px a square
+   (maps/README.md); not built into the app: fetched when chosen and kept by the service worker. Own pictures: shrunk,
+   kept on the phone (IndexedDB "dmscreen-maps"), sent to the players over the live link when their phone lacks it. */
+const MAP_THUMBS = {"bataklik-tapinagi": "data:image/webp;base64,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", "col-kalesi": "data:image/webp;base64,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", "dere-yolu": "data:image/webp;base64,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", "taverna-magara": "data:image/webp;base64,UklGRuAVAABXRUJQVlA4INQVAACQZwCdASrcALAAPpFEm0qlo6IiJDGsoLASCWUAyb0cULpx9Mw3mTGkJcnnvXn+j7DqJ3bl7T5gMNHk4/QVDNmEHk//jy9/wX/v4K5W2if9e/0LQonLv6K4D+LF7cGTvfeHka/Pt3la5+WukHSYFQzxdOl/o6FJS5hA/+uIHXytxGqV4DzcSIOy8+9KtnCP546ahUblGU/qPH74eYCrcpq+/dkjVPWrv4kNxSEQDy+/yiuL1G3UZkUHJfk16eZU2m7VTprwX2Dlv2Yt3CGgZ6qRZVcUPA4IPzOnPqzS48yIlWFNbKZpLd4T0+YYoN9lEsR77fxOKUyCp9GEF7Mohwi2OMg15jTjPYgqPWHwkd1GH8EKbZoYgsR4KJkIbfxszFXEEZA1rTbvLyqWgTgwPu9yyF9JXhCR+niI1iZ63M9YuA9MaGjeUCVCOitsLN8tTKYXLbMtHSo95znn/0XWp/H8Nlm6504sWbAiH9p5iZuW54xclPZTD0MrPOFBWL9tOMaGDAE9DJmLgUyCXHihgbYb8DEBbMTDMvK2+OWUFSl8uERTXFCh0mfNRtHl9ckMQ9kr/wU+B5hmm7VGkrXlCbqUGupjdDnrIVXlY28bljPDF/Q4n1y/tK/T4tYs+zhTjJaZqqGv8wYYheET9gt0K851nT4eZhKNk2YSmRWYcfOLzINdkR/7B6SC3elogimwn0kv9sWwsfxhVuooD+FzUb8EbPE2S1NC6I/BTQUvrsSnI9hnEdTuFTjW66hWkANohmBwq3KCiN8g9hArTuI43WkIeSyMXWtf+0koQdAeqVdzowR6iPRCSTCMfJbm2vLOiq6l0OAgFB4hFDqTHeJsrUSISbEoUKcb1dWFN/sm89J60mEjDOXyIUFRd5XsaXod+DeJUIypawXnt9nbYG5W3BcGLdYcUPeI1u7M1UoOl3DkcdKMc5P7rPBzZFPlEHOy7k77BH/Jqe/N21FMIx7mC+Cn+cx6IhzqXZFbACwUfjXH2Kw+Z8HG6tnVjdZlv6UIh2WKXFJsXjO7+Muf3kDq8Aa4t/6zRvGl/faFmZ7H1NrtQP+yHKyFBIFH8J+V69OLevsd8QoimzX3M0TkTojE3NCVVr2ha4AA/rsRA/ScFuiPwh4Y448OOdSFlC+dUwie6Zn2ZwXB62y6cNlgLAA4uV/pI2UFJfiRW/UqSPdCJDKTiXLdSst0iTIIA18KnXKJXnR06M/dRsPS4e7ht8tvRvW2pRP9usgkKUc0RhhFTub34srROt4ZX/dkzRYxEYhn4I/b2bqrD/z9ttrCoF9pyTc0zMaCq2k4R5z0Zq2GGo7Avu9am+SBnkW2ZZeLlVLnptLRpiHIWqKQXskDMv2ujzlLTmBF42NMfDm2922S1dC6dcPjSsw11lh+L6raw3+V7umFkPjUU7Xg+18sdj+s3hn2aPXd10sWgrCKy1+RmWd9ECA6zmUBIN8eQHXP0QSmCfm5iw0ENlfEW0gy4wBtfS5NWyePL8RAkib7ppDr79E7zgcKLQQASqBq7DPqm7J93gkUj5oirHxZ3CfKpZZVDcpLqQUfC47bO+wjyFx0shog/SIjbmwHC5/orI4VPl2NwmhXQ/m2fG3hlwd6O2wXGjAY1MrsJyTrtIBfQB5fS2jnpEUFJnjdA2tQlAcXAoHf9yVzIPhOlh62fdWOABNDVSw0gPkcxVJAvZhCNsCQlQO9hOFgz3Geo6e/1riB1CBhAMt8rr0q9SIrqUUzKWNshsLN3Oi6n45KvjIuFXOYNNUYmMRgPUXPANlOdMNgjmnPhHtq1RajXoEGYJmCKZvWKziXuMHaZGQp9qhucttBApPowYzedqUVfOC6gN9cs/exQzJD5B+otpEfIOe1oNuhjYL+XmkPjigjq241OB9SobtclzRGLkn3jntjaGb0WIVithXn232DtiINHhQCi6AAHCPLg4TDDbwbc/W3aYkM4ETchRZXA1x6lxtR2YvstFKVzXqtX3o285oagKiSwIQ1CpTmll5AZuQNJpAJ0uH3aCDofzUlC5AjlQDTLTm2Cek0Jh5IZzlgUXhyefWy2vkY/mgRQhwyO3EZG40BHJpKPHpsJ8w2dqcsx+4zxbVmfQkP88y/DA9mAw7ytpf0/3tJ/nKEzhhrS3nlPVni7N9HlMEj36qnBXpCdZ7dFqB+hVuw20lBpJRQ3ZoDhDqOXGL3HCfcaFM1qz3tg7P3sh/RLE0hjb255KmhqSDa9NW9gxFA8PQphQsvxu4ILd/PFzW6nZh83oBnSDluUbJN5P2fj7a4ZUp4ht1PJeoTTtd1eXE0fu599J60kL+5Wv7EI/DoZqdhgbkLfgN1buSJQJdwDwomG2VB/A+it0YRKXDqYaTzT+UEqxZTNhAngQ53aoGLq4mgoCfgemwYVRoAtRNpSdC6R0JKxoWs0HwpxRw6s8aq13QUX7kYrZfWWFQHFzrFJYk97WjYDmUNoSTVlilEuXfXIJwFJ8XUlL5Uv0DnZKocM/YsSrDPLBWi1d1QutvtEtX5dA+rfMxuiMRJ4kwqKvbRg0h0V2JwMEM4OjBQ138/4tX82CEiHRCVj8VOvHgD1ftyc0+zhaiD9GArTCw0fMKnvUFH0mm1/EvUtbQ/0lnZQccnevhqaC1JAqvkAjL2PE8auqlUAzdHFFUe299SfaO4MxpCb14ZRKYTmX2OtgV5gJqKVSDj2J0By6ae6VmS4NlLZPrGVdZ9u7IWQrzJsHgeiQZGsE6arYPDrpdDwweqkOpFRGajut+Ys2Vfrf4f6Za8JT+p4lwWmk5hTiWzgH5v6VozhFqx53rZqcz+KnZd9nVwWzDzRIs0YbtzzptciNk52bbacR9ZcYXM/6GcYDJJymK9oPu5sKk9WIH9ryhuCmzNq/Xa9Q5OBoOjFHgoobhyyEhM//17vzGzj1lQXiR9yonvJ22e1uymEhwS6bt1Ok5Ve3jzADUISszriIEAlCgoAjPCFR3bHhFchtbNcnbTMreAc9PRB+X/rfosovZ24ykauuJWtbv7CU9SCCXMP3ZKeoCWqeAWXKJ58tsZnCIdQ4Wk51FwPxyouz6KaisI2tXQLdxEVM8vgEEAvJ3buxM+WWcIddURiTF0B8HvEwt3EKVRbRH7nwZbjGWhb9YRy5JI1Db5hJOwiPX3ChOirM8mv8RmYjhb660rUmDJUHa4rpBowIRf18zazqh168/IMqibIoxrtnB7R7OS/Obb99LbxQwqw9LAEqcQ+RykJyAZJTHVJ6GjdFrQn89zwhtdSubYyQ0UkO5n5dT/ktHGUOAqzIN6YUu1BxukvfKaoZq9oTKaIGe8XpLrmb/wBb+4AJn1hbVryFJPQSJ+yAuUyDtArkdJv9iLWaRTPVn8gfEvkzb12BTmxeGvJxUsTYuDqcebZJX1BNSwtaZCk4E3tD6c3N7DHOp2s83VJqp3YRdbfk+VqkyWDOLt95LdXXZD0131JPsWOT7fLDYlstlMcAaQ99MQw5fIp4FrO8Pp/5z2AAIvPhqsDAGmGlV4eeS72OU4qgmH5vctzycqdnDshZrrr4Cjl60kIg+eandqAaoWG3dK+Wj9sPVlwZwEZRv5QU3hzjf8Zcppuf1iCUD8WntJ2IjSbtr2ZKhtMMIPLzcYSoFHrGy7CiqCoFoKi0KgiWw00J6IalvfqWwpQa4RH0N3RHBwFzzU0gj4yGBHiIiBpfQgkN4QddVd91b9oLGEEMMi2s4wlB0bW2W12j5gvX0JO4QiuKsMA9a/cAEHsCo2UogLCHhWbSHZ/Z6K5BqHA0B2SGknENj2m3kXBFy/CIxxkZjWfpKGCzx1pqo57YNwr9yv6/8V7/N84CCaMEmPqXiOJN+xH45WSL4OrQM154U0g5b0xsoPrXDOvFQEAy+E8eeR74VPDGbuRYvY0/f7TrEKd9XBXILjdDpj+isvYiP8a1eUFlc6aw4YYPv8SlK+SXBsVMOssYIzGZ1ittFQyVIZduCDAmNSmMdrrhcWhGd9/MQTS9hvBahSC4C7v01CtUtw/EuLXtj+MsoQ5uhZKmBWMyjs9EZ5TeF1V6iv6owE15haIjHgsu2PbK2KPvX/e+52zFOCiqXRsngdwf/Kihal2mfvnXYyUM1djLPYwP+OTEnK4zQEyWSXitNbUb1sF4j93VhJomsru5kqf7rGR7QIuomye4ue8yV/5CkwjT1809Js4aq4YtC6qJgXA/2ZivDJM/GuY58SpJ+0OvVGuj9nUcg327IYy6WAsK0bwxn1ciWf33MoPbJAalnbBQaRDJyJB1PXbKB9pkhwstNO9LaLf9z7gE6qopIIwjUKaJCyzf+fA8khaeTcCrp5U/oraZDEBt/dBztIELzPnQIJOhbBiBGmEyucroEpG3oks/p5hbclVBq4GfiHePRX0EjnGFIym9hO3ELh90pIpTLfHntJhZaCjgksYQ5iCTTGnO8CMN05MINRM7UQwbUUgpOwf7sNWeWubD8CRBhQcnyrJ5VYxCdvVZftFy05rkqlxYmCJRZeEMJ1h0ChgDmkP7vBNY1otR1eIIugbT5fWJf+bOACR/5Ml6CBcq1Wfo6k5JzSuFHpc9+ZwAH5c4T8UuXD5U1J5JB5pOeV0LddaXwzim6lKlbmFvqYUOIqiwwXrF21Z5joSTpAGTSwd8A3wbA6DGkVBNSgTp/eAxmbHoRngKwN8sYfSm39RWTxTTPeQEiregwZWa8WUbxQ/rL3U/lL1/FoSkWAvixarItanqKVn0aa8WtXJhssKEOLnj32yztkRtuvkhrlCvkc29tJITYtj29hxvt3iLuiRvrX9FooaDe5LYJDSwjUM3JvFjpm82vKJg8VAJeHcv1PSZJ3B0mTF5+b1fLCiFtGGw+RcrXCdZddgH+4tn4YrrdWwXs326W0RHXT2EZ85lfgeZuSk74jk8NKhsSKjxf6pbiOJ6F9/Cvd16Bn9rG1rcpA0GSy505t6vqEejvxGGoLrEwReF6LlrHpYZEjlQdDuXc0hf+0qV6fQac2lwRexegBniF2nS5OyST2XhVS9qZbhHMtwMORX73zBA3HfzjD3DMCcjIE14K6JNCkTys0dcz3zcqWEepT6SoskQg5xcwri7NDHrifigx9r8oVPlvMXIaUFQFuyZhRNFixXwD72kGyFhLq7U5csMMwMhii1PHNTo9dg+U09EuQ8ozUGxAnFo34zmXE/FGJ4yaVsE9VkkyQLdzlyhu085YQfsY3mUliANsVXXHbwCggysJgryoq2FKv0zrTiUEWfYYPYW3Fdb1A4avY8B71avkDQFlmGYIcyMGagL8bkEpzifrWJA6CZJtOgODaLWRdEXNa7JMU4fyTvGSwGpLlDYL56yM/ucfCHhf0F4MkOCcVKUTlAFJ3xddslqmWKxDDan3lcDRdSO3NVdAt0Rm2zdYC4W2Li0bUEQSCMSR9Uh9bVOaGyNoe+UKpoy45/JRaJ561luKYkoJOk/PGFsfBp1erqOxWH2LKWuRjVOQc3wZJgmsPFPk3jUbQ3/BFLbXEsR4O2LqEmNoTbZ52hKLxQYpYZI1lhUxAPmWhqWAZvycEwzMBbsdSJCcp/GLbj/Aabu2XuFnTMjP6SSqN5iW/ltTOjkVT/ihfNzeGDnIV5NuXkVrQQ4+CTbkKEcXvxNpNTnGQFCRb8cXJX5kqlR6s1cgqkbxr2a1Q/Ss4+c+M6aUE0kLJjeXHtl051gR+4MhaYYehpwbwtmzUtind3eReC7Oj+vWyrdGifukuUD91myWS4hcd5YAbWkZAFkD0rwCBobZ+hrT6EZcR9W82fUCFNY2TrHbvWMMJLDmFLoxVjQ8dELoaCyt4+JIT6FiwqDXrrrUtDtETYVPETZ/px2YywJSQikRWfbj2eZN2CVbx5b2gqDdJX+bkECKOKGr4KpLOWa0c/WXTXzc9xt9dP/5/oORW6cmj1/AIYJgWGVEdF054QRTAPIQsBBpxz/qRmQB5LHfHOAgOHbLvQVWbhLb6H/i+UMfuiauKlqrpaH94OuQzkg8uzryTuCyblTEuxN1xMhVS/0sALBB5R+hdxhW/0E8SnmsVOS9FBMdk3t/w0Z4MXbCuZ8lCxz5BmM7YULLi82QW7YtSH3/j59CovK2nGoyjeNBzSGMFtIINhhfI0KE7BZ5xUA9JQGVB+vESwNB3DqMstMyBT0TvH1pCNOAz5ONsv2OlfuFtnTTOge5U82c5JHctDkKutwtUNzm1wOYEZT30SKvz6DhQmwyNG7o6V7mt4ZcgvQnwpiEmD9G7Yuage7qGpk/gFLcYQs8vCX6/iYxNqoTucAyjAEInIQABseE1XesSP4bK3Ky0SVLAe1VpZSQ9yErQK4b6XB8kZAbqVT5ZjU+ixI/VTWbfV9iR9f94zFL3N9CeInf6FbJzANSh82TmYrDOZaCx121J7b6cLcuYVbIF0oYvgRAENnTTzHh46IVQAnLunS8bxaAOUJC9Rf4H/ZMifg1yTL4gJEH59GqcPpxw8cpcXjm7vCAz258Zp6lEjKzglj+/sqkipW5rNy95kaaqmAjAptPF74Piq1ECEpp6DjCjnNWWxPSsl5/eG6KLn6g7qa6+dDS+kWm8igwdkjJll+2vloP7zHq21LWKf3BpYNfAwEhjP2JasqQSOdbAGE0BebkaUj9V73eLKF4RNEirdhxly3sBizywAB90ezyGqot5IbpGtFRGYTi5Z8YMaIBQ3WX2tdggV75UEGO0EyIWqHvFef6heUeJe2GzcDsv7cW5LT2GS9g3tuy/cVED+2Knz2DFunJcaiuGLryRPVogkqfhioIdovmN1TLLrFQVBCLY6LjTdGtnz2fyxquOtWWLAxxjDPwuy3c2uZM7NbT9SIIqVIiXBgVy289nYcDAGzlOTk1+iAHSiEWuE6F3D6EYJhF1qvIj6voUROUmzd+FouqSmouEqZxHFHJCYR3DIzXiSxhWjiAcb0U1tai274S07TMhKClixBMi+lwbp6IqN6zJJoeTtpBMEdhLqiCEL7gVYA1qTNLJZ+uwGW8G3mL1T7MD1qLo2Tt1KIfDASMBW1EMEnnPvdD/j333FZKKcu6HeWgskHP6aFV+6UeM5uPBAZPIVb0cfKaxRuPJtFdN6MoJ3v8qTEm1dbkAjtCRQGyrWReyl0dJW4a2giymaquIZzgNbPkQQwkMQd+GR1IZKjP9s34NCY/SGf7Sv+OdCNG95FApyW9LS63aOhUrA0grMN6/4qLf6jtI5V8TFdD3+V2f6PV/F7WND1nv47QzBRgKkqMd4ZpP5IfCojbq1/31kswcMHZRvExjEfaR74VoHwRjr6CcjPeojU+r6s2jhfLlDe2lfuiCSyEW3+PkjLgQXu0239loDFq15qFtN+En6twQxFCgcwuy2gNdjuacRk9/99pktyNKVc5ZHxI+KFF3slDm7DsG7A5E9KULJQUFdiait7JIS1RW//h6CkOxzpDi0zmvLBXKIIjAAA==", "yagmurlu-magara": "data:image/webp;base64,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", "yikik-kale": "data:image/webp;base64,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"};
+// a hash of the map files (build.mjs): a changed map gets a new address, so the phone's cache never serves an old one
+const MAP_V = 'b41070a4';
+const READY_MAPS = [
+  { id: 'taverna-magara', name: 'Taverna ve mağaralar', file: 'taverna-magara.webp', w: 40, h: 32, by: 'ffm' },
+  { id: 'col-kalesi', name: 'Çöl kalesi', file: 'col-kalesi.webp', w: 40, h: 32, by: 'ffm' },
+  { id: 'bataklik-tapinagi', name: 'Bataklık tapınağı', file: 'bataklik-tapinagi.webp', w: 22, h: 16, by: 'ffm' },
+  { id: 'dere-yolu', name: 'Dere kenarı yol', file: 'dere-yolu.webp', w: 11, h: 8, by: 'ffm' },
+  { id: 'yikik-kale', name: 'Yıkık kale', file: 'yikik-kale.png', w: 40, h: 28, by: 'dyson' },
+  { id: 'yagmurlu-magara', name: 'Yağmurlu mağara', file: 'yagmurlu-magara.png', w: 40, h: 34, by: 'dyson' },
+];
+const CREDIT = { ffm: 'Harita: Free Fantasy Maps (freefantasymaps.org), CC BY 4.0', dyson: 'Harita: Dyson Logos (dysonlogos.blog)' };
+const readyMap = (src) => (typeof src === 'string' && src.startsWith('r:') ? READY_MAPS.find((m) => m.id === src.slice(2)) || null : null);
+const mapBase = () => window.__MAPBASE__ || (window.__PWA__ ? 'maps/' : 'https://vanviatransfer.github.io/dm-screen-app/maps/');
+const okSrc = (v) => typeof v === 'string' && (!!readyMap(v) || /^u:[a-f0-9]{24}$/.test(v));
+const fin = (v, d, lo, hi) => { const n = Number(v); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, Math.round(n * 100) / 100)) : d; };
+function cleanImg(o) {
+  if (!o || typeof o !== 'object' || !okSrc(o.src)) return null;
+  const w = fin(o.w, 0, 1, 80), h = fin(o.h, 0, 1, 80); if (!w || !h) return null;
+  return { src: o.src, x: fin(o.x, 0, -80, 80), y: fin(o.y, 0, -80, 80), w, h };
+}
+const mapImg = () => cleanImg(W.on ? W.P?.img : S.img);
+// own pictures on this phone
+const IDB = { db: null, urls: new Map(), asked: new Map() };
+function idb() {
+  return (IDB.db ||= new Promise((ok, no) => { try { const r = indexedDB.open('dmscreen-maps', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); } catch (e) { no(e); } }));
+}
+async function idbDo(mode, fn) { const db = await idb(); return new Promise((ok, no) => { const t = db.transaction('img', mode), st = t.objectStore('img'), r = fn(st); t.oncomplete = () => ok(r?.result); t.onerror = () => no(t.error); }); }
+const imgPut = (id, blob) => idbDo('readwrite', (st) => st.put(blob, id));
+const imgGet = (id) => idbDo('readonly', (st) => st.get(id)).catch(() => null);
+// the picture's address: ready maps by URL; own pictures from this phone (a blob URL), else null (being fetched)
+function imgUrl(src, onReady) {
+  const r = readyMap(src); if (r) return mapBase() + r.file + '?v=' + MAP_V;
+  const id = src.slice(2); if (IDB.urls.has(id)) return IDB.urls.get(id);
+  imgGet(id).then((b) => {
+    if (b instanceof Blob) { if (!IDB.urls.has(id)) IDB.urls.set(id, URL.createObjectURL(b)); onReady?.(); }
+    // asked again when no answer came in 15 s (the link dropped meanwhile)
+    else if (W.on && Date.now() - (IDB.asked.get(id) || 0) > 15000) { IDB.asked.set(id, Date.now()); wsend({ t: 'img', id }); }
+  });
+  return null;
+}
+function drawMapImage() {
+  const el = $('#mapimage'), a = mapImg(), u = a && imgUrl(a.src, drawMapImage), cap = $('#mapcredit');
+  if (!el) return;
+  if (!a || !u) { el.setAttribute('display', 'none'); el.removeAttribute('href'); }
+  else { if (el.getAttribute('href') !== u) el.setAttribute('href', u); el.removeAttribute('display'); ['x', 'y'].forEach((k) => el.setAttribute(k, a[k] * CELL)); el.setAttribute('width', a.w * CELL); el.setAttribute('height', a.h * CELL); }
+  const r = a && readyMap(a.src); cap.hidden = !r; if (r) cap.textContent = CREDIT[r.by];
+  $('#board').classList.toggle('nogrid', (W.on ? W.P?.grid : S.grid) === false);
+}
+// shrink a picture the DM chose (longest side at most 2400 px), WebP (JPEG where the phone cannot make WebP)
+async function shrinkImage(file) {
+  const bmp = await createImageBitmap(file); const k = Math.min(1, 2400 / Math.max(bmp.width, bmp.height));
+  const cv = Object.assign(document.createElement('canvas'), { width: Math.round(bmp.width * k), height: Math.round(bmp.height * k) });
+  cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+  const blob = await new Promise((ok) => cv.toBlob((b) => (b && b.type === 'image/webp' ? ok(b) : cv.toBlob(ok, 'image/jpeg', .85)), 'image/webp', .82));
+  return { blob, cv };
+}
+// the picture's grid: the strongest repeat of edges across and down, 20–400 px (a guess the DM corrects)
+function gridGuess(cv) {
+  try {
+    const n = Math.min(cv.width, 1600), k = n / cv.width, h = Math.round(cv.height * k), c = Object.assign(document.createElement('canvas'), { width: n, height: h });
+    const x = c.getContext('2d'); x.drawImage(cv, 0, 0, n, h); const d = x.getImageData(0, 0, n, h).data;
+    const col = new Float64Array(n); for (let y = 0; y < h; y++) for (let i = 1; i < n; i++) { const p = (y * n + i) * 4, q = p - 4; col[i] += Math.abs(d[p] - d[q]) + Math.abs(d[p + 1] - d[q + 1]); }
+    const m = col.reduce((a, b) => a + b, 0) / n; for (let i = 0; i < n; i++) col[i] -= m;
+    const ac = (p) => { let s = 0; for (let i = 0; i + p < n; i++) s += col[i] * col[i + p]; return s / (n - p); };
+    let best = 0, bp = 0; for (let p = Math.max(8, Math.round(20 * k)); p < Math.min(n / 3, 400 * k); p++) { const s = ac(p); if (s > best) { best = s; bp = p; } }
+    // a multiple of the true period can win: take the smallest divisor that is nearly as strong
+    for (const d of [4, 3, 2]) { const q = Math.round(bp / d); if (q >= 8 && ac(q) >= best * .6) { bp = q; break; } }
+    return bp ? cv.width / (bp / k) : 0;
+  } catch { return 0; }
+}
+async function hashBlob(b) { const h = new Uint8Array(await crypto.subtle.digest('SHA-256', await b.arrayBuffer())); return Array.from(h.slice(0, 12), (x) => x.toString(16).padStart(2, '0')).join(''); }
+function putImg(img, line) {
+  snap(); S.img = img; log(line); render(); fit();
+}
+function useReadyMap(r) {
+  const x = Math.floor((COLS - r.w) / 2), y = Math.floor((ROWS - r.h) / 2);
+  putImg({ src: 'r:' + r.id, x, y, w: r.w, h: r.h }, `Hazır harita: <b>${esc(r.name)}</b>`);
+}
+async function uploadMap(file) {
+  if (!file) return;
+  if (!/^image\//.test(file.type) || file.size > 40 * 1024 * 1024) { toast('Bu bir resim değil ya da çok büyük (en çok 40 MB)', true); return; }
+  toast('Resim hazırlanıyor…');
+  try {
+    const { blob, cv } = await shrinkImage(file), id = await hashBlob(blob);
+    await imgPut(id, blob); IDB.urls.set(id, URL.createObjectURL(blob));
+    let sq = gridGuess(cv); if (!(sq >= 4 && sq <= 80)) sq = 40;
+    const w = Math.round(sq * 10) / 10, h = Math.round(w * cv.height / cv.width * 100) / 100;
+    putImg({ src: 'u:' + id, x: Math.max(0, Math.floor((COLS - w) / 2)), y: Math.max(0, Math.floor((ROWS - h) / 2)), w, h }, 'Harita resmi yüklendi');
+    alignMode(true);
+  } catch { toast('Resim okunamadı', true); }
+}
+// Hizala: the picture's width in squares and its place, in tenths of a square, until its grid lies on ours
+function alignMode(on) {
+  UI.align = !!on && !!S.img && !W.on; UI.alignSnap = false;
+  if (UI.align && UI.wall) setWallMode(false);
+  $('#imgbar').hidden = !UI.align; document.body.classList.toggle('aligning', UI.align);
+  alignText(); if (UI.align) showTab(true);
+}
+function alignText() {
+  const a = cleanImg(S.img); if (!a || !UI.align) return;
+  $('#imgw').textContent = String(a.w).replace('.', ','); $('#imggrid').setAttribute('aria-pressed', String(S.grid !== false));
+  $('#dist').innerHTML = `Hizala: resmin ızgarası bizimkine otursun · genişlik <b>${String(a.w).replace('.', ',')} kare</b> · yer ${String(a.x).replace('.', ',')}, ${String(a.y).replace('.', ',')}`;
+}
+function alignStep(e) {
+  const b = e.target.closest('button'); if (!b) return; const a = S.img; if (!a) return;
+  if (b.dataset.idone != null) { alignMode(false); $('#dist').innerHTML = DIST_DEFAULT; render(); return; }
+  if (b.dataset.irm != null) { snap(); S.img = null; log('Harita resmi kaldırıldı'); alignMode(false); $('#dist').innerHTML = DIST_DEFAULT; render(); return; }
+  if (!UI.alignSnap) { snap(); UI.alignSnap = true; }
+  if (b.id === 'imggrid') S.grid = S.grid === false;
+  const ar = a.h / a.w;
+  if (b.dataset.dw) { a.w = fin(a.w + Number(b.dataset.dw), a.w, 1, 80); a.h = fin(a.w * ar, a.h, 1, 80); }
+  if (b.dataset.dx) a.x = fin(a.x + Number(b.dataset.dx), a.x, -80, 80);
+  if (b.dataset.dy) a.y = fin(a.y + Number(b.dataset.dy), a.y, -80, 80);
+  render(); alignText();
+}
+function bgSheet() {
+  const cur = bgById(S.bg)?.id || '', maps = LB.maps || [];
+  openSheet(`<h3>Harita ve zemin</h3><p class="sub">Oyuncular da aynı haritayı görür. Kareleri boyamak ve engel koymak için haritada <b>Çiz</b>.</p>
+    <h4 class="ihead">Hazır haritalar</h4><p class="sub">İnternetten, kullanımı serbest haritalar; ızgaraları bizimkine oturtuldu. İlk seçişte indirilir (internet ister), sonra telefonda kalır.</p>
+    <div class="bgs">${READY_MAPS.map((r) => `<button data-rmap="${r.id}" aria-pressed="${S.img?.src === 'r:' + r.id}"><img src="${MAP_THUMBS[r.id] || ''}" alt="">${esc(r.name)}<small>${r.w} × ${r.h} kare</small></button>`).join('')}</div>
+    <div class="acts" style="grid-template-columns:1fr 1fr"><button class="btn" data-mup="1">Kendi resmini yükle</button><button class="btn" data-malign="1"${S.img ? '' : ' disabled'}>Resmi hizala / kaldır</button></div>
+    <input type="file" id="mapFile" accept="image/*" hidden>
+    <h4 class="ihead">Kayıtlı haritalarım</h4>
+    ${maps.length ? `<div class="bgs">${maps.map((m) => `<div class="mapc"><button data-mopen="${m.id}"><canvas width="160" height="160" data-mthumb="${m.id}"></canvas>${esc(m.name)}</button><button class="btn sm" data-mdel="${m.id}" aria-label="${esc(m.name)}: sil">Sil</button></div>`).join('')}</div>` : '<p class="empty">Henüz kayıtlı harita yok: zemin seç, Çiz ile boya, sonra kaydet.</p>'}
+    <div class="acts" style="grid-template-columns:1fr"><button class="btn" data-msave="1">Bu haritayı kaydet</button></div>
+    <h4 class="ihead">Zemin (bütün harita)</h4>
+    <div class="bgs">${[{ id: '', name: 'Düz (yok)' }, ...BGS].map((g) => `<button data-bg="${g.id}" aria-pressed="${g.id === cur}"><i${g.id ? ` style="background-image:url('${BG_SRC[g.id]}')"` : ''}></i>${esc(g.name)}</button>`).join('')}</div>
+    <h4 class="ihead">Kaynaklar</h4><p class="sub credits">Hazır haritalar: “Cultist Den”, “Desert Prison”, “Swamp Shrine”, “Narrow Wagon Trail”: Free Fantasy Maps (freefantasymaps.org), CC BY 4.0 (creativecommons.org/licenses/by/4.0), bizim ızgaraya ölçeklendi ve kırpıldı. “Ruins of the Hill Fort”, “Raining Cave”: cartography by Dyson Logos (dysonlogos.blog), ücretsiz ticari lisans; gri tonlu ve kırpıldı. Zemin dokuları: Poly Haven (polyhaven.com), CC0.</p>`);
+  $('#mapFile').onchange = (e) => { const f = e.target.files?.[0]; e.target.value = ''; closeSheet(); uploadMap(f); };
+  $('#sheetBody').querySelectorAll('[data-mthumb]').forEach((cv) => { const m = mapById(cv.dataset.mthumb); if (m) mapThumb(cv, m); });
+  $('#sheetBody').onclick = (e) => {
+    if (e.target.closest('[data-mup]')) { $('#mapFile').click(); return; }
+    if (e.target.closest('[data-malign]')) { closeSheet(); alignMode(true); return; }
+    const rm = e.target.closest('[data-rmap]');
+    if (rm) { const r = READY_MAPS.find((x) => x.id === rm.dataset.rmap); closeSheet(); if (r) useReadyMap(r); return; }
+    if (e.target.closest('[data-msave]')) { saveMapSheet(); return; }
+    const del = e.target.closest('[data-mdel]');
+    if (del) { const m = mapById(del.dataset.mdel); if (m) ask('Haritayı sil', `${m.name} kayıtlardan silinir. Şu anki harita değişmez.`, 'Sil', () => { LB.maps = LB.maps.filter((x) => x !== m); if (libSave()) toast('Harita silindi'); }); return; }
+    const mo = e.target.closest('[data-mopen]');
+    if (mo) { const m = mapById(mo.dataset.mopen); closeSheet(); if (!m) return;
+      if (walls().length || cleanTer(S.ter)) ask('Haritayı aç', `${m.name}: şimdiki zemin, boyanan kareler ve engeller değişir. Geri al ile dönülür.`, 'Aç', () => openMap(m)); else openMap(m); return; }
+    const b = e.target.closest('[data-bg]'); if (!b) return; const id = b.dataset.bg;
+    if (id !== cur) { snap(); S.bg = id; log(`Harita zemini: ${esc(bgById(id)?.name || 'düz')}`); render(); }
+    closeSheet();
+  };
+}
 const DIST_DEFAULT = 'Pulu sürükle: hareket · <b>5 ft</b> = 1 kare';
 function renderMap() {
   if (W.on) return renderWatchMap();
@@ -1628,19 +1981,20 @@ function renderMap() {
   if (UI.area && !areaById(UI.area)) UI.area = null;
   const inside = new Set(areas().flatMap((a) => inArea(a).map((c) => c.id)));
   const tt = tokTexts(S.list);
-  b.innerHTML = areas().map(areaHtml).join('') + S.list.map((c) => {
+  boardBg(b); boardLayers(b); drawTerrain();
+  $('#layer').innerHTML = wallsHtml(walls()) + areas().map(areaHtml).join('') + S.list.map((c) => {
     const pct = Math.max(0, Math.min(100, (c.hp / c.max) * 100)), lw = labelW(c, S.list), tx = tt.get(c.id);
     return `<div class="tok ${c.side}${S.cur === c.id ? ' now' : ''}${!takesTurn(c) ? ' down' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${c.id}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${sz(c)};--lw:${lw};--tn:${tx.length}" role="button" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}, can ${c.hp}/${c.max}">
       <i><span class="hpbar"><s style="width:${pct}%;background:${hpColor(c)}"></s></span>${esc(tx)}</i>${tokLabel(c, lw, S.list)}</div>`;
   }).join('');
-  if (UI.measure?.b) { const a = byId(UI.measure.a), b = byId(UI.measure.b); if (a && b) drawMeasure(a, b); }
+  if (UI.measure?.b) { const a = byId(UI.measure.a), b = byId(UI.measure.b); if (a && b) drawMeasure(a, b); if (!UI.distArea) $('#dist').innerHTML = measureText(); }
   // The selected template's size and the creatures in it; the group-damage button when anyone is in it.
   const a = UI.area && areaById(UI.area), who = a ? inArea(a) : [];
   // DM3b (N5): while a template is selected the hint at the bottom steps aside, so no handle or × sits under it
   $('#mapView').classList.toggle('asel', !!a);
   if (a) { $('#dist').innerHTML = areaInfo(a); UI.distArea = true; }
-  else if (UI.distArea) { UI.distArea = false; $('#dist').innerHTML = UI.measure ? 'Ölç: ilk pula dokun' : DIST_DEFAULT; }
-  $('#abar').hidden = !who.length;
+  else if (UI.distArea) { UI.distArea = false; $('#dist').innerHTML = UI.wall ? DRAW_HINT() : UI.measure ? 'Ölç: ilk pula dokun' : DIST_DEFAULT; }
+  $('#abar').hidden = !who.length || UI.wall;
   applyView();
 }
 // --hz keeps handles, labels and the × the same size on screen at any zoom (≥ 32 px touch targets).
@@ -1697,10 +2051,38 @@ function showArea(a) {
   applyView();
 }
 (() => {
-  const view = $('#mapView'); const pts = new Map(); let drag = null, pan = null, pinch = null, adrag = null;
+  const view = $('#mapView'); const pts = new Map(); let drag = null, pan = null, pinch = null, adrag = null, wpaint = null;
   // While a token or a template is held, the board is not rebuilt under the finger: the DM applies players' requests,
   // the player view the DM's new state, when the gesture ends.
-  const gestureEnd = () => { if (!UI.gesture || drag || adrag) return; UI.gesture = false; flushGesture(); };
+  const gestureEnd = () => { if (!UI.gesture || drag || adrag || wpaint) return; UI.gesture = false; flushGesture(); };
+  // DM10: Engel. The first square touched decides: an empty one puts obstacles down along the finger's path, an obstacle
+  // takes them off. Every square the finger crosses counts (a fast stroke leaves no gaps).
+  // DM12: the brush covers UI.brush × UI.brush squares around the touched one; the tool is an obstacle, the eraser or a
+  // texture. Engel keeps DM10's rule (the first square decides: put down or take off).
+  const paintTo = ([x, y]) => {
+    const w = wpaint, [x0, y0] = w.started ? w.last : [x, y], n = Math.max(Math.abs(x - x0), Math.abs(y - y0)), o = Math.floor((UI.brush - 1) / 2);
+    const code = bgById(w.tool)?.code;
+    const put = (k) => {
+      if (w.tool === 'wall') { if (w.add !== w.set.has(k)) { if (w.add) w.set.add(k); else w.set.delete(k); w.n++; } return; }
+      if (w.tool === 'erase') { if (w.set.delete(k)) w.n++; if (w.ter[k] !== '.') { w.ter[k] = '.'; w.n++; } return; }
+      if (code && w.ter[k] !== code) { w.ter[k] = code; w.n++; }
+    };
+    for (let i = n ? 1 : 0; i <= n; i++) {
+      const cx = n ? Math.round(x0 + (x - x0) * i / n) : x, cy = n ? Math.round(y0 + (y - y0) * i / n) : y;
+      for (let a = 0; a < UI.brush; a++) for (let b = 0; b < UI.brush; b++) { const X = cx - o + a, Y = cy - o + b; if (X >= 0 && Y >= 0 && X < COLS && Y < ROWS) put(Y * COLS + X); }
+    }
+    w.started = true; w.last = [x, y];
+    if (w.tool !== 'wall') { const t = w.ter.join(''); S.ter = t === NO_TER ? '' : t; drawTerrain(); }
+    if (w.tool !== 'wall' && w.tool !== 'erase') { $('#dist').innerHTML = DRAW_HINT(); return; }
+    S.walls = [...w.set].sort((a, b) => a - b); drawWalls(); $('#dist').innerHTML = DRAW_HINT();
+  };
+  // Ölç (players too, owner 2026-11-19: "oyuncular da ölç özelliğini kullanabilmeli"): the first tap picks a creature,
+  // the second shows the distance; a third starts over. The distance follows the tokens while they move.
+  const measureTap = (c) => {
+    const m = UI.measure;
+    if (!m.a || m.b) { m.a = c.id; m.b = null; clearMeasure(); } else if (m.a !== c.id) m.b = c.id;
+    $('#dist').innerHTML = measureText(); renderMap();
+  };
   const local = (e) => { const r = view.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
   const cellAt = (p) => [Math.max(0, Math.min(COLS - 1, Math.floor((p.x - V.x) / (CELL * V.z)))), Math.max(0, Math.min(ROWS - 1, Math.floor((p.y - V.y) / (CELL * V.z))))];
   // Board position in squares (not rounded): resizing snaps the dragged edge to the nearest grid line.
@@ -1735,19 +2117,28 @@ function showArea(a) {
     adrag.el = $(`[data-area="${a.id}"]`); adrag.el?.classList.add('live');
   }
   view.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('.zoom,.apick,.abar,[data-adel]')) return;
+    if (e.target.closest('.zoom,.apick,.abar,.drawbar,.mapcredit,[data-adel]')) return;
     try { view.setPointerCapture(e.pointerId); } catch {} pts.set(e.pointerId, local(e));
     if (pts.size === 2) {
       // A second finger turns any drag into a pinch; the token goes back to its square, a template to where it was.
       if (drag) { drag.el.style.left = drag.from[0] * CELL + 'px'; drag.el.style.top = drag.from[1] * CELL + 'px'; drag.el.classList.remove('drag'); drag.ghost?.remove(); drag = null; }
       if (adrag) { Object.assign(adrag.a, adrag.orig); adrag = null; renderMap(); }
+      // a stroke of obstacles turns into a pinch: the squares go back as they were
+      if (wpaint) { S.walls = wpaint.orig; S.ter = wpaint.origTer; wpaint = null; drawWalls(); drawTerrain(); $('#dist').innerHTML = DRAW_HINT(); }
       gestureEnd();
       const [p, q] = [...pts.values()]; pinch = { d: Math.hypot(p.x - q.x, p.y - q.y) }; pan = null; return;
     }
     // The DM moves every token and template. In the player view (DM3) a player moves only their own token and their own
     // templates, while the DM lets players act; touching anything else pans the view.
+    if (UI.wall && !W.on) {
+      const k = cellAt(local(e)), set = new Set(walls());
+      wpaint = { tool: UI.tool, orig: [...walls()], origTer: S.ter || '', ter: [...(cleanTer(S.ter) || NO_TER)], before: JSON.stringify(S), set, add: !set.has(k[1] * COLS + k[0]), last: k, n: 0, started: false };
+      UI.gesture = true; paintTo(k); return;
+    }
     const tEl = e.target.closest('[data-tok]'), arEl = e.target.closest('[data-area]');
-    const c = tEl && (!W.on || (playerCanAct() && tEl.dataset.tok === W.me)) ? mapList().find((x) => x.id === tEl.dataset.tok) : null;
+    const c = tEl && (!W.on || (playerCanMove() && tEl.dataset.tok === W.me)) ? mapList().find((x) => x.id === tEl.dataset.tok) : null;
+    // DM11: their own token outside their turn: a short note (the touch pans the map)
+    if (W.on && tEl && !c && tEl.dataset.tok === W.me && playerCanAct() && Date.now() - (UI.turnNote || 0) > 3000) { UI.turnNote = Date.now(); toast('Sıran gelince pulunu oynatabilirsin'); }
     const ar = arEl ? mapAreas().find((x) => x.id === arEl.dataset.area) : null;
     if (c && c.gx != null) { drag = { c, el: tEl, from: [c.gx, c.gy], start: local(e), moved: false, to: null }; UI.gesture = true; }
     else if (ar && canEditArea(ar)) {
@@ -1756,7 +2147,7 @@ function showArea(a) {
       UI.gesture = true;
       if (UI.area !== ar.id) { UI.area = ar.id; renderMap(); }
     }
-    else pan = { start: local(e), x: V.x, y: V.y };
+    else pan = { start: local(e), x: V.x, y: V.y, tok: tEl?.dataset.tok || null };
   });
   view.addEventListener('pointermove', (e) => {
     if (!pts.has(e.pointerId)) return; const p = local(e); pts.set(e.pointerId, p);
@@ -1767,6 +2158,7 @@ function showArea(a) {
       if (pinch.d > 0) zoomAt(d / pinch.d, mx, my); else applyView();
       pinch.d = d; pinch.m = [mx, my]; return;
     }
+    if (wpaint) { const k = cellAt(p); if (k[0] !== wpaint.last[0] || k[1] !== wpaint.last[1]) paintTo(k); return; }
     if (adrag) {
       if (!adrag.moved && Math.hypot(p.x - adrag.start.x, p.y - adrag.start.y) < 6) return;
       adrag.moved = true; areaMove(p); return;
@@ -1774,7 +2166,7 @@ function showArea(a) {
     if (pan) { if (Math.hypot(p.x - pan.start.x, p.y - pan.start.y) >= 6) pan.moved = true; V.x = pan.x + p.x - pan.start.x; V.y = pan.y + p.y - pan.start.y; applyView(); return; }
     if (drag) {
       if (!drag.moved && Math.hypot(p.x - drag.start.x, p.y - drag.start.y) < 6) return;
-      if (!drag.moved) { drag.moved = true; drag.el.classList.add('drag'); drag.ghost = Object.assign(document.createElement('div'), { className: 'ghost' }); drag.ghost.style.cssText = `left:${drag.from[0] * CELL}px;top:${drag.from[1] * CELL}px`; $('#board').append(drag.ghost); }
+      if (!drag.moved) { drag.moved = true; drag.el.classList.add('drag'); drag.ghost = Object.assign(document.createElement('div'), { className: 'ghost' }); drag.ghost.style.cssText = `left:${drag.from[0] * CELL}px;top:${drag.from[1] * CELL}px`; $('#layer').append(drag.ghost); }
       let [gx, gy] = cellAt(p); const s = sz(drag.c);
       gx = Math.min(gx, COLS - s); gy = Math.min(gy, ROWS - s);
       drag.ghost.style.width = drag.ghost.style.height = s * CELL + 'px';
@@ -1782,7 +2174,7 @@ function showArea(a) {
       // Grid distance as the 5e rules count it on a grid: every square is 5 ft, diagonals too.
       const sq = Math.max(Math.abs(gx - drag.from[0]), Math.abs(gy - drag.from[1]));
       const other = mapList().find((o) => o !== drag.c && o.gx != null && gap({ gx, gy, size: s }, o) === 0);
-      $('#dist').innerHTML = `${esc(mapLabel(drag.c))}: <b>${sq * 5} ft</b> (${sq} kare)${other ? ` · ${esc(mapLabel(other))} bu karede` : ''}`;
+      $('#dist').innerHTML = `${esc(mapLabel(drag.c))}: <b>${sq * 5} ft</b> (${sq} kare)${other ? ` · ${esc(mapLabel(other))} bu karede` : ''}${onWall(mapWalls(), gx, gy, s) ? ' · <b>engel</b>' : ''}`;
     }
   });
   const end = (e) => {
@@ -1790,6 +2182,14 @@ function showArea(a) {
     // Lifting one finger after a pinch: the remaining finger keeps panning.
     if (pinch && pts.size === 1) { const p = [...pts.values()][0]; pan = { start: p, x: V.x, y: V.y, moved: true }; }
     if (pts.size < 2) pinch = null;
+    if (wpaint) {
+      const w = wpaint; wpaint = null;
+      if (w.n) {
+        pushHist(w.before); const d = walls().length - w.orig.length;
+        log(w.tool === 'wall' ? (d >= 0 ? `Engel: ${d} kare eklendi` : `Engel: ${-d} kare kaldırıldı`) : w.tool === 'erase' ? 'Silgi: kareler temizlendi' : `Çizim: ${esc(toolName())}`); render();
+      }
+      $('#dist').innerHTML = DRAW_HINT();
+    }
     if (adrag) {
       // Undo takes the template back to where it was before this drag (the state saved at pointerdown).
       const a = adrag.a, before = adrag.before, changed = AREA_KEYS[a.shape].some((k) => a[k] !== adrag.orig[k]);
@@ -1803,21 +2203,21 @@ function showArea(a) {
     }
     // A tap on the empty board puts the selected template down (handles and × hide).
     if (pan && !pan.moved && e.type === 'pointerup' && UI.area) { UI.area = null; renderMap(); }
+    // a tap on someone else's token while measuring (the player view: tokens the player may not move)
+    if (pan && !pan.moved && e.type === 'pointerup' && UI.measure && pan.tok) { const c = mapList().find((x) => x.id === pan.tok); if (c) measureTap(c); }
     if (drag) {
       drag.el.classList.remove('drag'); drag.ghost?.remove();
       const went = drag.moved && drag.to && (drag.to[0] !== drag.from[0] || drag.to[1] !== drag.from[1]);
-      if (W.on) {
-        // a player's own token: the DM decides (the token shows the new square until the DM's answer)
-        if (went) playerMove(drag.c, drag.to); else { drag.el.style.left = drag.from[0] * CELL + 'px'; drag.el.style.top = drag.from[1] * CELL + 'px'; }
+      const back = () => { drag.el.style.left = drag.from[0] * CELL + 'px'; drag.el.style.top = drag.from[1] * CELL + 'px'; };
+      if (!drag.moved && e.type === 'pointerup' && UI.measure) measureTap(drag.c);
+      else if (W.on) {
+        // a player's own token: the DM decides (the token shows the new square until the DM's answer); never onto an
+        // obstacle square (DM10; the DM checks it too)
+        if (went && onWall(mapWalls(), drag.to[0], drag.to[1], sz(drag.c))) { back(); toast('Orası engel: başka kareye koy', true); renderWatchMap(); }
+        else if (went) playerMove(drag.c, drag.to); else back();
       } else if (went) {
         snap(); const sq = Math.max(Math.abs(drag.to[0] - drag.from[0]), Math.abs(drag.to[1] - drag.from[1]));
         [drag.c.gx, drag.c.gy] = drag.to; log(`<b>${esc(drag.c.name)}</b> ${sq * 5} ft hareket etti`); render();
-      } else if (!drag.moved && e.type === 'pointerup' && UI.measure) {
-        // Measuring: first tap picks a creature, the second shows the distance; a third tap starts over.
-        const m = UI.measure;
-        if (!m.a || m.b) { m.a = drag.c.id; m.b = null; clearMeasure(); $('#dist').innerHTML = `Ölç: ${esc(mapLabel(drag.c))} · ikinci pula dokun`; }
-        else if (m.a !== drag.c.id) { m.b = drag.c.id; const a = byId(m.a); $('#dist').innerHTML = `${esc(mapLabel(a))} ↔ ${esc(mapLabel(drag.c))}: <b>${gap(a, drag.c)} ft</b>`; }
-        renderMap();
       } else if (!drag.moved && e.type === 'pointerup') hpSheet(drag.c);
       else { drag.el.style.left = drag.from[0] * CELL + 'px'; drag.el.style.top = drag.from[1] * CELL + 'px'; }
       drag = null;
@@ -1832,7 +2232,22 @@ function showArea(a) {
   const mid = () => { const r = view.getBoundingClientRect(); return [r.width / 2, r.height / 2]; };
   $('#zin').onclick = () => { zoomAt(1.25, ...mid()); if (UI.area) renderMap(); }; $('#zout').onclick = () => { zoomAt(1 / 1.25, ...mid()); if (UI.area) renderMap(); }; $('#zfit').onclick = fit;
   $('#zreset').onclick = () => ask('Dizilişi sıfırla', 'Bütün pullar baştaki yerlerine döner.', 'Sıfırla', () => { snap(); S.list.forEach((c) => { c.gx = null; c.gy = null; }); log('Harita dizilişi sıfırlandı'); render(); fit(); });
-  $('#zmeasure').onclick = () => { UI.measure = UI.measure ? null : { a: null }; $('#zmeasure').setAttribute('aria-pressed', String(!!UI.measure)); clearMeasure(); $('#dist').innerHTML = UI.measure ? 'Ölç: ilk pula dokun' : 'Pulu sürükle: hareket · <b>5 ft</b> = 1 kare'; renderMap(); };
+  $('#zmeasure').onclick = () => {
+    if (UI.wall) setWallMode(false);
+    UI.measure = UI.measure ? null : { a: null }; $('#zmeasure').setAttribute('aria-pressed', String(!!UI.measure)); clearMeasure();
+    $('#dist').innerHTML = UI.measure ? measureText() : DIST_DEFAULT; renderMap();
+  };
+  $('#zwall').onclick = () => setWallMode(!UI.wall);
+  $('#zbg').onclick = bgSheet;
+  $('#wallbar').onclick = (e) => {
+    const t = e.target.closest('[data-tool]'), br = e.target.closest('[data-brush]');
+    if (t) { UI.tool = t.dataset.tool; drawBar(); $('#dist').innerHTML = DRAW_HINT(); }
+    else if (br) { UI.brush = Number(br.dataset.brush); drawBar(); $('#dist').innerHTML = DRAW_HINT(); }
+    else if (e.target.closest('[data-wdone]')) setWallMode(false);
+    else if (e.target.closest('[data-wclear]')) clearSheet();
+    else if (e.target.closest('[data-wsave]')) saveMapSheet();
+  };
+  $('#imgbar').onclick = alignStep;
   // Alan: choose a shape; the template appears in the middle of the current view, selected.
   // DM4 (owner: "alan secerken koni alt menunun altinda kalıyor"): the chooser (two columns) opens beside the Alan
   // button but always inside the map view, above the bottom tabs, however short the screen is.
@@ -1840,7 +2255,7 @@ function showArea(a) {
     const p = $('#apick'); p.hidden = !open; $('#zarea').setAttribute('aria-expanded', String(open));
     if (open) { colRow(); placePick(); }
   };
-  $('#zarea').onclick = () => pick($('#apick').hidden);
+  $('#zarea').onclick = () => { if (UI.wall) setWallMode(false); pick($('#apick').hidden); };
   // the colour row: one swatch per colour, the current choice checked
   const colRow = () => {
     const cur = areaColor();
@@ -1970,8 +2385,13 @@ function cleanFight(o, ids) {
   const ly = o.layout && typeof o.layout === 'object' ? {
     foes: (Array.isArray(o.layout.foes) ? o.layout.foes : []).slice(0, MAX_FOES).map((p) => ({ card: cleanId(p?.card), k: inRange(p?.k, 0, 0, MAX_PER_CARD - 1), ...pos(p) })).filter((p) => ids.has(p.card)),
     allies: (Array.isArray(o.layout.allies) ? o.layout.allies : []).slice(0, 40).map((p) => ({ name: clip(p?.name), ...pos(p) })).filter((p) => p.name),
+    // DM10: older layouts have neither (the map keeps its own then)
+    ...(Array.isArray(o.layout.walls) ? { walls: cleanWalls(o.layout.walls) } : {}),
+    ...(typeof o.layout.bg === 'string' ? { bg: bgById(o.layout.bg)?.id || '' } : {}),
+    ...(typeof o.layout.ter === 'string' ? { ter: cleanTer(o.layout.ter) } : {}),
+    ...('img' in o.layout ? { img: cleanImg(o.layout.img) } : {}),
   } : null;
-  return { id: cleanId(o.id) || recId('f'), name, note: clip(o.note, 300), items, layout: ly && (ly.foes.length || ly.allies.length) ? ly : null };
+  return { id: cleanId(o.id) || recId('f'), name, note: clip(o.note, 300), items, layout: ly && (ly.foes.length || ly.allies.length || ly.walls?.length || ly.bg || ly.ter) ? ly : null };
 }
 // strict (import): fights left without any creature are dropped; `skipped` counts what was left out.
 function cleanLibrary(o, strict = false) {
@@ -1979,9 +2399,11 @@ function cleanLibrary(o, strict = false) {
   const rawF = Array.isArray(o.fights) ? o.fights : [];
   const seen = new Set(), cards = o.cards.slice(0, 500).map(cleanCard).filter((k) => k && !seen.has(k.id) && seen.add(k.id));
   const fseen = new Set(), fights = rawF.slice(0, 200).map((f) => cleanFight(f, seen)).filter((f) => f && (!strict || f.items.length) && !fseen.has(f.id) && fseen.add(f.id));
-  return { v: 1, cards, fights, roll: o.roll === true, skipped: { cards: o.cards.length - cards.length, fights: rawF.length - fights.length } };
+  // DM12: drawn maps
+  const rawM = Array.isArray(o.maps) ? o.maps : [], mseen = new Set(), maps = rawM.slice(0, 100).map(cleanMap).filter((m) => m && !mseen.has(m.id) && mseen.add(m.id));
+  return { v: 1, cards, fights, maps, roll: o.roll === true, skipped: { cards: o.cards.length - cards.length, fights: rawF.length - fights.length, maps: rawM.length - maps.length } };
 }
-let LB = (() => { try { return cleanLibrary(JSON.parse(localStorage.getItem(LIB_KEY))); } catch { return null; } })() || { v: 1, cards: [], fights: [], roll: false };
+let LB = (() => { try { return cleanLibrary(JSON.parse(localStorage.getItem(LIB_KEY))); } catch { return null; } })() || { v: 1, cards: [], fights: [], maps: [], roll: false };
 delete LB.skipped;
 // The last library that reached storage: a failed save (storage full) goes back to it, so memory never differs from
 // what the next launch will load. Returns false then; the open sheet closes (it may hold records that are gone).
@@ -2201,6 +2623,8 @@ function layoutOf() {
   return {
     foes: S.list.filter((c) => c.side === 'foe' && c.card && cardById(c.card)).map((c) => ({ card: c.card, k: (k[c.card] = (k[c.card] ?? -1) + 1), gx: c.gx, gy: c.gy })),
     allies: S.list.filter((c) => c.side === 'ally').map((c) => ({ name: c.name, gx: c.gx, gy: c.gy })),
+    // DM10: the obstacle squares and the ground go with the layout
+    walls: [...walls()], bg: bgById(S.bg)?.id || '', ter: cleanTer(S.ter), img: cleanImg(S.img),
   };
 }
 function applyLayout(f) {
@@ -2209,6 +2633,10 @@ function applyLayout(f) {
   const put = (c, p) => { if (c) { c.gx = Math.min(p.gx, COLS - sz(c)); c.gy = Math.min(p.gy, ROWS - sz(c)); } };
   f.layout.foes.forEach((p) => put(by[p.card]?.[p.k], p));
   f.layout.allies.forEach((p) => put(S.list.find((c) => c.side === 'ally' && c.name === p.name), p));
+  if (Array.isArray(f.layout.walls)) S.walls = [...f.layout.walls];
+  if (typeof f.layout.bg === 'string') S.bg = f.layout.bg;
+  if (typeof f.layout.ter === 'string') S.ter = f.layout.ter;
+  if ('img' in f.layout) S.img = f.layout.img;
 }
 // Foes without a card (typed by hand) get one, so they can be part of a prepared fight; same name and values → same card.
 function ensureCards(foes) {
@@ -2243,7 +2671,7 @@ function saveFightSheet(withLayout) {
 function layoutSheet() {
   if (!S.list.some((c) => c.side === 'foe')) { toast('Haritada düşman yok'); return; }
   const f = S.prep && prepById(S.prep);
-  openSheet(`<h3>Bu dizilişi kaydet</h3><p class="sub">Pulların kareleri hazır savaşa yazılır; “Savaşı başlat” onları bu karelere koyar (düşmanlar kart ve sıra numarasıyla, bizim taraf adla).</p>
+  openSheet(`<h3>Bu dizilişi kaydet</h3><p class="sub">Pulların kareleri, engel kareleri ve zemin hazır savaşa yazılır; “Savaşı başlat” onları bu karelere koyar (düşmanlar kart ve sıra numarasıyla, bizim taraf adla).</p>
     <div class="acts" style="grid-template-columns:1fr">${f ? `<button class="btn pri" data-lto="1">“${esc(f.name)}” savaşına kaydet</button>` : ''}<button class="btn${f ? '' : ' pri'}" data-lnew="1">Yeni hazır savaş olarak kaydet</button></div>`);
   $('#sheetBody').onclick = (e) => {
     if (f && e.target.closest('[data-lto]')) { f.layout = layoutOf(); if (libSave()) { closeSheet(); toast(`Diziliş kaydedildi: ${f.name}`); } }
@@ -2288,27 +2716,50 @@ function cleanBackupFight(o) {
     round: inRange(f.round, 1, 1, 9999), cur: f.cur == null ? null : cleanId(f.cur) || null, curInit: f.curInit == null ? null : inRange(f.curInit, 10, -20, 99), prep: cleanId(f.prep) || null,
     foes: list(f.foes, 'foe'),
     areas: (Array.isArray(f.areas) ? f.areas : []).slice(0, 80).map((a) => { const g = cleanArea(a); if (!g) return null; const by = cleanId(a.by); return { id: cleanId(a.id) || 'a' + recId(''), ...g, ...(by ? { by } : {}) }; }).filter(Boolean),
+    // DM10: obstacle squares; the ground only when the file names one of ours ('' = plain), else this device's stays
+    walls: cleanWalls(f.walls), bg: f.bg === '' ? '' : bgById(f.bg)?.id ?? null, ter: cleanTer(f.ter), img: cleanImg(f.img),
   } : null;
   return { party, fight, bad };
 }
 function libExport() {
-  const fight = { round: S.round, cur: S.cur, curInit: S.curInit, prep: S.prep ?? null, foes: S.list.filter((c) => c.side === 'foe'), areas: areas() };
+  const fight = { round: S.round, cur: S.cur, curInit: S.curInit, prep: S.prep ?? null, foes: S.list.filter((c) => c.side === 'foe'), areas: areas(), walls: walls(), bg: bgById(S.bg)?.id || '', ter: cleanTer(S.ter), img: cleanImg(S.img) };
   const party = S.list.filter((c) => c.side === 'ally');
-  const text = JSON.stringify({ app: 'dmscreen', kind: 'library', v: 2, at: new Date().toISOString(), cards: LB.cards, fights: LB.fights, party, fight }, null, 1);
+  // DM13: own map pictures go in as data URLs (read from this phone first; without any, written at once as before)
+  if (ownIds([S.img, ...(LB.maps || []).map((m) => m.img), ...LB.fights.map((f) => f.layout?.img)]).length && !libExport.imgs) { exportImages().then((imgs) => { libExport.imgs = imgs; try { libExport(); } finally { libExport.imgs = null; } }); return; }
+  const images = libExport.imgs || {};
+  const text = JSON.stringify({ app: 'dmscreen', kind: 'library', v: 2, at: new Date().toISOString(), cards: LB.cards, fights: LB.fights, maps: LB.maps || [], images, party, fight }, null, 1);
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
   const a = Object.assign(document.createElement('a'), { href: url, download: `dm-ekrani-kayitlar-${new Date().toISOString().slice(0, 10)}.json` });
   document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
   toast(`Yedek: ${LB.cards.length} kart, ${LB.fights.length} hazır savaş, Biz ${party.length} kişi, savaşta ${fight.foes.length} düşman`);
 }
-const IMPORT_MAX_BYTES = 2 * 1024 * 1024;
+// DM13: the backup carries the DM's own map pictures too
+const IMPORT_MAX_BYTES = 30 * 1024 * 1024;
+const ownIds = (L) => [...new Set(L.filter((a) => a?.src?.startsWith('u:')).map((a) => a.src.slice(2)))];
+async function exportImages() {
+  const out = {};
+  for (const id of ownIds([S.img, ...(LB.maps || []).map((m) => m.img), ...LB.fights.map((f) => f.layout?.img)])) {
+    const b = await imgGet(id); if (!(b instanceof Blob)) continue;
+    out[id] = await new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(b); });
+  }
+  return out;
+}
+async function importImages(o) {
+  let n = 0; if (!o || typeof o !== 'object' || Array.isArray(o)) return n;
+  for (const [id, d] of Object.entries(o).slice(0, 200)) {
+    if (!/^[a-f0-9]{24}$/.test(id) || typeof d !== 'string' || d.length > 16e6 || !/^data:image\/(webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(d)) continue;
+    try { const b = await (await fetch(d)).blob(); await imgPut(id, b); IDB.urls.set(id, URL.createObjectURL(b)); n++; } catch {}
+  }
+  return n;
+}
 async function libImport(file) {
-  if (file.size > IMPORT_MAX_BYTES) { toast('Dosya çok büyük (en çok 2 MB): DM Ekranı yedeği değil', true); return; }
+  if (file.size > IMPORT_MAX_BYTES) { toast('Dosya çok büyük (en çok 30 MB): DM Ekranı yedeği değil', true); return; }
   let o = null; try { o = JSON.parse(await file.text()); } catch {}
   const got = o && o.app === 'dmscreen' && o.kind === 'library' ? cleanLibrary(o, true) : null;
   if (!got) { toast('Bu dosya DM Ekranı yedeği değil', true); return; }
   const { skipped } = got; delete got.skipped;
   const { party, fight, bad } = cleanBackupFight(o);
-  const left = [skipped.cards ? `${skipped.cards} kart` : '', skipped.fights ? `${skipped.fights} hazır savaş` : '', bad ? `${bad} savaş kaydı` : ''].filter(Boolean).join(', ');
+  const left = [skipped.cards ? `${skipped.cards} kart` : '', skipped.fights ? `${skipped.fights} hazır savaş` : '', skipped.maps ? `${skipped.maps} harita` : '', bad ? `${bad} savaş kaydı` : ''].filter(Boolean).join(', ');
   // DM7: our side and the running fight change only when the DM picks "Değiştir" for them (default: kept)
   const pick = { party: 'keep', fight: 'keep' };
   const names = (L) => L.map((c) => c.name).join(', ');
@@ -2329,16 +2780,17 @@ async function libImport(file) {
     if (m === 'replace') LB = { ...got, roll: LB.roll };
     else {
       const up = (list, add) => { for (const x of add) { const i = list.findIndex((y) => y.id === x.id); if (i >= 0) list[i] = x; else list.push(x); } };
-      up(LB.cards, got.cards); up(LB.fights, got.fights);
+      up(LB.cards, got.cards); up(LB.fights, got.fights); up((LB.maps ||= []), got.maps);
     }
     if (!libSave()) return;
     const took = [];
+    importImages(o.images).then((n) => { if (n) { toast(`${n} harita resmi alındı`); drawMapImage(); } });
     if ((party && pick.party === 'replace') || (fight && pick.fight === 'replace')) {
       snap();
       const ps = party && pick.party === 'replace', fs = fight && pick.fight === 'replace';
       const ids = new Set(), uniq = (c) => { if (ids.has(c.id)) c.id = newId(c.side); ids.add(c.id); return c; };
       S.list = [...(ps ? party : S.list.filter((c) => c.side === 'ally')), ...(fs ? fight.foes : S.list.filter((c) => c.side === 'foe'))].map(uniq);
-      if (fs) { S.round = fight.round; S.cur = fight.cur; S.curInit = fight.curInit; S.areas = fight.areas; S.prep = fight.prep && prepById(fight.prep) ? fight.prep : null; UI.area = null; V.fitted = false; }
+      if (fs) { S.round = fight.round; S.cur = fight.cur; S.curInit = fight.curInit; S.areas = fight.areas; S.walls = fight.walls; S.ter = fight.ter; S.img = fight.img; if (fight.bg != null) S.bg = fight.bg; S.prep = fight.prep && prepById(fight.prep) ? fight.prep : null; UI.area = null; V.fitted = false; }
       UI.sel.clear(); UI.measure = null;
       if (ps) took.push(`Biz ${party.length} kişi`); if (fs) took.push(`savaş (${fight.foes.length} düşman)`);
       log(`Yedekten alındı: ${esc(took.join(', '))}`); render();
@@ -2403,8 +2855,11 @@ function publicState() {
     }),
     // by: the character a player's template belongs to ('' = the DM's)
     areas: areas().map((a) => ({ id: a.id, shape: a.shape, by: a.by || '', ...areaGeom(a), ...colOf(a) })),
+    // DM10: obstacle squares and the ground (an id from the app's own list; the player view has the same pictures)
+    walls: walls(), bg: bgById(S.bg)?.id || '', ter: cleanTer(S.ter), img: cleanImg(S.img), grid: S.grid !== false,
     // DM3: whether players may act now, and the characters connected players have taken
-    pl: { on: LV.act, taken: [...new Set([...LV.info.values()].map((o) => o.char).filter(Boolean))] },
+    // DM11: turn: a player moves their token only on their own turn
+    pl: { on: LV.act, turn: LV.turn, taken: [...new Set([...LV.info.values()].map((o) => o.char).filter(Boolean))] },
   };
 }
 // The player side takes the message apart again: numbers stay numbers, ids stay plain, shapes from the known list.
@@ -2420,16 +2875,16 @@ function cleanState(s) {
   });
   const areasIn = (Array.isArray(s.areas) ? s.areas : []).slice(0, 80).map((a) => { const g = cleanArea(a); return g && { id: id(a.id), by: id(a.by), ...g }; }).filter(Boolean);
   const pl = s.pl && typeof s.pl === 'object' ? s.pl : {};
-  return { round: Math.max(1, n(s.round, 1)), cur: s.cur == null ? null : id(s.cur), list, areas: areasIn,
-    pl: { on: pl.on !== false, taken: (Array.isArray(pl.taken) ? pl.taken : []).slice(0, 20).map(id) } };
+  return { round: Math.max(1, n(s.round, 1)), cur: s.cur == null ? null : id(s.cur), list, areas: areasIn, walls: cleanWalls(s.walls), bg: bgById(s.bg)?.id || '', ter: cleanTer(s.ter), img: cleanImg(s.img), grid: s.grid !== false,
+    pl: { on: pl.on !== false, turn: pl.turn === true, taken: (Array.isArray(pl.taken) ? pl.taken : []).slice(0, 20).map(id) } };
 }
 
 /* --- DM side: the room --- */
 // info: per connection, the player's own id (pid, kept on their phone), the character they play, a rate bucket.
-// act: "Oyuncular hareket edebilir" (DM3), on by default, kept with the room. ban: players the DM removed (by pid) until
-// the room closes or gets a new code. queue: players' requests that came in while the DM held a token or a template.
-const LV = { on: false, code: '', peer: null, conns: new Set(), info: new Map(), buckets: new Map(), runs: new Map(), act: loadJSON(LIVE_KEY)?.act !== false, ban: new Set(), queue: [], key: 0, last: '', lock: null, timer: null, msg: '' };
-const liveSave = () => { try { localStorage.setItem(LIVE_KEY, JSON.stringify({ code: LV.code, on: LV.on, act: LV.act })); } catch {} };
+// act: "Oyuncular hareket edebilir" (DM3), on by default, kept with the room. (DM10: no ban list any more; Çıkar lets the player join again)
+// queue: players' requests that came in while the DM held a token or a template.
+const LV = { on: false, code: '', peer: null, conns: new Set(), info: new Map(), buckets: new Map(), runs: new Map(), act: loadJSON(LIVE_KEY)?.act !== false, turn: loadJSON(LIVE_KEY)?.turn !== false, queue: [], key: 0, last: '', lock: null, timer: null, msg: '' };
+const liveSave = () => { try { localStorage.setItem(LIVE_KEY, JSON.stringify({ code: LV.code, on: LV.on, act: LV.act, turn: LV.turn })); } catch {} };
 const shareUrl = () => (location.protocol === 'https:' ? location.origin + location.pathname : APP_URL) + '?izle=' + LV.code;
 function liveStatus(msg) {
   if (msg !== undefined) LV.msg = msg;
@@ -2506,9 +2961,9 @@ function hostClose(why) {
   if (why && conns.length) setTimeout(end, 400); else end();
 }
 // "Oturumu kapat" drops the code too: the next "Oturum başlat" makes a fresh one (a reload while open keeps it).
-function hostStop() { LV.on = false; hostClose('stop'); LV.code = ''; LV.ban.clear(); liveSave(); liveStatus(''); }
+function hostStop() { LV.on = false; keepAlive(false); hostClose('stop'); LV.code = ''; liveSave(); liveStatus(''); }
 // "Yeni kod": the connected players are dropped and need the new code or QR code.
-function hostNewCode() { hostClose('code'); LV.code = newCode(); LV.ban.clear(); liveSave(); hostStart(); liveSheet(); toast('Yeni kod: oyuncular yeni kodla katılmalı'); }
+function hostNewCode() { hostClose('code'); LV.code = newCode(); liveSave(); hostStart(); liveSheet(); toast('Yeni kod: oyuncular yeni kodla katılmalı'); }
 function liveSend() {
   if (!LV.conns.size) return;
   const s = publicState(), j = JSON.stringify(s); if (j === LV.last) return; LV.last = j;
@@ -2562,9 +3017,17 @@ function playerStep(c, subj, apply) {
   r.subj = subj; r.line = S.log.at(-1);
   render();
 }
+// DM10: a call dropped without a word (the player's Wi-Fi went): out of the list at once, closed quietly
+function dropConn(conn) {
+  const had = LV.info.delete(conn) | LV.conns.delete(conn);
+  try { conn.close(); } catch {}
+  if (had) { liveStatus(); wake(); liveSend(); }
+}
 function liveMsg(conn, m) {
   try {
     const me = LV.info.get(conn); if (!me || !LV.conns.has(conn) || !m || typeof m !== 'object' || Array.isArray(m) || typeof m.t !== 'string') return;
+    // DM10: the player answers the DM's beat ("pong"); a call that answered once and then goes quiet is dead
+    me.seen = Date.now(); if (m.t === 'pong') { me.pong = true; return; }
     if (!rateOk(me)) return;
     let j = ''; try { j = JSON.stringify(m); } catch { return; } if (!j || j.length > MSG_MAX) return;
     // a token or template held by the DM: the request waits until the finger lifts
@@ -2588,8 +3051,10 @@ function claim(conn, me, char, byDm) {
   tell(conn, { t: 'you', char: me.char, ...(byDm ? { dm: true, why: who ? `DM seni ${who.name} yaptı` : 'DM seni izleyici yaptı' } : {}) });
   liveStatus(); liveSend();
 }
+// DM10 (owner 2026-11-19: "oyuncular wifi dan düşünce bug oluyor iki tane aynı oyuncu görünüyo / ikisini de çıkarıp
+// tekrar girse de giremiyor"): Çıkar no longer bars the phone; the player may join again with the code (someone unwanted:
+// Yeni kod). Before, a ghost row left by a dropped Wi-Fi was removed with Çıkar and that barred the real player too.
 function kick(conn) {
-  const me = LV.info.get(conn); if (me?.pid) LV.ban.add(me.pid);
   tell(conn, { t: 'kick' }); LV.info.delete(conn); LV.conns.delete(conn); liveStatus(); wake(); liveSend();
   setTimeout(() => { try { conn.close(); } catch {} }, 400);
 }
@@ -2597,19 +3062,29 @@ function liveApply(conn, me, m) {
   const no = (why) => tell(conn, { t: 'no', why });
   if (m.t === 'hello') {
     if (me.pid || typeof m.pid !== 'string' || !/^[\w-]{8,40}$/.test(m.pid)) return;
-    if (LV.ban.has(m.pid)) { me.pid = m.pid; kick(conn); return; }
+    // DM10: the same phone calling again (its Wi-Fi dropped, the old call never closed here) replaces its old call: one
+    // row per player, and its character stays its own
+    [...LV.info].forEach(([k, o]) => { if (k !== conn && o.pid === m.pid) dropConn(k); });
     me.pid = m.pid; claim(conn, me, typeof m.char === 'string' ? m.char : null, false); return;
   }
   if (!me.pid) return;
   if (m.t === 'pick') { if (m.char === null || typeof m.char === 'string') claim(conn, me, m.char || null, false); return; }
+  // DM13: a player's phone lacks the DM's own map picture: only the one on the board now, once in 10 s per call
+  if (m.t === 'img') {
+    if (typeof m.id !== 'string' || S.img?.src !== 'u:' + m.id || Date.now() - (me.imgAt || 0) < 10000) return; me.imgAt = Date.now();
+    imgGet(m.id).then(async (b) => { if (b instanceof Blob) tell(conn, { t: 'imgdata', id: m.id, type: b.type, data: await b.arrayBuffer() }); });
+    return;
+  }
   if (m.t !== 'move' && m.t !== 'area') return;
   const c = me.char ? byId(me.char) : null;
   if (!LV.act) return no('DM oyuncuların hareketini şu an kapattı');
   if (!c || c.side !== 'ally') return no('Önce kim olduğunu seç');
   if (m.t === 'move') {
     if (m.id !== c.id) return no('Yalnız kendi pulunu oynatabilirsin');
+    if (LV.turn && S.cur !== c.id) return no('Sıran gelince pulunu oynatabilirsin');
     if (!Number.isInteger(m.gx) || !Number.isInteger(m.gy)) return;
     const s = sz(c); if (m.gx < 0 || m.gy < 0 || m.gx > COLS - s || m.gy > ROWS - s) return no('Harita dışında');
+    if (onWall(walls(), m.gx, m.gy, s)) return no('Orası engel');
     if (c.gx === m.gx && c.gy === m.gy) return;
     playerStep(c, 'mv', (ctx, same) => {
       if (!same) ctx.from = [c.gx, c.gy];
@@ -2637,7 +3112,17 @@ function liveApply(conn, me, m) {
   playerStep(c, 'ar:' + x.id, (ctx, same) => { Object.assign(x, a); return `<b>${esc(c.name)}</b>: ${AREA_NAME[x.shape]} alan${same && ctx.added ? ` eklendi${colName(x)}: ` : ': '}${areaLabel(x)}`; });
 }
 // A beat every few seconds: a player whose DM went quiet (phone locked, app reloaded) reconnects by itself.
-setInterval(() => { LV.conns.forEach((c) => { if (c.open) try { c.send({ t: 'ping' }); } catch {} }); }, 4000);
+// DM10: a player's call whose phone answers the beat ("pong", this version on) and then stays quiet for 15 s is dropped
+// (Wi-Fi gone: the channel often never reports closing), so it does not stay in the list as a second copy of that player.
+const QUIET_MS = 15000;
+// DM11: the DM's own phone may have slept (app in the background: timers stop). Coming back, the players' silence is
+// the DM's, not theirs: their clocks start again instead of dropping everyone.
+const freshSeen = () => { const now = Date.now(); LV.info.forEach((o) => { if (o.pong) o.seen = now; }); };
+let lastBeat = Date.now();
+setInterval(() => {
+  const now = Date.now(); if (now - lastBeat > 8000) freshSeen(); lastBeat = now;
+  [...LV.conns].forEach((c) => { const me = LV.info.get(c); if (me?.pong && now - me.seen > QUIET_MS) dropConn(c); else if (c.open) try { c.send({ t: 'ping' }); } catch {} });
+}, 4000);
 // Keep the DM's screen awake while players are connected (the lock drops when the app is hidden; taken again on return).
 async function wake() {
   const want = LV.conns.size > 0 && document.visibilityState === 'visible';
@@ -2647,15 +3132,58 @@ async function wake() {
   } catch {}
 }
 document.addEventListener('visibilitychange', wake);
+/* DM11 (owner 2026-11-19: "dm uygulamayı arkaya alınca bağlantı kopuyor … programı arkaya almak bağlantıyı koparmamali").
+   A web app has no permission to run in the background; Android freezes it soon after it leaves the screen, and the
+   players' calls die. What keeps it running there is playing media: while the session is open the DM's app plays a
+   looping 20 Hz tone at -50 dBFS (inaudible; phone speakers cannot make 20 Hz), so Android keeps it alive and shows
+   "DM Ekranı · oturum açık" among the notifications. iPhone suspends a web app in the background whatever it plays.
+   Starting audio needs a tap: it starts from Oturum başlat, or (after a reload with the room open) on the next touch.
+   Back on screen the room is checked at once: the signalling server rejoined, the state sent again. */
+const KA = { el: null, url: '' };
+function keepAlive(on) {
+  try {
+    if (!on) { if (KA.el) { KA.el.pause(); KA.el.removeAttribute('src'); KA.el.load(); KA.el = null; } if (KA.url) { URL.revokeObjectURL(KA.url); KA.url = ''; } return; }
+    if (!KA.el) {
+      // 6 s of mono 16-bit PCM at 8 kHz (a media notification needs a few seconds of media), looping
+      const rate = 8000, n = rate * 6, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf), str = (o, t) => [...t].forEach((ch, i) => v.setUint8(o + i, ch.charCodeAt(0)));
+      str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+      v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, 'data'); v.setUint32(40, n * 2, true);
+      for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.round(Math.sin(2 * Math.PI * 20 * i / rate) * 104), true);
+      KA.url = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+      KA.el = Object.assign(new Audio(KA.url), { loop: true }); KA.el.setAttribute('playsinline', '');
+      if ('mediaSession' in navigator && window.MediaMetadata) {
+        navigator.mediaSession.metadata = new MediaMetadata({ title: 'DM Ekranı · oturum açık', artist: 'Oyuncular bağlı kalsın diye arka planda açık' });
+        try { navigator.mediaSession.setActionHandler('pause', () => { KA.el?.pause(); }); navigator.mediaSession.setActionHandler('play', () => { KA.el?.play().catch(() => {}); }); } catch {}
+      }
+    }
+    if (KA.el.paused) KA.el.play().catch(() => {});
+  } catch {}
+}
+// a reload with the room open: audio may start only after a touch
+addEventListener('pointerdown', () => { if (LV.on && (!KA.el || KA.el.paused)) keepAlive(true); }, true);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (LV.on) {
+    freshSeen(); lastBeat = Date.now();
+    if (!LV.peer || LV.peer.destroyed) { clearTimeout(LV.timer); hostStart(); }
+    else if (LV.peer.disconnected) { try { LV.peer.reconnect(); } catch {} }
+    LV.last = ''; liveSend();
+  }
+  // a player coming back: an open call gets a fresh chance (the DM's beat refreshes it); a closed one dials at once
+  if (W.on && W.conn?.open) W.last = Date.now();
+  if (W.on && !W.conn?.open) { clearTimeout(W.timer); watchConnect(); }
+});
 async function liveSheet() {
   if (!LV.on) hostStart();
+  keepAlive(true);
   openSheet(`<h3>Oturum başlat</h3><p class="sub">Oyuncular: uygulamada <b>Oturuma katıl</b> → <b>QR okut</b>, ya da kodu yaz. Kim olduklarını seçerler; yalnız kendi pullarını oynatır, kendi alanlarını koyarlar.</p>
     <div class="lcode" aria-label="Oda kodu">${LV.code}</div>
     <div class="qr" id="liveQr" aria-label="QR kod: uygulamanın bu odalı bağlantısı"></div>
     <p class="lstat" id="liveStat" aria-live="polite"></p>
     <div class="fsec" style="--h:${SEC.players}"><h4>Oyuncular</h4><div class="targets" id="livePlayers"></div>
-    <div class="trow lact"><span>Oyuncular hareket edebilir<small>kendi pulunu oynatır, kendi alanlarını koyar (kişi başı en çok ${PLAYER_AREAS})</small></span><button class="btn sm" data-lact="1" aria-pressed="${LV.act}">${LV.act ? 'Açık' : 'Kapalı'}</button></div></div>
-    <p class="sub">Düşmanların yalnız adı ile “Ağır yaralı” / “düştü” durumu görünür; can, AC ve notlar gitmez. Bizim tarafın canları görünür. <b>Çıkar</b> oyuncuyu odadan atar; <b>Yeni kod</b> herkesi düşürür, yeni kodla yeniden katılırlar.</p>
+    <div class="trow lact"><span>Oyuncular hareket edebilir<small>kendi pulunu oynatır, kendi alanlarını koyar (kişi başı en çok ${PLAYER_AREAS})</small></span><button class="btn sm" data-lact="1" aria-pressed="${LV.act}">${LV.act ? 'Açık' : 'Kapalı'}</button></div>
+    <div class="trow lact"><span>Yalnız kendi sırasında<small>pulunu sırası gelince oynatır; alan her zaman koyabilir</small></span><button class="btn sm" data-lturn="1" aria-pressed="${LV.turn}">${LV.turn ? 'Açık' : 'Kapalı'}</button></div></div>
+    <p class="sub">Düşmanların yalnız adı ile “Ağır yaralı” / “düştü” durumu görünür; can, AC ve notlar gitmez. Bizim tarafın canları görünür. <b>Çıkar</b> oyuncuyu odadan atar (kodla yeniden katılabilir); <b>Yeni kod</b> herkesi düşürür, yeni kodla yeniden katılırlar: istenmeyen biri için bunu kullan.</p>
     <p class="note">Bağlantı telefondan telefona: aynı Wi-Fi’de çalışır. Bazı mobil ağlar engelleyebilir; o zaman herkes aynı Wi-Fi’ye bağlansın. İlk bağlantı için internet gerekir.</p>
     <div class="acts"><button class="btn" data-lstop="1">Oturumu kapat</button><button class="btn" data-lnew="1">Yeni kod</button><button class="btn pri" data-lok="1">Tamam</button></div>`);
   liveStatus();
@@ -2668,6 +3196,9 @@ async function liveSheet() {
       LV.act = !LV.act; liveSave(); const b = e.target.closest('[data-lact]'); b.setAttribute('aria-pressed', String(LV.act)); b.textContent = LV.act ? 'Açık' : 'Kapalı';
       if (!LV.act) LV.queue = [];
       liveSend(); toast(LV.act ? 'Oyuncular hareket edebilir' : 'Oyuncular yalnız izler');
+    } else if (e.target.closest('[data-lturn]')) {
+      LV.turn = !LV.turn; liveSave(); const b = e.target.closest('[data-lturn]'); b.setAttribute('aria-pressed', String(LV.turn)); b.textContent = LV.turn ? 'Açık' : 'Kapalı';
+      liveSend(); toast(LV.turn ? 'Oyuncular pulunu yalnız kendi sırasında oynatır' : 'Oyuncular pulunu her zaman oynatabilir');
     } else if (e.target.closest('[data-lkick]')) { const c = connOf(e.target.closest('[data-lkick]').dataset.lkick); if (c) { kick(c); toast('Oyuncu odadan çıkarıldı'); } }
   };
   $('#sheetBody').onchange = (e) => {
@@ -2698,6 +3229,10 @@ const wsend = (m) => { if (W.conn?.open) try { W.conn.send(m); } catch {} };
 const meIn = (P) => P?.list.find((c) => c.id === W.me && c.side === 'ally') || null;
 // The player may act: connected, the DM lets players act, and the DM gave them a character that is in the fight.
 const playerCanAct = () => W.on && !!W.conn?.open && !!W.P?.pl.on && !!meIn(W.P);
+// DM11 (owner 2026-11-19: "oyuncular turn kendilerine geldiklerinde hareket ettirebilmeliler kendilerini"): with the DM's
+// "Yalnız kendi sırasında" on (the default), the token moves only while it is that character's turn; templates any time.
+const myTurn = () => !W.P?.pl.turn || W.P?.cur === W.me;
+const playerCanMove = () => playerCanAct() && myTurn();
 function watchStatus(msg) { W.msg = msg; renderWatchBar(); if (UI.map) renderWatchMap(); }
 function renderWatchBar() {
   const ok = W.conn?.open;
@@ -2707,7 +3242,7 @@ function renderWatchBar() {
   document.body.classList.toggle('pact', act);
   $('#maphint').textContent = act ? 'Kendi pulunu sürükle: hareket · boş yeri sürükle: kaydır' : 'İki parmakla yakınlaştır · sürükle: kaydır';
   $('#watchPick').textContent = me ? 'Değiştir' : 'Kimsin?'; $('#watchPick').hidden = !ok || !W.P;
-  $('#watchMsg').innerHTML = ok ? `<b>Canlı</b> · DM’e bağlı (oda ${esc(W.code)}). ${me ? `Sen: <b>${esc(me.name)}</b>${W.P.pl.on ? '' : ' · DM hareketi şu an kapattı'}` : 'Yalnız izliyorsun.'}` : `<b>Oda ${esc(W.code)}</b> · ${esc(W.msg || 'Bağlanıyor…')}`;
+  $('#watchMsg').innerHTML = ok ? `<b>Canlı</b> · DM’e bağlı (oda ${esc(W.code)}). ${me ? `Sen: <b>${esc(me.name)}</b>${!W.P.pl.on ? ' · DM hareketi şu an kapattı' : W.P.pl.turn ? (W.P.cur === W.me ? ' · <b>sıra sende</b>: pulunu oynat' : ' · pulunu sıran gelince oynatırsın') : ''}` : 'Yalnız izliyorsun.'}` : `<b>Oda ${esc(W.code)}</b> · ${esc(W.msg || 'Bağlanıyor…')}`;
 }
 // Apply a change to the state shown now and to one waiting behind a gesture.
 const forViews = (fn) => [W.P, W.next].forEach((P) => P && fn(P));
@@ -2738,6 +3273,13 @@ function pickSheet() {
 $('#watchPick').onclick = pickSheet;
 // The DM's answers to this player: who they are (you), a refused request (no), the new template's id (ok), removed (kick).
 function watchMsg(m) {
+  if (m.t === 'ping') { wsend({ t: 'pong' }); return; }
+  // DM13: the DM's own map picture, asked for by this phone (kept here for next time)
+  if (m.t === 'imgdata') {
+    const id = typeof m.id === 'string' && /^[a-f0-9]{24}$/.test(m.id) ? m.id : null, d = m.data;
+    if (!id || !IDB.asked.has(id) || !(d instanceof ArrayBuffer) || d.byteLength > 12e6 || !/^image\/(webp|jpeg|png)$/.test(m.type)) return;
+    const b = new Blob([d], { type: m.type }); IDB.urls.set(id, URL.createObjectURL(b)); imgPut(id, b).catch(() => {}); drawMapImage(); return;
+  }
   const cid = (v) => String(v ?? '').replace(/[^\w-]/g, '').slice(0, 40);
   if (m.t === 'you') {
     W.me = cid(m.char) || null;
@@ -2812,7 +3354,8 @@ function dial() {
 setInterval(() => { if (W.on && W.conn?.open && Date.now() - W.last > 12000) { const c = W.conn; W.conn = null; try { c.close(); } catch {} watchStatus('DM’den ses yok, tekrar bağlanıyor…'); watchRetry(500); } }, 3000);
 function watchStart(code) {
   if (LV.on) hostStop();
-  $('#watchEnd').hidden = true;
+  if (UI.wall) setWallMode(false);
+  $('#watchEnd').hidden = true; $('#zmeasure').setAttribute('aria-pressed', 'false'); clearMeasure();
   Object.assign(W, { on: true, code, P: null, raw: '', next: null, dirty: false, me: null, wantSel: false, wantPick: false, msg: 'Bağlanıyor…' }); try { localStorage.setItem(WATCH_KEY, code); } catch {}
   UI.multi = false; UI.sel.clear(); UI.area = null; UI.measure = null; V.fitted = false;
   document.body.classList.add('watch'); $('h1').textContent = 'Canlı savaş';
@@ -2823,6 +3366,7 @@ function watchStart(code) {
 // code: the player may look at the phone later than a toast lasts).
 function watchStop(why, keep) {
   W.on = false; clearTimeout(W.timer); try { W.conn?.close(); } catch {} W.conn = null; W.peer?.destroy(); W.peer = null; W.P = null; W.next = null; W.me = null; UI.area = null;
+  UI.measure = null; $('#zmeasure').setAttribute('aria-pressed', 'false'); clearMeasure(); $('#dist').innerHTML = DIST_DEFAULT;
   try { localStorage.removeItem(WATCH_KEY); } catch {}
   if (typeof why === 'string') { closeSheet(); toast(why, true); }
   if (keep && typeof why === 'string') { $('#watchEndMsg').innerHTML = `<b>${esc(why)}.</b> Yeniden katılmak için üstte <b>Oturuma katıl</b>.`; $('#watchEnd').hidden = false; }
@@ -2972,12 +3516,14 @@ function renderWatchMap() {
   $('#mapView').classList.toggle('asel', !!sel);
   const inside = new Set(P ? P.areas.flatMap((a) => inArea(a).map((c) => c.id)) : []);
   const on = P ? P.list.filter((c) => c.gx != null) : [], tt = tokTexts(on);
-  b.innerHTML = !P ? '' : P.areas.map(areaHtml).join('') + on.map((c) => {
+  boardBg(b); boardLayers(b); drawTerrain();
+  $('#layer').innerHTML = !P ? '' : wallsHtml(P.walls) + P.areas.map(areaHtml).join('') + on.map((c) => {
     const lw = labelW(c, P.list), tx = tt.get(c.id);
     const bar = c.side === 'ally' ? `<span class="hpbar"><s style="width:${Math.max(0, Math.min(100, c.hp / c.max * 100))}%;background:${hpColor(c)}"></s></span>` : '';
-    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${esc(c.id)}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${c.size};--lw:${lw};--tn:${tx.length}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i>${bar}${esc(tx)}</i>${tokLabel(c, lw, P.list)}</div>`;
+    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${esc(c.id)}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${c.size};--lw:${lw};--tn:${tx.length}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i>${bar}${esc(tx)}</i>${tokLabel(c, lw, P.list)}</div>`;
   }).join('');
-  $('#dist').innerHTML = sel ? areaInfo(sel) : W.conn?.open ? (act ? '<b>Canlı</b> · kendi pulunu sürükle: hareket' : meIn(P) && !P.pl.on ? '<b>Canlı</b> · DM hareketi şu an kapattı' : '<b>Canlı</b> · yalnız izleme') : esc(W.msg || 'Bağlanıyor…');
+  if (P && UI.measure?.b) { const x = on.find((c) => c.id === UI.measure.a), y = on.find((c) => c.id === UI.measure.b); if (x && y) drawMeasure(x, y); }
+  $('#dist').innerHTML = sel ? areaInfo(sel) : UI.measure ? measureText() : W.conn?.open ? (act ? (myTurn() ? '<b>Canlı</b> · kendi pulunu sürükle: hareket' : '<b>Canlı</b> · pulunu sıran gelince oynatırsın') : meIn(P) && !P.pl.on ? '<b>Canlı</b> · DM hareketi şu an kapattı' : '<b>Canlı</b> · yalnız izleme') : esc(W.msg || 'Bağlanıyor…');
   applyView();
 }
 
