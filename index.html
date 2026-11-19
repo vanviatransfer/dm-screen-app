@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '3c163fb127'; window.__BUILT__ = '2026-11-20 00:06';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '909bd9f4a8'; window.__BUILT__ = '2026-11-20 01:36';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -98,6 +98,9 @@ main{padding-block:4px calc(140px + env(safe-area-inset-bottom,0px))}
 .ac{flex:0 0 auto;width:46px;height:52px;display:grid;place-items:center;align-content:center;font-family:var(--display);font-weight:700;font-size:1.3rem;
   background:var(--surface);clip-path:polygon(50% 0,100% 14%,100% 62%,50% 100%,0 62%,0 14%)}
 .ac small{font-family:var(--body);font-size:.58rem;letter-spacing:.08em;color:var(--muted);line-height:1}
+/* DM14: speed beside AC */
+.spd{flex:0 0 auto;width:40px;height:52px;display:grid;place-items:center;align-content:center;font-family:var(--display);font-weight:700;font-size:1.1rem;color:#b9dca2;background:var(--surface);border-radius:12px}
+.spd small{font-family:var(--body);font-size:.58rem;color:var(--c-sub);line-height:1}
 .hp{display:grid;gap:4px;text-align:left;width:100%}
 .hp .nums{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
 .hp .cur{font-family:var(--display);font-weight:700;font-size:1.6rem;font-variant-numeric:tabular-nums;line-height:1}
@@ -263,7 +266,7 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .acol [role=radiogroup]{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .apick .asw{height:40px;min-height:40px;min-width:0;border-radius:8px;border:2px solid color-mix(in srgb,var(--ac) 60%,var(--line));background:color-mix(in srgb,var(--ac) 35%,var(--surface));padding:0}
 .apick .asw[aria-checked="true"]{background:var(--ac);border-color:var(--ink);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ac)}
-.apick{position:absolute;right:68px;top:262px;z-index:5;display:grid;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow)}
+.apick{position:absolute;right:68px;top:262px;z-index:7;display:grid;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow)}
 .apick button{min-height:44px;min-width:132px;border:1px solid var(--ctl);border-radius:10px;background:var(--bg);font-weight:700;display:grid;justify-items:start;padding:4px 12px;text-align:left}
 .apick small{font-weight:500;font-size:.72rem;color:var(--muted)}
 .abar{position:absolute;left:12px;bottom:48px;z-index:4}
@@ -280,7 +283,18 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .dsz small{font-size:.72rem;color:var(--muted)}
 .dsz button{width:36px;min-height:36px;border:1px solid var(--ctl);border-radius:8px;background:var(--bg);font-weight:700}
 .dsz button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
-body.wallmode .maphint,body.aligning .maphint{display:none}
+body.wallmode .maphint,body.aligning .maphint,body.mselmode .maphint{display:none}
+/* the bars stay left of the map buttons however many columns they take (--zc), the walking bar above the hint */
+.drawbar{right:calc(var(--zc,1) * 50px + 18px)}
+.movebar{bottom:42px}
+/* DM14: the squares the creature whose turn it is can still reach; a token waiting for Onayla; group selection */
+#reach{position:absolute;left:0;top:0;pointer-events:none}
+.tok.pend i{outline:3px dashed #8fd16a;outline-offset:3px}
+.tok.msel i{box-shadow:0 0 0 4px #7fc4ff,0 0 14px rgba(127,196,255,.7)}
+.movebar .mtxt,.mselbar .mtxt{font-size:.82rem;color:var(--ink);line-height:1.25;flex:1 1 150px}
+.movebar,.mselbar{padding:5px 8px}
+.movebar .mtxt b,.mselbar .mtxt b{color:#9fdc7c}
+body.mselmode #mapView{cursor:pointer}
 /* DM13: the map picture's credit (CC BY / Dyson), the align bar, the grid switched off */
 .mapcredit{position:absolute;right:68px;bottom:4px;z-index:3;font-size:.62rem;color:var(--muted);background:rgba(0,0,0,.55);border-radius:6px;padding:1px 6px;max-width:calc(100% - 90px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 #board.nogrid #grid{display:none}
@@ -350,7 +364,7 @@ body.watch #tabLib,body.watch #zsave{display:none!important}
 .scanx{position:absolute;right:8px;top:8px;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:1.5rem;line-height:1;display:grid;place-items:center}
 .lstat.bad{color:var(--warn)}
 .wempty{color:var(--muted);margin:0;padding:12px 4px}
-body.watch #newFight,body.watch #prev,body.watch #next,body.watch .tools,body.watch .log,body.watch .help,body.watch #zreset,body.watch #zwall,body.watch #zbg,body.watch .abar{display:none!important}
+body.watch #newFight,body.watch #prev,body.watch #next,body.watch .tools,body.watch .log,body.watch .help,body.watch #zreset,body.watch #zwall,body.watch #zbg,body.watch #zsel,body.watch .abar{display:none!important}
 /* DM3: a player who may act (body.pact) gets the Alan chooser; their own token is marked */
 body.watch:not(.pact) #zarea,body.watch:not(.pact) .apick{display:none!important}
 body.watch .tok.me i{outline:3px dashed var(--ally);outline-offset:3px}
@@ -562,6 +576,7 @@ body.watch .sess{display:none!important}
     <button class="hue" style="--h:285;font-size:.74rem" id="zarea" aria-label="Alan büyüsü şablonu ekle" aria-expanded="false">Alan</button>
     <button class="hue" style="--h:12;font-size:.74rem" id="zwall" aria-label="Haritayı çiz: zemin boya, engel koy" aria-pressed="false">Çiz</button>
     <button class="hue" style="--h:90;font-size:.7rem" id="zbg" aria-label="Haritanın zeminini seç">Zemin</button>
+    <button class="hue" style="--h:170;font-size:.74rem" id="zsel" aria-label="Toplu seç ve taşı" aria-pressed="false">Seç</button>
     <button class="hue" style="--h:330;font-size:.64rem;line-height:1.05" id="zsave" aria-label="Bu dizilişi kaydet">Diziliş kaydet</button>
   </div>
   <div class="apick" id="apick" hidden role="group" aria-label="Alan rengi ve şekli">
@@ -578,6 +593,8 @@ body.watch .sess{display:none!important}
     <div class="drow"><button class="btn sm" id="imggrid" aria-pressed="true">Izgara</button><button class="btn sm" data-irm="1">Resmi kaldır</button><button class="btn sm pri" data-idone="1">Bitti</button></div>
   </div>
   <div class="mapcredit" id="mapcredit" hidden></div>
+  <div class="drawbar movebar" id="movebar" hidden role="group" aria-label="Hareket"><div class="drow"><span class="mtxt" id="moveTxt"></span><button class="btn sm" data-mdash aria-pressed="false">Dash</button><button class="btn sm" data-mno hidden>Vazgeç</button><button class="btn sm pri" data-mok hidden>Onayla</button></div></div>
+  <div class="drawbar mselbar" id="mselbar" hidden role="group" aria-label="Toplu seçim"><div class="drow"><span class="mtxt" id="mselTxt"></span><button class="btn sm" data-smove aria-pressed="false">Taşı</button><button class="btn sm" data-sclear>Temizle</button><button class="btn sm pri" data-sdone>Bitti</button></div></div>
   <div class="drawbar" id="wallbar" hidden role="group" aria-label="Harita çiz">
     <div class="dtools" role="radiogroup" aria-label="Çizim aracı"></div>
     <div class="drow"><span class="dsz" aria-label="Fırça"><small>Fırça</small><button data-brush="1" aria-label="Fırça 1 kare">1</button><button data-brush="2" aria-label="Fırça 2 × 2">2</button><button data-brush="3" aria-label="Fırça 3 × 3">3</button></span><button class="btn sm" data-wclear>Temizle</button><button class="btn sm" data-wsave>Kaydet</button><button class="btn sm pri" data-wdone>Bitti</button></div>
@@ -611,11 +628,14 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 // Every storage key starts with "dmscreen-": the character apps live on the same github.io origin and share its storage.
 const KEY = 'dmscreen-v2';
 const CONDS = ['Blinded','Charmed','Deafened','Frightened','Grappled','Incapacitated','Invisible','Paralyzed','Petrified','Poisoned','Prone','Restrained','Stunned','Unconscious','Exhaustion'];
-const blank = (side) => ({ side, name: '', sub: '', init: 10, mod: 0, ac: 12, hp: 10, max: 10, tmp: 0, conds: [], conc: false, concOn: '', ds: [0, 0], react: false, la: null, lr: null, note: '' });
+const blank = (side) => ({ side, name: '', sub: '', init: 10, mod: 0, ac: 12, hp: 10, max: 10, tmp: 0, conds: [], conc: false, concOn: '', ds: [0, 0], react: false, la: null, lr: null, note: '', speed: 30 });
+// DM14 (owner 2026-11-19: "mathias in hizi 30 ft / jimmy nin hızı 30 ft / berathast in hizi 35 ft olarak ayarla default")
+const SPEED_DEFAULT = { Mathias: 30, Jimmy: 30, Berathast: 35 };
+const okSpeed = (v, d = 30) => { const n = toInt(v, d); return Math.max(0, Math.min(200, Math.round(n / 5) * 5)); };
 const sample = () => ({
   v: 2, round: 1, cur: 'p1', curInit: 21, log: [],
   list: [
-    { ...blank('ally'), id: 'p1', name: 'Berathast', sub: 'Ranger / Rogue', init: 21, mod: 8, ac: 20, hp: 72, max: 72, pp: 21 },
+    { ...blank('ally'), id: 'p1', name: 'Berathast', sub: 'Ranger / Rogue', init: 21, mod: 8, ac: 20, hp: 72, max: 72, pp: 21, speed: 35 },
     { ...blank('ally'), id: 'p2', name: 'Mathias', sub: 'Druid / Monk', init: 14, mod: 3, ac: 18, hp: 61, max: 88, pp: 19, conc: true, concOn: 'Conjure Animals' },
     { ...blank('ally'), id: 'p3', name: 'Jimmy', sub: 'Paladin', init: 9, mod: 0, ac: 19, hp: 103, max: 103, tmp: 5, pp: 12 },
     { ...blank('foe'), id: 'e1', name: 'Hobgoblin Captain', sub: 'Lider', init: 17, mod: 2, ac: 17, hp: 31, max: 39, conds: [{ k: 'Frightened', r: 1 }], lr: [1, 1], la: [2, 2], note: 'Leadership: bir kez' },
@@ -626,6 +646,8 @@ const sample = () => ({
 });
 let S; try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch { S = sample(); }
 if (!S || S.v !== 2 || !Array.isArray(S.list)) S = sample();
+// DM14: a fight saved before speeds: our side by name (Berathast 35 ft), everyone else 30 ft
+S.list.forEach((c) => { if (!Number.isFinite(c.speed)) c.speed = SPEED_DEFAULT[c.name] ?? 30; if (!Number.isFinite(c.used)) c.used = 0; });
 const UI = { multi: false, sel: new Set(), map: false, measure: null, area: null, gesture: false, wall: false, tool: 'wall', brush: 1 };
 const history = [];
 // DM3b: who made each undo step, kept in step with `history`: null = the DM, an object = a player's run (playerStep).
@@ -765,7 +787,7 @@ function startTurn(c) {
   // back with ◀ and forward again does not count the turn twice.
   if (c.turnRound === S.round) return;
   c.turnRound = S.round;
-  c.react = false;
+  c.react = false; c.used = 0; c.dash = false;
   if (c.la) c.la[0] = c.la[1];
   tick(c, 's');
   const notes = [];
@@ -883,6 +905,7 @@ function card(c, pos) {
       <button class="ini" data-act="edit" aria-label="İnisiyatif ${c.init}, sırada ${pos}.">${c.init}<small>#${pos}</small></button>
       <button class="name" data-act="edit"><b>${esc(c.name)}</b><span>${esc(c.sub || (c.side === 'foe' ? 'Düşman' : 'Oyuncu'))}${state}</span></button>
       <button class="ac" data-act="edit" aria-label="AC ${c.ac}">${c.ac}<small>AC</small></button>
+      <button class="spd" data-act="edit" aria-label="Hız ${c.speed ?? 30} ft">${c.speed ?? 30}<small>ft</small></button>
     </div>
     <div class="csec s-hp" data-act="hp">
     <button class="hp" data-act="hp" aria-label="Can ${c.hp} / ${c.max}">
@@ -1105,7 +1128,7 @@ function condSheet(c) {
 // soluk olsun baya … bizim html karakter uygulamalarımızdaki gibi"): the character apps' hue tiles. Every field, section,
 // condition and button has its own hue (--h); head.html turns it into a pale tinted background and a soft light text.
 // The field hues match the fight card's field colours (DM3b).
-const HUE = { name: 38, sub: 28, ini: 42, ac: 207, hp: 18, pp: 160, size: 190, note: 265, la: 330, lr: 300, count: 120, formula: 55 };
+const HUE = { name: 38, sub: 28, ini: 42, ac: 207, spd: 105, hp: 18, pp: 160, size: 190, note: 265, la: 330, lr: 300, count: 120, formula: 55 };
 const SEC = { id: 32, fight: 212, hp: 10, sense: 158, note: 268, leg: 328, list: 20, party: 135, foes: 6, conc: 222, players: 196 };
 const sec = (title, h, body, grid = true) => `<div class="fsec" style="--h:${h}"><h4>${title}</h4>${grid ? `<div class="fields">${body}</div>` : body}</div>`;
 const lab = (h, wide) => ` class="lh${wide ? ' wide' : ''}" style="--h:${h}"`;
@@ -1116,7 +1139,8 @@ function editSheet(c, isNew) {
       <label${lab(HUE.sub, true)}>Alt yazı<input id="f-sub" value="${esc(c.sub || '')}" placeholder="ör. Lider, Binek, Druid"></label>`)}
     ${sec('Savaş', SEC.fight, `${numField('f-init', 'İnisiyatif (toplam)', c.init, c.side === 'ally', HUE.ini)}
       ${c.side === 'foe' ? numField('f-mod', 'İnisiyatif bonusu (zar için)', c.mod, false, HUE.ini) : ''}
-      <label${lab(HUE.ac, c.side === 'foe')}>AC<input id="f-ac" inputmode="numeric" value="${c.ac}"></label>`)}
+      <label${lab(HUE.ac, c.side === 'foe')}>AC<input id="f-ac" inputmode="numeric" value="${c.ac}"></label>
+      <label${lab(HUE.spd, true)}>Hız (ft)<input id="f-spd" inputmode="numeric" value="${c.speed ?? 30}"></label>`)}
     ${sec('Can', SEC.hp, `<label${lab(HUE.hp)}>En yüksek can<input id="f-max" inputmode="numeric" value="${c.max}"></label>
       <label${lab(HUE.hp)}>Şu anki can<input id="f-hp" inputmode="numeric" value="${c.hp}"></label>`)}
     ${sec(c.side === 'ally' ? 'Algı / Boyut' : 'Adet / Boyut', SEC.sense, `${c.side === 'ally' ? `<label${lab(HUE.pp, true)}>Passive Perception<input id="f-pp" inputmode="numeric" value="${c.pp ?? ''}"></label>` : `<label${lab(HUE.count, true)}>Adet${isNew ? '' : ' (kopya ekle)'}<input id="f-n" inputmode="numeric" value="${isNew ? 1 : 0}"></label>`}
@@ -1142,7 +1166,7 @@ function editSheet(c, isNew) {
     const name = $('#f-name').value.trim(); if (!name) { toast('Bir ad yaz'); $('#f-name').focus(); return; }
     snap();
     const max = Math.max(1, toInt($('#f-max').value, c.max));
-    const vals = { name, sub: $('#f-sub').value.trim(), init: toInt($('#f-init').value, c.init), mod: c.side === 'foe' ? toInt($('#f-mod').value, c.mod) : 0, ac: Math.max(0, toInt($('#f-ac').value, c.ac)), max, note: $('#f-note').value.trim(), size: toInt($('#f-size [aria-pressed="true"]')?.dataset.sz, 1) };
+    const vals = { name, sub: $('#f-sub').value.trim(), init: toInt($('#f-init').value, c.init), mod: c.side === 'foe' ? toInt($('#f-mod').value, c.mod) : 0, ac: Math.max(0, toInt($('#f-ac').value, c.ac)), speed: okSpeed($('#f-spd').value, c.speed ?? 30), max, note: $('#f-note').value.trim(), size: toInt($('#f-size [aria-pressed="true"]')?.dataset.sz, 1) };
     // A bigger creature that no longer fits where it stands gets a new free spot on the map.
     if (!isNew && vals.size !== sz(c) && c.gx != null && (c.gx + vals.size > COLS || c.gy + vals.size > ROWS || S.list.some((o) => o !== c && gap({ gx: c.gx, gy: c.gy, size: vals.size }, o) === 0))) { c.gx = null; c.gy = null; }
     const hp = Math.max(0, Math.min(max, toInt($('#f-hp').value, c.hp)));
@@ -1280,6 +1304,7 @@ function dsSheet(c) {
 $('#next').onclick = () => step(1);
 $('#prev').onclick = () => step(-1);
 $('#undo').onclick = () => {
+  UI.pend = null; // DM14: a walk waiting for Onayla is dropped by Geri al
   const h = history.pop(); histTag.pop(); histDirty = true; if (!h) return;
   // a step read back from storage is checked as the fight is on launch
   let s = null; try { s = JSON.parse(h); } catch {}
@@ -1973,6 +1998,99 @@ function bgSheet() {
     closeSheet();
   };
 }
+/* ---------- DM14 (owner 2026-11-19): speed and moving on one's turn; group select and move ----------
+   "karaktere sıra geldiğinde yürüyebilecekleri kareler yesil renk olacak ve hızı kadar ilerleyebilecek / ilerlemeyi
+   yaptıktan sonra onayla demesi lazim onayla derse o turdaki hızından yürüdüğü kare kadar düşecek".
+   The creature whose turn it is (on the DM's screen; on a player's screen their own character on their turn) shows the
+   squares it can still reach in green: every square 5 ft, diagonals too (2024 grid rule as used everywhere here), never
+   through or onto an obstacle. Dragging the token puts it there waiting (dashed ring); Onayla takes the squares walked
+   from this turn's speed (c.used), Vazgeç puts it back. Dash doubles the speed for the turn. A new turn starts afresh.
+   "dm aynı zamanda toplu seçim yapıp toplu olarak hareket ettirebilmeli": Seç → tap tokens (either side) → Taşı → hold
+   and drag anywhere: all of them move together by the same squares (free, no speed counted; also the DM's way to move
+   the current creature past its speed). */
+const spdOf = (c) => (c.speed ?? 30) * (c.dash ? 2 : 1);
+const leftOf = (c) => Math.max(0, spdOf(c) - (c.used || 0));
+// squares (top-left corner, for big creatures) reachable from (gx, gy) in at most n steps: key → steps
+function reach(c, gx, gy, n, wl) {
+  const W2 = new Set(wl), s = sz(c), dist = new Map(), start = gy * COLS + gx;
+  const ok = (x, y) => { if (x < 0 || y < 0 || x > COLS - s || y > ROWS - s) return false; for (let i = 0; i < s; i++) for (let j = 0; j < s; j++) if (W2.has((y + j) * COLS + x + i)) return false; return true; };
+  dist.set(start, 0); let q = [start];
+  for (let d = 0; d < n && q.length; d++) {
+    const nq = [];
+    for (const k of q) { const x = k % COLS, y = (k - x) / COLS; for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) { const X = x + i, Y = y + j, K = Y * COLS + X; if ((i || j) && !dist.has(K) && ok(X, Y)) { dist.set(K, d + 1); nq.push(K); } } }
+    q = nq;
+  }
+  return dist;
+}
+// the creature that walks now: DM: the current creature on the map (no other map mode on); player: their own, on their turn
+function mover() {
+  if (UI.wall || UI.align || UI.msel) return null;
+  if (W.on) { const P = W.P, c = P && meIn(P); return c && c.gx != null && P.cur === W.me && playerCanAct() && c.turn !== false ? c : null; }
+  const c = current(); return c && c.gx != null && takesTurn(c) ? c : null;
+}
+// the walk waiting for Onayla (UI.pend: id, from, to, cost in ft)
+function pendFor(c) { const p = UI.pend; return p && c && p.id === c.id ? p : null; }
+function reachHtml(c) {
+  if (!c) return '';
+  const p = pendFor(c), from = p ? p.from : [c.gx, c.gy], left = leftOf(c), d = reach(c, from[0], from[1], Math.floor(left / 5), mapWalls()), s = sz(c), cells = new Set();
+  d.forEach((_, k) => { const x = k % COLS, y = (k - x) / COLS; for (let i = 0; i < s; i++) for (let j = 0; j < s; j++) cells.add((y + j) * COLS + x + i); });
+  if (cells.size <= s * s) return '';
+  const path = [...cells].map((k) => `M${(k % COLS) * CELL} ${Math.floor(k / COLS) * CELL}h${CELL}v${CELL}h-${CELL}z`).join('');
+  return `<svg id="reach" width="${COLS * CELL}" height="${ROWS * CELL}" aria-hidden="true"><path d="${path}" fill="#6fd14a" fill-opacity=".15" stroke="#9fe07a" stroke-opacity=".45" stroke-width="1.5"/></svg>`;
+}
+const ftTxt = (n) => `${n} ft`;
+function moveBar() {
+  const c = UI.map ? mover() : null, bar = $('#movebar');
+  if (UI.pend && (!c || UI.pend.id !== c.id)) UI.pend = null;
+  bar.hidden = !c; document.body.classList.toggle('movebar', !!c); if (!c) return;
+  const p = pendFor(c);
+  $('#moveTxt').innerHTML = `<b>${esc(mapLabel(c))}</b> · hız ${ftTxt(spdOf(c))}${c.dash ? ' (Dash)' : ''} · kalan <b>${ftTxt(leftOf(c))}</b>${p ? ` · bu hareket <b>${ftTxt(p.cost)}</b>` : ' · yeşil karelere sürükle'}`;
+  bar.querySelector('[data-mdash]').setAttribute('aria-pressed', String(!!c.dash));
+  bar.querySelector('[data-mok]').hidden = bar.querySelector('[data-mno]').hidden = !p;
+}
+// a drop on the map by the walking creature: within reach → waiting for Onayla; else back with a note
+function turnDrop(c, to) {
+  const p = pendFor(c), from = p ? p.from : [c.gx, c.gy];
+  if (to[0] === from[0] && to[1] === from[1]) { UI.pend = null; return true; }
+  const d = reach(c, from[0], from[1], Math.floor(leftOf(c) / 5), mapWalls()).get(to[1] * COLS + to[0]);
+  if (d == null) { toast(onWall(mapWalls(), to[0], to[1], sz(c)) ? 'Orası engel' : `Hız yetmiyor: kalan ${leftOf(c)} ft`, true); return false; }
+  UI.pend = { id: c.id, from, to, cost: d * 5 }; return true;
+}
+function moveConfirm() {
+  const c = mover(), p = pendFor(c); if (!p) return;
+  UI.pend = null;
+  if (W.on) {
+    wsend({ t: 'move', id: c.id, gx: p.to[0], gy: p.to[1] });
+    forViews((P) => { const x = P.list.find((y) => y.id === c.id); if (x) { x.gx = p.to[0]; x.gy = p.to[1]; x.used = (x.used || 0) + p.cost; } });
+    render(); return;
+  }
+  snap(); [c.gx, c.gy] = p.to; c.used = (c.used || 0) + p.cost;
+  log(`<b>${esc(c.name)}</b> ${p.cost} ft yürüdü (kalan ${leftOf(c)} ft)`); render();
+}
+function moveDash() {
+  const c = mover(); if (!c) return;
+  if (W.on) { wsend({ t: 'dash' }); return; }
+  snap(); c.dash = !c.dash; log(`<b>${esc(c.name)}</b> ${c.dash ? 'Dash: hız bu tur iki katı' : 'Dash geri alındı'}`); render();
+}
+$('#movebar').onclick = (e) => {
+  if (e.target.closest('[data-mok]')) moveConfirm();
+  else if (e.target.closest('[data-mno]')) { UI.pend = null; renderMap(); }
+  else if (e.target.closest('[data-mdash]')) moveDash();
+};
+// group selection (DM only)
+function mselText() { const n = UI.msel?.size || 0; $('#mselTxt').innerHTML = UI.mmove ? `<b>${n} yaratık</b> · basılı tutup sürükle: hepsi birlikte taşınır` : `Pullara dokun: seç / bırak · <b>${n} seçili</b>`; $('#mselbar [data-smove]').setAttribute('aria-pressed', String(!!UI.mmove)); $('#mselbar [data-smove]').disabled = !n; }
+function setMsel(on) {
+  UI.msel = on && !W.on ? UI.msel || new Set() : null; UI.mmove = false; UI.pend = null;
+  if (UI.msel) { if (UI.wall) setWallMode(false); if (UI.align) alignMode(false); UI.measure = null; clearMeasure(); $('#zmeasure').setAttribute('aria-pressed', 'false'); UI.area = null; $('#apick').hidden = true; mselText(); }
+  $('#zsel').setAttribute('aria-pressed', String(!!UI.msel)); $('#mselbar').hidden = !UI.msel; document.body.classList.toggle('mselmode', !!UI.msel);
+  $('#dist').innerHTML = DIST_DEFAULT; UI.distArea = false; renderMap();
+}
+$('#zsel').onclick = () => setMsel(!UI.msel);
+$('#mselbar').onclick = (e) => {
+  if (e.target.closest('[data-sdone]')) setMsel(false);
+  else if (e.target.closest('[data-sclear]')) { UI.msel.clear(); UI.mmove = false; mselText(); renderMap(); }
+  else if (e.target.closest('[data-smove]') && UI.msel.size) { UI.mmove = !UI.mmove; mselText(); }
+};
 const DIST_DEFAULT = 'Pulu sürükle: hareket · <b>5 ft</b> = 1 kare';
 function renderMap() {
   if (W.on) return renderWatchMap();
@@ -1982,9 +2100,10 @@ function renderMap() {
   const inside = new Set(areas().flatMap((a) => inArea(a).map((c) => c.id)));
   const tt = tokTexts(S.list);
   boardBg(b); boardLayers(b); drawTerrain();
-  $('#layer').innerHTML = wallsHtml(walls()) + areas().map(areaHtml).join('') + S.list.map((c) => {
-    const pct = Math.max(0, Math.min(100, (c.hp / c.max) * 100)), lw = labelW(c, S.list), tx = tt.get(c.id);
-    return `<div class="tok ${c.side}${S.cur === c.id ? ' now' : ''}${!takesTurn(c) ? ' down' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${c.id}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${sz(c)};--lw:${lw};--tn:${tx.length}" role="button" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}, can ${c.hp}/${c.max}">
+  const mv = mover(); moveBar(); const pd = pendFor(mv);
+  $('#layer').innerHTML = wallsHtml(walls()) + reachHtml(mv) + areas().map(areaHtml).join('') + S.list.map((c) => {
+    const pct = Math.max(0, Math.min(100, (c.hp / c.max) * 100)), lw = labelW(c, S.list), tx = tt.get(c.id), at = pd && pd.id === c.id ? pd.to : [c.gx, c.gy];
+    return `<div class="tok ${c.side}${S.cur === c.id ? ' now' : ''}${!takesTurn(c) ? ' down' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}${pd && pd.id === c.id ? ' pend' : ''}${UI.msel?.has(c.id) ? ' msel' : ''}" data-tok="${c.id}" style="left:${at[0] * CELL}px;top:${at[1] * CELL}px;--sz:${sz(c)};--lw:${lw};--tn:${tx.length}" role="button" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}, can ${c.hp}/${c.max}">
       <i><span class="hpbar"><s style="width:${pct}%;background:${hpColor(c)}"></s></span>${esc(tx)}</i>${tokLabel(c, lw, S.list)}</div>`;
   }).join('');
   if (UI.measure?.b) { const a = byId(UI.measure.a), b = byId(UI.measure.b); if (a && b) drawMeasure(a, b); if (!UI.distArea) $('#dist').innerHTML = measureText(); }
@@ -2051,10 +2170,10 @@ function showArea(a) {
   applyView();
 }
 (() => {
-  const view = $('#mapView'); const pts = new Map(); let drag = null, pan = null, pinch = null, adrag = null, wpaint = null;
+  const view = $('#mapView'); const pts = new Map(); let drag = null, pan = null, pinch = null, adrag = null, wpaint = null, gdrag = null;
   // While a token or a template is held, the board is not rebuilt under the finger: the DM applies players' requests,
   // the player view the DM's new state, when the gesture ends.
-  const gestureEnd = () => { if (!UI.gesture || drag || adrag || wpaint) return; UI.gesture = false; flushGesture(); };
+  const gestureEnd = () => { if (!UI.gesture || drag || adrag || wpaint || gdrag) return; UI.gesture = false; flushGesture(); };
   // DM10: Engel. The first square touched decides: an empty one puts obstacles down along the finger's path, an obstacle
   // takes them off. Every square the finger crosses counts (a fast stroke leaves no gaps).
   // DM12: the brush covers UI.brush × UI.brush squares around the touched one; the tool is an obstacle, the eraser or a
@@ -2124,6 +2243,7 @@ function showArea(a) {
       if (drag) { drag.el.style.left = drag.from[0] * CELL + 'px'; drag.el.style.top = drag.from[1] * CELL + 'px'; drag.el.classList.remove('drag'); drag.ghost?.remove(); drag = null; }
       if (adrag) { Object.assign(adrag.a, adrag.orig); adrag = null; renderMap(); }
       // a stroke of obstacles turns into a pinch: the squares go back as they were
+      if (gdrag) { gdrag = null; renderMap(); }
       if (wpaint) { S.walls = wpaint.orig; S.ter = wpaint.origTer; wpaint = null; drawWalls(); drawTerrain(); $('#dist').innerHTML = DRAW_HINT(); }
       gestureEnd();
       const [p, q] = [...pts.values()]; pinch = { d: Math.hypot(p.x - q.x, p.y - q.y) }; pan = null; return;
@@ -2136,11 +2256,19 @@ function showArea(a) {
       UI.gesture = true; paintTo(k); return;
     }
     const tEl = e.target.closest('[data-tok]'), arEl = e.target.closest('[data-area]');
+    // DM14: group selection: a tap toggles a token; with Taşı on, any one-finger drag moves the selected ones together
+    if (UI.msel && !W.on) {
+      if (UI.mmove && UI.msel.size) {
+        const orig = new Map(); UI.msel.forEach((id) => { const x = byId(id); if (x && x.gx != null) orig.set(id, [x.gx, x.gy, sz(x)]); });
+        gdrag = { start: local(e), before: JSON.stringify(S), orig, d: [0, 0] }; UI.gesture = true; return;
+      }
+      pan = { start: local(e), x: V.x, y: V.y, tok: tEl?.dataset.tok || null, msel: true }; return;
+    }
     const c = tEl && (!W.on || (playerCanMove() && tEl.dataset.tok === W.me)) ? mapList().find((x) => x.id === tEl.dataset.tok) : null;
     // DM11: their own token outside their turn: a short note (the touch pans the map)
     if (W.on && tEl && !c && tEl.dataset.tok === W.me && playerCanAct() && Date.now() - (UI.turnNote || 0) > 3000) { UI.turnNote = Date.now(); toast('Sıran gelince pulunu oynatabilirsin'); }
     const ar = arEl ? mapAreas().find((x) => x.id === arEl.dataset.area) : null;
-    if (c && c.gx != null) { drag = { c, el: tEl, from: [c.gx, c.gy], start: local(e), moved: false, to: null }; UI.gesture = true; }
+    if (c && c.gx != null) { const pd = pendFor(c); drag = { c, el: tEl, from: pd ? [...pd.to] : [c.gx, c.gy], start: local(e), moved: false, to: null }; UI.gesture = true; }
     else if (ar && canEditArea(ar)) {
       // Touching a template selects it; its body moves it, a handle resizes it. Never pans the map.
       adrag = { a: ar, orig: { ...ar }, before: W.on ? '' : JSON.stringify(S), h: e.target.closest('[data-h]')?.dataset.h || null, start: local(e), moved: false };
@@ -2159,6 +2287,15 @@ function showArea(a) {
       pinch.d = d; pinch.m = [mx, my]; return;
     }
     if (wpaint) { const k = cellAt(p); if (k[0] !== wpaint.last[0] || k[1] !== wpaint.last[1]) paintTo(k); return; }
+    if (gdrag) {
+      let dx = Math.round((p.x - gdrag.start.x) / (CELL * V.z)), dy = Math.round((p.y - gdrag.start.y) / (CELL * V.z));
+      // the whole group stays on the board
+      gdrag.orig.forEach(([x, y, s]) => { dx = Math.max(-x, Math.min(COLS - s - x, dx)); dy = Math.max(-y, Math.min(ROWS - s - y, dy)); });
+      gdrag.d = [dx, dy];
+      gdrag.orig.forEach(([x, y], id) => { const el = $(`[data-tok="${id}"]`); if (el) { el.style.left = (x + dx) * CELL + 'px'; el.style.top = (y + dy) * CELL + 'px'; } });
+      $('#dist').innerHTML = `${gdrag.orig.size} yaratık birlikte: <b>${Math.max(Math.abs(dx), Math.abs(dy)) * 5} ft</b>`;
+      return;
+    }
     if (adrag) {
       if (!adrag.moved && Math.hypot(p.x - adrag.start.x, p.y - adrag.start.y) < 6) return;
       adrag.moved = true; areaMove(p); return;
@@ -2182,6 +2319,14 @@ function showArea(a) {
     // Lifting one finger after a pinch: the remaining finger keeps panning.
     if (pinch && pts.size === 1) { const p = [...pts.values()][0]; pan = { start: p, x: V.x, y: V.y, moved: true }; }
     if (pts.size < 2) pinch = null;
+    if (gdrag && !pts.size) {
+      const g = gdrag; gdrag = null; const [dx, dy] = g.d;
+      if (dx || dy) {
+        pushHist(g.before); g.orig.forEach(([x, y], id) => { const c = byId(id); if (c) { c.gx = x + dx; c.gy = y + dy; } });
+        log(`Toplu taşıma: ${g.orig.size} yaratık ${Math.max(Math.abs(dx), Math.abs(dy)) * 5} ft (${[...g.orig.keys()].map((id) => esc(byId(id)?.name || '')).join(', ')})`); render();
+      } else renderMap();
+      $('#dist').innerHTML = DIST_DEFAULT;
+    }
     if (wpaint) {
       const w = wpaint; wpaint = null;
       if (w.n) {
@@ -2203,6 +2348,7 @@ function showArea(a) {
     }
     // A tap on the empty board puts the selected template down (handles and × hide).
     if (pan && !pan.moved && e.type === 'pointerup' && UI.area) { UI.area = null; renderMap(); }
+    if (pan && !pan.moved && e.type === 'pointerup' && pan.msel && pan.tok && UI.msel) { if (UI.msel.has(pan.tok)) UI.msel.delete(pan.tok); else UI.msel.add(pan.tok); mselText(); renderMap(); }
     // a tap on someone else's token while measuring (the player view: tokens the player may not move)
     if (pan && !pan.moved && e.type === 'pointerup' && UI.measure && pan.tok) { const c = mapList().find((x) => x.id === pan.tok); if (c) measureTap(c); }
     if (drag) {
@@ -2213,8 +2359,12 @@ function showArea(a) {
       else if (W.on) {
         // a player's own token: the DM decides (the token shows the new square until the DM's answer); never onto an
         // obstacle square (DM10; the DM checks it too)
-        if (went && onWall(mapWalls(), drag.to[0], drag.to[1], sz(drag.c))) { back(); toast('Orası engel: başka kareye koy', true); renderWatchMap(); }
+        if (went && mover()?.id === drag.c.id) { if (!turnDrop(drag.c, drag.to)) back(); renderWatchMap(); }
+        else if (went && onWall(mapWalls(), drag.to[0], drag.to[1], sz(drag.c))) { back(); toast('Orası engel: başka kareye koy', true); renderWatchMap(); }
         else if (went) playerMove(drag.c, drag.to); else back();
+      } else if (went && mover()?.id === drag.c.id) {
+        // DM14: the creature whose turn it is walks within its speed and waits for Onayla
+        if (!turnDrop(drag.c, drag.to)) back(); renderMap();
       } else if (went) {
         snap(); const sq = Math.max(Math.abs(drag.to[0] - drag.from[0]), Math.abs(drag.to[1] - drag.from[1]));
         [drag.c.gx, drag.c.gy] = drag.to; log(`<b>${esc(drag.c.name)}</b> ${sq * 5} ft hareket etti`); render();
@@ -2375,7 +2525,7 @@ function cleanCard(o) {
   const name = clip(o.name); if (!name) return null;
   const f = hpFormula(clip(o.hpf, 20));
   return { id: cleanId(o.id) || recId('k'), name, sub: clip(o.sub), ac: inRange(o.ac, 12, 0, 40), max: inRange(o.max, f?.avg ?? 10, 1, 9999), hpf: f ? f.text : '',
-    mod: inRange(o.mod, 0, -10, 20), ini: fixedIni(o.ini), size: inRange(o.size, 1, 1, 4), la: inRange(o.la, 0, 0, 9) || null, lr: inRange(o.lr, 0, 0, 9) || null, note: clip(o.note, 200) };
+    mod: inRange(o.mod, 0, -10, 20), ini: fixedIni(o.ini), speed: okSpeed(o.speed), size: inRange(o.size, 1, 1, 4), la: inRange(o.la, 0, 0, 9) || null, lr: inRange(o.lr, 0, 0, 9) || null, note: clip(o.note, 200) };
 }
 function cleanFight(o, ids) {
   if (!o || typeof o !== 'object') return null;
@@ -2468,7 +2618,7 @@ function addFromCards(items) {
   const said = [];
   for (const { card, n } of capItems(items)) {
     const k = cardById(card); if (!k || n < 1) continue;
-    const vals = { name: k.name, sub: k.sub, init: k.ini ?? 10 + k.mod, fixIni: k.ini != null, mod: k.mod, ac: k.ac, max: k.max, size: k.size, note: k.note, card: k.id, la: k.la ? [k.la, k.la] : null, lr: k.lr ? [k.lr, k.lr] : null };
+    const vals = { name: k.name, sub: k.sub, init: k.ini ?? 10 + k.mod, fixIni: k.ini != null, mod: k.mod, ac: k.ac, speed: k.speed ?? 30, max: k.max, size: k.size, note: k.note, card: k.id, la: k.la ? [k.la, k.la] : null, lr: k.lr ? [k.lr, k.lr] : null };
     const f = LB.roll && hpFormula(k.hpf);
     addCopies('foe', vals, n, () => { if (!f) return {}; const hp = rollHp(f); return { hp, max: hp }; });
     said.push(`${n} × ${cardLabel(k)}`);
@@ -2499,7 +2649,8 @@ function cardSheet(k, after) {
   openSheet(`<h3>${k ? esc(cardLabel(k)) : 'Yeni yaratık kartı'}</h3><p class="sub">Savaşta “+ Düşman ekle” ile istediğin kadar eklenir. Can formülü yazarsan her kopya ister ortalamayı alır, ister kendi canını zarla.</p>
     ${sec('Kimlik', SEC.id, `<label${lab(HUE.name, true)}>Ad<input id="k-name" value="${esc(c.name)}" placeholder="ör. Haydut"></label>
       <label${lab(HUE.sub, true)}>Alt yazı<input id="k-sub" value="${esc(c.sub)}" placeholder="ör. okçu, brawler, lider"></label>`)}
-    ${sec('Savaş', SEC.fight, `<label${lab(HUE.ac, true)}>AC<input id="k-ac" inputmode="numeric" value="${c.ac}"></label>
+    ${sec('Savaş', SEC.fight, `<label${lab(HUE.ac)}>AC<input id="k-ac" inputmode="numeric" value="${c.ac}"></label>
+      <label${lab(HUE.spd)}>Hız (ft)<input id="k-spd" inputmode="numeric" value="${c.speed ?? 30}"></label>
       ${numField('k-mod', 'İnisiyatif bonusu', c.mod, false, HUE.ini)}
       ${numField('k-ini', 'Sabit inisiyatif', c.ini ?? '', false, HUE.ini)}
       <p class="wide hint inih" id="k-inih"></p>`)}
@@ -2554,7 +2705,7 @@ function cardSheet(k, after) {
     const name = $('#k-name').value.trim(); if (!name) { toast('Bir ad yaz'); $('#k-name').focus(); return; }
     const fi = $('#k-ini').value.trim(); if (fi && toInt(fi, null) == null) { toast('Sabit inisiyatif bir sayı olmalı (ya da boş)', true); $('#k-ini').focus(); return; }
     const t = $('#k-hpf').value.trim(); if (t && !hpFormula(t)) { toast('Can formülü: ör. 2d8+2 ya da 3d6', true); $('#k-hpf').focus(); return; }
-    const o = cleanCard({ id: k?.id || recId('k'), name, sub: $('#k-sub').value, ac: $('#k-ac').value, max: $('#k-max').value || hpFormula(t)?.avg, hpf: t, mod: $('#k-mod').value, ini: $('#k-ini').value,
+    const o = cleanCard({ id: k?.id || recId('k'), name, sub: $('#k-sub').value, ac: $('#k-ac').value, max: $('#k-max').value || hpFormula(t)?.avg, hpf: t, mod: $('#k-mod').value, ini: $('#k-ini').value, speed: $('#k-spd').value,
       size: $('#k-size [aria-pressed="true"]')?.dataset.sz, la: $('#k-la').value, lr: $('#k-lr').value, note: $('#k-note').value });
     if (k) Object.assign(k, o); else LB.cards.push(o);
     if (!libSave()) return;
@@ -2567,7 +2718,7 @@ function cardFromForm(c) {
   const name = $('#f-name').value.trim().replace(/\s+\d+$/, ''); if (!name) { toast('Bir ad yaz'); $('#f-name').focus(); return; }
   const sub = $('#f-sub').value.trim();
   const old = LB.cards.find((k) => k.name === name && k.sub === sub);
-  const o = cleanCard({ id: old?.id || recId('k'), name, sub, ac: $('#f-ac').value, max: $('#f-max').value, hpf: old?.hpf, ini: old?.ini, mod: $('#f-mod').value,
+  const o = cleanCard({ id: old?.id || recId('k'), name, sub, ac: $('#f-ac').value, speed: $('#f-spd').value, max: $('#f-max').value, hpf: old?.hpf, ini: old?.ini, mod: $('#f-mod').value,
     size: $('#f-size [aria-pressed="true"]')?.dataset.sz, la: $('#f-la').value, lr: $('#f-lr').value, note: $('#f-note').value });
   if (old) Object.assign(old, o); else LB.cards.push(o);
   if (!libSave()) return;
@@ -2701,7 +2852,8 @@ function cleanCombatant(o, side) {
   const conc = o.conc === true, rnd = (v) => (v == null ? null : inRange(v, 1, 1, 9999));
   const c = { ...blank(side), id: cleanId(o.id) || newId(side), name, sub: clip(o.sub), init: inRange(o.init, 10, -20, 99), mod: inRange(o.mod, 0, -10, 20), ac: inRange(o.ac, 12, 0, 40),
     max, hp: inRange(o.hp, max, 0, max), tmp: inRange(o.tmp, 0, 0, 999), conds, conc, concOn: conc ? clip(o.concOn) : '', ds: [inRange(o.ds?.[0], 0, 0, 3), inRange(o.ds?.[1], 0, 0, 3)],
-    stable: o.stable === true, react: o.react === true, la: pair(o.la), lr: pair(o.lr), note: clip(o.note, 200), size, ...pos2(o, size), turnRound: rnd(o.turnRound), endRound: rnd(o.endRound) };
+    stable: o.stable === true, react: o.react === true, la: pair(o.la), lr: pair(o.lr), note: clip(o.note, 200), size, ...pos2(o, size), turnRound: rnd(o.turnRound), endRound: rnd(o.endRound),
+    speed: okSpeed(o.speed, SPEED_DEFAULT[name] ?? 30), used: inRange(o.used, 0, 0, 400), dash: o.dash === true };
   if (side === 'ally') { const pp = toInt(o.pp, null); c.pp = pp == null ? null : Math.max(0, Math.min(50, pp)); }
   else { c.card = cleanId(o.card) || null; c.fixIni = o.fixIni === true; }
   return c;
@@ -2849,7 +3001,7 @@ function publicState() {
     v: 1, round: S.round, cur: S.cur,
     list: order().map((c) => {
       const o = { id: c.id, side: c.side, name: c.name, size: sz(c), gx: c.gx, gy: c.gy, turn: takesTurn(c), conds: c.conds.map((x) => ({ k: x.k, r: x.r, w: condWhen(c, x).replace(/^ · /, '') })), conc: !!c.conc };
-      if (c.side === 'ally') Object.assign(o, { hp: c.hp, max: c.max, tmp: c.tmp, concOn: c.concOn || '', ds: [...c.ds], stable: !!c.stable, dead: isDead(c) });
+      if (c.side === 'ally') Object.assign(o, { hp: c.hp, max: c.max, tmp: c.tmp, concOn: c.concOn || '', ds: [...c.ds], stable: !!c.stable, dead: isDead(c), speed: c.speed ?? 30, used: c.used || 0, dash: !!c.dash });
       else Object.assign(o, { sub: c.sub || '', st: isDead(c) ? 'dead' : isDown(c) ? 'down' : c.hp <= c.max / 2 ? 'bloodied' : '' });
       return o;
     }),
@@ -2869,7 +3021,7 @@ function cleanState(s) {
   const list = s.list.slice(0, 60).map((c) => {
     const o = { id: id(c.id), side: c.side === 'ally' ? 'ally' : 'foe', name: str(c.name), size: Math.max(1, Math.min(4, n(c.size, 1))), gx: c.gx == null ? null : n(c.gx), gy: c.gy == null ? null : n(c.gy), turn: c.turn !== false,
       conds: (Array.isArray(c.conds) ? c.conds : []).slice(0, 20).map((x) => ({ k: str(x?.k), r: x?.r == null ? null : n(x.r), w: str(x?.w) })), conc: !!c.conc };
-    if (o.side === 'ally') Object.assign(o, { hp: n(c.hp), max: Math.max(1, n(c.max, 1)), tmp: n(c.tmp), concOn: str(c.concOn), ds: [n(c.ds?.[0]), n(c.ds?.[1])], stable: !!c.stable, dead: !!c.dead });
+    if (o.side === 'ally') Object.assign(o, { hp: n(c.hp), max: Math.max(1, n(c.max, 1)), tmp: n(c.tmp), concOn: str(c.concOn), ds: [n(c.ds?.[0]), n(c.ds?.[1])], stable: !!c.stable, dead: !!c.dead, speed: Math.max(0, Math.min(400, n(c.speed, 30))), used: Math.max(0, Math.min(800, n(c.used))), dash: !!c.dash });
     else Object.assign(o, { sub: str(c.sub), st: ['down', 'dead', 'bloodied'].includes(c.st) ? c.st : '' });
     return o;
   });
@@ -3075,10 +3227,11 @@ function liveApply(conn, me, m) {
     imgGet(m.id).then(async (b) => { if (b instanceof Blob) tell(conn, { t: 'imgdata', id: m.id, type: b.type, data: await b.arrayBuffer() }); });
     return;
   }
-  if (m.t !== 'move' && m.t !== 'area') return;
+  if (m.t !== 'move' && m.t !== 'area' && m.t !== 'dash') return;
   const c = me.char ? byId(me.char) : null;
   if (!LV.act) return no('DM oyuncuların hareketini şu an kapattı');
   if (!c || c.side !== 'ally') return no('Önce kim olduğunu seç');
+  if (m.t === 'dash') { if (S.cur !== c.id) return no('Dash yalnız kendi sıranda'); playerStep(c, 'dash', () => { c.dash = !c.dash; return `<b>${esc(c.name)}</b> ${c.dash ? 'Dash: hız bu tur iki katı' : 'Dash geri alındı'}`; }); return; }
   if (m.t === 'move') {
     if (m.id !== c.id) return no('Yalnız kendi pulunu oynatabilirsin');
     if (LV.turn && S.cur !== c.id) return no('Sıran gelince pulunu oynatabilirsin');
@@ -3086,6 +3239,12 @@ function liveApply(conn, me, m) {
     const s = sz(c); if (m.gx < 0 || m.gy < 0 || m.gx > COLS - s || m.gy > ROWS - s) return no('Harita dışında');
     if (onWall(walls(), m.gx, m.gy, s)) return no('Orası engel');
     if (c.gx === m.gx && c.gy === m.gy) return;
+    // DM14: on their own turn the walk is counted from their speed and must be within reach
+    if (S.cur === c.id) {
+      const steps = reach(c, c.gx, c.gy, Math.floor(leftOf(c) / 5), walls()).get(m.gy * COLS + m.gx);
+      if (steps == null) return no(`Hızın yetmiyor: kalan ${leftOf(c)} ft`);
+      playerStep(c, 'wk', () => { c.gx = m.gx; c.gy = m.gy; c.used = (c.used || 0) + steps * 5; return `<b>${esc(c.name)}</b> ${steps * 5} ft yürüdü (kalan ${leftOf(c)} ft)`; }); return;
+    }
     playerStep(c, 'mv', (ctx, same) => {
       if (!same) ctx.from = [c.gx, c.gy];
       const f = ctx.from, sq = f[0] == null ? 0 : Math.max(Math.abs(m.gx - f[0]), Math.abs(m.gy - f[1]));
@@ -3515,12 +3674,12 @@ function renderWatchMap() {
   const sel = P && UI.area ? P.areas.find((a) => a.id === UI.area) : null;
   $('#mapView').classList.toggle('asel', !!sel);
   const inside = new Set(P ? P.areas.flatMap((a) => inArea(a).map((c) => c.id)) : []);
-  const on = P ? P.list.filter((c) => c.gx != null) : [], tt = tokTexts(on);
+  const on = P ? P.list.filter((c) => c.gx != null) : [], tt = tokTexts(on), mv = P ? mover() : null; moveBar(); const pd = pendFor(mv);
   boardBg(b); boardLayers(b); drawTerrain();
-  $('#layer').innerHTML = !P ? '' : wallsHtml(P.walls) + P.areas.map(areaHtml).join('') + on.map((c) => {
-    const lw = labelW(c, P.list), tx = tt.get(c.id);
+  $('#layer').innerHTML = !P ? '' : wallsHtml(P.walls) + reachHtml(mv) + P.areas.map(areaHtml).join('') + on.map((c) => {
+    const lw = labelW(c, P.list), tx = tt.get(c.id), at = pd && pd.id === c.id ? pd.to : [c.gx, c.gy];
     const bar = c.side === 'ally' ? `<span class="hpbar"><s style="width:${Math.max(0, Math.min(100, c.hp / c.max * 100))}%;background:${hpColor(c)}"></s></span>` : '';
-    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}" data-tok="${esc(c.id)}" style="left:${c.gx * CELL}px;top:${c.gy * CELL}px;--sz:${c.size};--lw:${lw};--tn:${tx.length}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i>${bar}${esc(tx)}</i>${tokLabel(c, lw, P.list)}</div>`;
+    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}${pd && pd.id === c.id ? ' pend' : ''}" data-tok="${esc(c.id)}" style="left:${at[0] * CELL}px;top:${at[1] * CELL}px;--sz:${c.size};--lw:${lw};--tn:${tx.length}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i>${bar}${esc(tx)}</i>${tokLabel(c, lw, P.list)}</div>`;
   }).join('');
   if (P && UI.measure?.b) { const x = on.find((c) => c.id === UI.measure.a), y = on.find((c) => c.id === UI.measure.b); if (x && y) drawMeasure(x, y); }
   $('#dist').innerHTML = sel ? areaInfo(sel) : UI.measure ? measureText() : W.conn?.open ? (act ? (myTurn() ? '<b>Canlı</b> · kendi pulunu sürükle: hareket' : '<b>Canlı</b> · pulunu sıran gelince oynatırsın') : meIn(P) && !P.pl.on ? '<b>Canlı</b> · DM hareketi şu an kapattı' : '<b>Canlı</b> · yalnız izleme') : esc(W.msg || 'Bağlanıyor…');
