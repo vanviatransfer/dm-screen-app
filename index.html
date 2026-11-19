@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '909bd9f4a8'; window.__BUILT__ = '2026-11-20 01:36';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '6f4c50ad60'; window.__BUILT__ = '2026-11-20 01:56';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -99,8 +99,9 @@ main{padding-block:4px calc(140px + env(safe-area-inset-bottom,0px))}
   background:var(--surface);clip-path:polygon(50% 0,100% 14%,100% 62%,50% 100%,0 62%,0 14%)}
 .ac small{font-family:var(--body);font-size:.58rem;letter-spacing:.08em;color:var(--muted);line-height:1}
 /* DM14: speed beside AC */
-.spd{flex:0 0 auto;width:40px;height:52px;display:grid;place-items:center;align-content:center;font-family:var(--display);font-weight:700;font-size:1.1rem;color:#b9dca2;background:var(--surface);border-radius:12px}
-.spd small{font-family:var(--body);font-size:.58rem;color:var(--c-sub);line-height:1}
+/* (DM15: under AC, so a card with a picture still fits on a phone) */
+.acs{flex:0 0 auto;display:grid;justify-items:center;gap:2px}
+.spd{width:46px;min-height:18px;padding:0;font-size:.7rem;font-weight:700;color:#b9dca2;background:var(--surface);border-radius:8px;line-height:18px;white-space:nowrap}
 .hp{display:grid;gap:4px;text-align:left;width:100%}
 .hp .nums{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
 .hp .cur{font-family:var(--display);font-weight:700;font-size:1.6rem;font-variant-numeric:tabular-nums;line-height:1}
@@ -225,7 +226,19 @@ nav.tabs button[aria-current="page"]{color:var(--acc)}
 .tok b.lt{bottom:calc(var(--cell) * .14);transform:translate(-50%,0);font-size:calc(var(--cell) * .17);line-height:1.1}
 .tok .hpbar{position:absolute;left:12%;right:12%;top:-1px;height:4px;border-radius:2px;background:rgba(0,0,0,.6);overflow:hidden}
 .tok .hpbar s{display:block;height:100%;text-decoration:none}
-.tok.drag{cursor:grabbing;z-index:3}
+.tok.drag{cursor:grabbing;z-index:5}
+/* DM15 (owner: "Turu gelen oyuncu her zaman en üstte olsun ki kendini oynatabilsin"): two creatures on one square: the one
+   whose turn it is lies on top (and in a player's view their own token above it), so it can be taken and moved */
+.tok.now,.tok.pend{z-index:3}
+body.watch .tok.me{z-index:4}
+/* DM15: pictures: the token's circle shows the creature's picture, its border still says the side */
+.tok i.pic{background-size:cover;background-position:center;color:transparent;text-shadow:none}
+.cav{flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:#211a14 center/cover no-repeat;border:2px solid;align-self:center}
+.card.ally .cav{border-color:var(--ally)} .card.foe .cav{border-color:var(--foe)}
+.picrow{display:flex;gap:8px;align-items:center}
+.picv{width:64px;height:64px;border-radius:50%;background:#211a14 center/cover no-repeat;border:2px solid var(--ctl);flex:none}
+.pill.dash{border-color:#7fc96a;color:#bfe8a8}
+.pill.dash.on{background:#3c6a2e;color:#eaffdf;border-color:#9fe07a}
 .tok.drag i{transform:scale(1.12)}
 .ghost{position:absolute;width:var(--cell);height:var(--cell);border:2px dashed var(--acc);border-radius:50%;opacity:.6;pointer-events:none}
 .zoom{position:absolute;right:12px;top:12px;display:grid;gap:6px;z-index:4}
@@ -299,6 +312,14 @@ body.mselmode #mapView{cursor:pointer}
 .mapcredit{position:absolute;right:68px;bottom:4px;z-index:3;font-size:.62rem;color:var(--muted);background:rgba(0,0,0,.55);border-radius:6px;padding:1px 6px;max-width:calc(100% - 90px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 #board.nogrid #grid{display:none}
 .imgbar .drow{gap:4px}
+/* DM16: the map picture's frame while aligning: like a template (dashed, handles, a turning ring) */
+.imgsel{position:absolute;z-index:6;border:3px dashed var(--acc);background:color-mix(in srgb,var(--acc) 6%,transparent);transform-origin:50% 50%;cursor:move;touch-action:none;box-sizing:border-box}
+.imgsel .ih{position:absolute;pointer-events:auto}
+.imgsel .ih::after{background:var(--acc)}
+.imgsel .ih[data-ih="nw"],.imgsel .ih[data-ih="se"]{cursor:nwse-resize} .imgsel .ih[data-ih="ne"],.imgsel .ih[data-ih="sw"]{cursor:nesw-resize}
+.imgsel .irot{cursor:grab}
+.imgsel .irot::after{width:min(52%,calc(var(--cell) * .5));height:min(52%,calc(var(--cell) * .5));background:var(--bg);border:3px solid var(--acc)}
+.imgsel .ilab{position:absolute;left:50%;top:8px;transform:translateX(-50%) scale(var(--hz,1));transform-origin:50% 0;background:rgba(0,0,0,.7);color:var(--acc);font-weight:700;font-size:14px;padding:1px 8px;border-radius:6px;white-space:nowrap;pointer-events:none}
 .imgbar .drow small{font-size:.72rem;color:var(--muted)}
 .imgbar .drow > button:not(.btn){min-width:38px;min-height:38px;border:1px solid var(--ctl);border-radius:8px;background:var(--bg);font-weight:700}
 .imgbar #imgw{font-family:var(--display);font-size:1.1rem;min-width:34px;text-align:center;color:var(--acc)}
@@ -588,8 +609,6 @@ body.watch .sess{display:none!important}
   </div>
   <div class="abar" id="abar" hidden><button class="btn sm pri" data-agrp>Bunlara toplu hasar</button></div>
   <div class="drawbar imgbar" id="imgbar" hidden role="group" aria-label="Resmi ızgaraya hizala">
-    <div class="drow"><small>Genişlik</small><button data-dw="-1">−1</button><button data-dw="-0.1">−0,1</button><b id="imgw">40</b><small>kare</small><button data-dw="0.1">+0,1</button><button data-dw="1">+1</button></div>
-    <div class="drow"><small>Kaydır</small><button data-dx="-0.1" aria-label="Sola">←</button><button data-dy="-0.1" aria-label="Yukarı">↑</button><button data-dy="0.1" aria-label="Aşağı">↓</button><button data-dx="0.1" aria-label="Sağa">→</button><button data-dx="-1" aria-label="Bir kare sola">⇐</button><button data-dx="1" aria-label="Bir kare sağa">⇒</button><button data-dy="-1" aria-label="Bir kare yukarı">⇑</button><button data-dy="1" aria-label="Bir kare aşağı">⇓</button></div>
     <div class="drow"><button class="btn sm" id="imggrid" aria-pressed="true">Izgara</button><button class="btn sm" data-irm="1">Resmi kaldır</button><button class="btn sm pri" data-idone="1">Bitti</button></div>
   </div>
   <div class="mapcredit" id="mapcredit" hidden></div>
@@ -631,13 +650,18 @@ const CONDS = ['Blinded','Charmed','Deafened','Frightened','Grappled','Incapacit
 const blank = (side) => ({ side, name: '', sub: '', init: 10, mod: 0, ac: 12, hp: 10, max: 10, tmp: 0, conds: [], conc: false, concOn: '', ds: [0, 0], react: false, la: null, lr: null, note: '', speed: 30 });
 // DM14 (owner 2026-11-19: "mathias in hizi 30 ft / jimmy nin hızı 30 ft / berathast in hizi 35 ft olarak ayarla default")
 const SPEED_DEFAULT = { Mathias: 30, Jimmy: 30, Berathast: 35 };
+// DM15 (owner 2026-11-19: "oyunculara repodaki kendi resimlerini ekle Mathias için mathias html uygulamasındaki portreyi
+// ekle diğerleri için de aynı"): the character apps' own face pictures (<char>/app/avatar.webp), built into the page.
+const PORTRAITS = {"mathias": "data:image/webp;base64,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", "berathast": "data:image/webp;base64,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", "jimmy": "data:image/webp;base64,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"};
+const PIC_DEFAULT = { Mathias: 'b:mathias', Berathast: 'b:berathast', Jimmy: 'b:jimmy' };
+const okPic = (v) => (typeof v === 'string' && ((v.startsWith('b:') && !!PORTRAITS[v.slice(2)]) || /^u:[a-f0-9]{24}$/.test(v)) ? v : '');
 const okSpeed = (v, d = 30) => { const n = toInt(v, d); return Math.max(0, Math.min(200, Math.round(n / 5) * 5)); };
 const sample = () => ({
   v: 2, round: 1, cur: 'p1', curInit: 21, log: [],
   list: [
-    { ...blank('ally'), id: 'p1', name: 'Berathast', sub: 'Ranger / Rogue', init: 21, mod: 8, ac: 20, hp: 72, max: 72, pp: 21, speed: 35 },
-    { ...blank('ally'), id: 'p2', name: 'Mathias', sub: 'Druid / Monk', init: 14, mod: 3, ac: 18, hp: 61, max: 88, pp: 19, conc: true, concOn: 'Conjure Animals' },
-    { ...blank('ally'), id: 'p3', name: 'Jimmy', sub: 'Paladin', init: 9, mod: 0, ac: 19, hp: 103, max: 103, tmp: 5, pp: 12 },
+    { ...blank('ally'), id: 'p1', name: 'Berathast', sub: 'Ranger / Rogue', init: 21, mod: 8, ac: 20, hp: 72, max: 72, pp: 21, speed: 35, pic: 'b:berathast' },
+    { ...blank('ally'), id: 'p2', name: 'Mathias', sub: 'Druid / Monk', init: 14, mod: 3, ac: 18, hp: 61, max: 88, pp: 19, conc: true, concOn: 'Conjure Animals', pic: 'b:mathias' },
+    { ...blank('ally'), id: 'p3', name: 'Jimmy', sub: 'Paladin', init: 9, mod: 0, ac: 19, hp: 103, max: 103, tmp: 5, pp: 12, pic: 'b:jimmy' },
     { ...blank('foe'), id: 'e1', name: 'Hobgoblin Captain', sub: 'Lider', init: 17, mod: 2, ac: 17, hp: 31, max: 39, conds: [{ k: 'Frightened', r: 1 }], lr: [1, 1], la: [2, 2], note: 'Leadership: bir kez' },
     { ...blank('foe'), id: 'e2', name: 'Hobgoblin 1', init: 12, mod: 1, ac: 18, hp: 4, max: 11, conds: [{ k: 'Prone', r: null }] },
     { ...blank('foe'), id: 'e3', name: 'Hobgoblin 2', init: 12, mod: 1, ac: 18, hp: 0, max: 11 },
@@ -647,7 +671,7 @@ const sample = () => ({
 let S; try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch { S = sample(); }
 if (!S || S.v !== 2 || !Array.isArray(S.list)) S = sample();
 // DM14: a fight saved before speeds: our side by name (Berathast 35 ft), everyone else 30 ft
-S.list.forEach((c) => { if (!Number.isFinite(c.speed)) c.speed = SPEED_DEFAULT[c.name] ?? 30; if (!Number.isFinite(c.used)) c.used = 0; });
+S.list.forEach((c) => { if (!Number.isFinite(c.speed)) c.speed = SPEED_DEFAULT[c.name] ?? 30; if (!Number.isFinite(c.used)) c.used = 0; if (c.pic === undefined) c.pic = c.side === 'ally' ? PIC_DEFAULT[c.name] || '' : ''; });
 const UI = { multi: false, sel: new Set(), map: false, measure: null, area: null, gesture: false, wall: false, tool: 'wall', brush: 1 };
 const history = [];
 // DM3b: who made each undo step, kept in step with `history`: null = the DM, an object = a player's run (playerStep).
@@ -895,6 +919,8 @@ function card(c, pos) {
     dying && c.stable ? `<button class="pill stable" data-act="ds">Stabil</button>` : '',
     dying && !c.stable ? `<button class="pill ds" data-act="ds" title="Dokun: başarılı / başarısız ekle">Death save <span class="dots">${dots(3, c.ds[0], 's')}</span><span class="dots">${dots(3, c.ds[1], 'f')}</span></button>` : '',
     !isDown(c) && !isDead(c) ? `<button class="pill${c.react ? ' used' : ''}" data-act="react" title="Dokun: kullanıldı / hazır">Reaction</button>` : '',
+    // DM15 (owner: "karaktere sıra gelince dash seçeneği olsun yürüme hızını ikiye katlasin"): on its turn, beside the map's
+    now && takesTurn(c) ? `<button class="pill dash${c.dash ? ' on' : ''}" data-act="dash" aria-pressed="${!!c.dash}" title="Dokun: Dash (bu tur hız iki katı)">Dash · hız ${spdOf(c)} ft · kalan ${leftOf(c)} ft</button>` : '',
     c.la ? `<button class="pill" data-act="la" title="Dokun: bir Legendary Action harca">Legendary Action <span class="dots">${dots(c.la[1], c.la[0])}</span></button>` : '',
     c.lr ? `<button class="pill" data-act="lr" title="Dokun: bir Legendary Resistance harca">Legendary Resistance <span class="dots">${dots(c.lr[1], c.lr[0])}</span></button>` : '',
   ].join('');
@@ -903,9 +929,9 @@ function card(c, pos) {
     ${UI.multi ? '<span class="selmark">✓</span>' : ''}
     <div class="csec s-top top" data-act="edit">
       <button class="ini" data-act="edit" aria-label="İnisiyatif ${c.init}, sırada ${pos}.">${c.init}<small>#${pos}</small></button>
-      <button class="name" data-act="edit"><b>${esc(c.name)}</b><span>${esc(c.sub || (c.side === 'foe' ? 'Düşman' : 'Oyuncu'))}${state}</span></button>
-      <button class="ac" data-act="edit" aria-label="AC ${c.ac}">${c.ac}<small>AC</small></button>
-      <button class="spd" data-act="edit" aria-label="Hız ${c.speed ?? 30} ft">${c.speed ?? 30}<small>ft</small></button>
+      ${picOf(c) ? `<span class="cav"${picAttr(c, render).replace(' class="pic"', '')}></span>` : ''}<button class="name" data-act="edit"><b>${esc(c.name)}</b><span>${esc(c.sub || (c.side === 'foe' ? 'Düşman' : 'Oyuncu'))}${state}</span></button>
+      <span class="acs"><button class="ac" data-act="edit" aria-label="AC ${c.ac}">${c.ac}<small>AC</small></button>
+      <button class="spd" data-act="edit" aria-label="Hız ${c.speed ?? 30} ft">${c.speed ?? 30} ft</button></span>
     </div>
     <div class="csec s-hp" data-act="hp">
     <button class="hp" data-act="hp" aria-label="Can ${c.hp} / ${c.max}">
@@ -1146,12 +1172,15 @@ function editSheet(c, isNew) {
     ${sec(c.side === 'ally' ? 'Algı / Boyut' : 'Adet / Boyut', SEC.sense, `${c.side === 'ally' ? `<label${lab(HUE.pp, true)}>Passive Perception<input id="f-pp" inputmode="numeric" value="${c.pp ?? ''}"></label>` : `<label${lab(HUE.count, true)}>Adet${isNew ? '' : ' (kopya ekle)'}<input id="f-n" inputmode="numeric" value="${isNew ? 1 : 0}"></label>`}
       <div class="wide lh" style="--h:${HUE.size}"><span class="szl">Boyut (haritada)</span>
         <div class="szseg" id="f-size">${[[1, 'Small / Medium · 1 kare'], [2, 'Large · 2×2'], [3, 'Huge · 3×3'], [4, 'Gargantuan · 4×4']].map(([v, t]) => `<button type="button" data-sz="${v}" aria-pressed="${sz(c) === v}">${t}</button>`).join('')}</div></div>`)}
+    ${sec('Resim', 250, picRow(picOf(c)))}
     ${sec('Not', SEC.note, `<label${lab(HUE.note, true)}>Not<input id="f-note" value="${esc(c.note || '')}" placeholder="ör. Pack Tactics, Resistance: Fire"></label>`)}
     ${c.side === 'foe' ? sec('Legendary', SEC.leg, `<label${lab(HUE.la)}>Legendary Action<input id="f-la" inputmode="numeric" value="${c.la?.[1] ?? ''}" placeholder="—"></label><label${lab(HUE.lr)}>Legendary Resistance<input id="f-lr" inputmode="numeric" value="${c.lr?.[1] ?? ''}" placeholder="—"></label>`) : ''}
     ${c.side === 'foe' ? '<div class="acts"><button class="btn" data-roll="1">d20 + bonus at</button><button class="btn pri" data-ok="1" style="grid-column:span 2">Kaydet</button></div>' : '<div class="acts" style="grid-template-columns:1fr"><button class="btn pri" data-ok="1">Kaydet</button></div>'}
     ${c.side === 'foe' ? '<div class="acts" style="grid-template-columns:1fr"><button class="btn" data-tocard="1">Karta kaydet</button></div>' : ''}
     ${isNew ? '' : '<button class="danger" data-del="1">Savaştan çıkar</button>'}`);
+  const pst = { pic: picOf(c) }, picClick = picBind(pst);
   $('#sheetBody').onclick = (e) => {
+    if (picClick(e)) return;
     if (e.target.closest('[data-tocard]')) { cardFromForm(c); return; }
     const szb = e.target.closest('[data-sz]');
     if (szb) { szb.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === szb))); return; }
@@ -1166,7 +1195,7 @@ function editSheet(c, isNew) {
     const name = $('#f-name').value.trim(); if (!name) { toast('Bir ad yaz'); $('#f-name').focus(); return; }
     snap();
     const max = Math.max(1, toInt($('#f-max').value, c.max));
-    const vals = { name, sub: $('#f-sub').value.trim(), init: toInt($('#f-init').value, c.init), mod: c.side === 'foe' ? toInt($('#f-mod').value, c.mod) : 0, ac: Math.max(0, toInt($('#f-ac').value, c.ac)), speed: okSpeed($('#f-spd').value, c.speed ?? 30), max, note: $('#f-note').value.trim(), size: toInt($('#f-size [aria-pressed="true"]')?.dataset.sz, 1) };
+    const vals = { name, sub: $('#f-sub').value.trim(), init: toInt($('#f-init').value, c.init), mod: c.side === 'foe' ? toInt($('#f-mod').value, c.mod) : 0, ac: Math.max(0, toInt($('#f-ac').value, c.ac)), speed: okSpeed($('#f-spd').value, c.speed ?? 30), pic: pst.pic, max, note: $('#f-note').value.trim(), size: toInt($('#f-size [aria-pressed="true"]')?.dataset.sz, 1) };
     // A bigger creature that no longer fits where it stands gets a new free spot on the map.
     if (!isNew && vals.size !== sz(c) && c.gx != null && (c.gx + vals.size > COLS || c.gy + vals.size > ROWS || S.list.some((o) => o !== c && gap({ gx: c.gx, gy: c.gy, size: vals.size }, o) === 0))) { c.gx = null; c.gy = null; }
     const hp = Math.max(0, Math.min(max, toInt($('#f-hp').value, c.hp)));
@@ -1267,13 +1296,14 @@ document.addEventListener('click', (e) => {
   if (e.target.closest('#sheet')) return;
   const jump = e.target.closest('[data-jump]');
   if (jump) { if (!UI.map) reveal(jump.dataset.jump); return; }
-  if (W.on) return; // the player view is read only
+  if (W.on) { if (e.target.closest('[data-wdash]')) wsend({ t: 'dash' }); return; } // the player view is read only (DM15: their Dash goes to the DM)
   const add = e.target.closest('[data-add]');
   if (add) { if (add.dataset.add === 'foe') addFoeSheet(); else editSheet({ ...blank(add.dataset.add), name: '' }, true); return; }
   const cardEl = e.target.closest('.card'); if (!cardEl) return;
   const c = byId(cardEl.dataset.id);
   if (UI.multi) { UI.sel.has(c.id) ? UI.sel.delete(c.id) : UI.sel.add(c.id); render(); return; }
   const act = e.target.closest('[data-act]')?.dataset.act; if (!act) return;
+  if (act === 'dash') { snap(); c.dash = !c.dash; log(`<b>${esc(c.name)}</b> ${c.dash ? 'Dash: hız bu tur iki katı' : 'Dash geri alındı'}`); render(); return; }
   if (act === 'react') { snap(); c.react = !c.react; log(`<b>${esc(c.name)}</b> Reaction ${c.react ? 'kullandı' : 'geri aldı'}`); render(); return; }
   if (act === 'la') { snap(); c.la[0] = c.la[0] > 0 ? c.la[0] - 1 : c.la[1]; log(`<b>${esc(c.name)}</b> Legendary Action: ${c.la[0]}/${c.la[1]}`); render(); return; }
   if (act === 'lr') { snap(); c.lr[0] = c.lr[0] > 0 ? c.lr[0] - 1 : c.lr[1]; log(`<b>${esc(c.name)}</b> Legendary Resistance: ${c.lr[0]}/${c.lr[1]}`); render(); return; }
@@ -1870,7 +1900,9 @@ const fin = (v, d, lo, hi) => { const n = Number(v); return Number.isFinite(n) ?
 function cleanImg(o) {
   if (!o || typeof o !== 'object' || !okSrc(o.src)) return null;
   const w = fin(o.w, 0, 1, 80), h = fin(o.h, 0, 1, 80); if (!w || !h) return null;
-  return { src: o.src, x: fin(o.x, 0, -80, 80), y: fin(o.y, 0, -80, 80), w, h };
+  // DM16: rot, degrees clockwise about the picture's middle
+  const r = Number(o.rot), rot = Number.isFinite(r) ? Math.round((((r % 360) + 360) % 360) * 10) / 10 : 0;
+  return { src: o.src, x: fin(o.x, 0, -80, 80), y: fin(o.y, 0, -80, 80), w, h, ...(rot ? { rot } : {}) };
 }
 const mapImg = () => cleanImg(W.on ? W.P?.img : S.img);
 // own pictures on this phone
@@ -1896,7 +1928,8 @@ function drawMapImage() {
   const el = $('#mapimage'), a = mapImg(), u = a && imgUrl(a.src, drawMapImage), cap = $('#mapcredit');
   if (!el) return;
   if (!a || !u) { el.setAttribute('display', 'none'); el.removeAttribute('href'); }
-  else { if (el.getAttribute('href') !== u) el.setAttribute('href', u); el.removeAttribute('display'); ['x', 'y'].forEach((k) => el.setAttribute(k, a[k] * CELL)); el.setAttribute('width', a.w * CELL); el.setAttribute('height', a.h * CELL); }
+  else { if (el.getAttribute('href') !== u) el.setAttribute('href', u); el.removeAttribute('display'); ['x', 'y'].forEach((k) => el.setAttribute(k, a[k] * CELL)); el.setAttribute('width', a.w * CELL); el.setAttribute('height', a.h * CELL);
+    if (a.rot) el.setAttribute('transform', `rotate(${a.rot} ${(a.x + a.w / 2) * CELL} ${(a.y + a.h / 2) * CELL})`); else el.removeAttribute('transform'); }
   const r = a && readyMap(a.src); cap.hidden = !r; if (r) cap.textContent = CREDIT[r.by];
   $('#board').classList.toggle('nogrid', (W.on ? W.P?.grid : S.grid) === false);
 }
@@ -1944,27 +1977,42 @@ async function uploadMap(file) {
   } catch { toast('Resim okunamadı', true); }
 }
 // Hizala: the picture's width in squares and its place, in tenths of a square, until its grid lies on ours
+/* DM16 (owner 2026-11-19: "zeminleri alanlar gibi büyütüp küçültme ve cevirme olsun / oklarla olmasin bu aynı alanlar gibi
+   olsun"): Hizala works like a template: the picture gets a dashed frame; drag its body to move it, a corner to make it
+   bigger or smaller (the middle stays, the shape too), the ring above it to turn it (snaps to 0°, 90°, 180°, 270° within
+   8°, else whole degrees). Each drag is one Geri al step. Two fingers pan and zoom as ever. */
 function alignMode(on) {
-  UI.align = !!on && !!S.img && !W.on; UI.alignSnap = false;
-  if (UI.align && UI.wall) setWallMode(false);
+  UI.align = !!on && !!S.img && !W.on;
+  if (UI.align) { if (UI.wall) setWallMode(false); if (UI.msel) setMsel(false); UI.area = null; }
   $('#imgbar').hidden = !UI.align; document.body.classList.toggle('aligning', UI.align);
-  alignText(); if (UI.align) showTab(true);
+  alignText(); if (UI.align) { showTab(true); fitImage(); renderMap(); }
 }
+const num = (v) => String(Math.round(v * 100) / 100).replace('.', ',');
 function alignText() {
   const a = cleanImg(S.img); if (!a || !UI.align) return;
-  $('#imgw').textContent = String(a.w).replace('.', ','); $('#imggrid').setAttribute('aria-pressed', String(S.grid !== false));
-  $('#dist').innerHTML = `Hizala: resmin ızgarası bizimkine otursun · genişlik <b>${String(a.w).replace('.', ',')} kare</b> · yer ${String(a.x).replace('.', ',')}, ${String(a.y).replace('.', ',')}`;
+  $('#imggrid').setAttribute('aria-pressed', String(S.grid !== false));
+  $('#dist').innerHTML = `Hizala: gövdeyi sürükle: taşı · köşe: büyüt / küçült · halka: çevir · <b>${num(a.w)} × ${num(a.h)} kare</b>${a.rot ? ` · ${num(a.rot)}°` : ''}`;
+}
+// the whole picture in view (its turned outline), left of the map buttons, above the bar
+function fitImage() {
+  const a = cleanImg(S.img), m = $('#mapView').getBoundingClientRect(); if (!a || !m.width) return;
+  const t = (a.rot || 0) * Math.PI / 180, bw = Math.abs(a.w * Math.cos(t)) + Math.abs(a.h * Math.sin(t)) + 3, bh = Math.abs(a.w * Math.sin(t)) + Math.abs(a.h * Math.cos(t)) + 3;
+  const W2 = m.width - $('.zoom').offsetWidth - 30, H2 = m.height - 150;
+  V.z = Math.max(zMin(), Math.min(1.6, Math.min(W2 / (bw * CELL), H2 / (bh * CELL))));
+  V.x = 10 + W2 / 2 - (a.x + a.w / 2) * CELL * V.z; V.y = 60 + H2 / 2 - (a.y + a.h / 2) * CELL * V.z; applyView();
+}
+// the frame over the picture while aligning
+function imgSelHtml() {
+  const a = UI.align && cleanImg(S.img); if (!a) return '';
+  return `<div class="imgsel" data-imgsel style="left:${a.x * CELL}px;top:${a.y * CELL}px;width:${a.w * CELL}px;height:${a.h * CELL}px;transform:rotate(${a.rot || 0}deg)">
+    ${['nw', 'ne', 'sw', 'se'].map((h) => `<span class="ah ih" data-ih="${h}" style="left:${h.includes('w') ? 0 : 100}%;top:${h.includes('n') ? 0 : 100}%"></span>`).join('')}
+    <span class="ah ih irot" data-ih="rot" style="left:50%;top:calc(-46px * var(--hz,1))"></span><span class="ilab">${num(a.w)} × ${num(a.h)} kare${a.rot ? ` · ${num(a.rot)}°` : ''}</span></div>`;
 }
 function alignStep(e) {
   const b = e.target.closest('button'); if (!b) return; const a = S.img; if (!a) return;
   if (b.dataset.idone != null) { alignMode(false); $('#dist').innerHTML = DIST_DEFAULT; render(); return; }
   if (b.dataset.irm != null) { snap(); S.img = null; log('Harita resmi kaldırıldı'); alignMode(false); $('#dist').innerHTML = DIST_DEFAULT; render(); return; }
-  if (!UI.alignSnap) { snap(); UI.alignSnap = true; }
-  if (b.id === 'imggrid') S.grid = S.grid === false;
-  const ar = a.h / a.w;
-  if (b.dataset.dw) { a.w = fin(a.w + Number(b.dataset.dw), a.w, 1, 80); a.h = fin(a.w * ar, a.h, 1, 80); }
-  if (b.dataset.dx) a.x = fin(a.x + Number(b.dataset.dx), a.x, -80, 80);
-  if (b.dataset.dy) a.y = fin(a.y + Number(b.dataset.dy), a.y, -80, 80);
+  if (b.id === 'imggrid') { snap(); S.grid = S.grid === false; log(S.grid === false ? 'Izgara gizlendi' : 'Izgara gösterildi'); }
   render(); alignText();
 }
 function bgSheet() {
@@ -2091,6 +2139,33 @@ $('#mselbar').onclick = (e) => {
   else if (e.target.closest('[data-sclear]')) { UI.msel.clear(); UI.mmove = false; mselText(); renderMap(); }
   else if (e.target.closest('[data-smove]') && UI.msel.size) { UI.mmove = !UI.mmove; mselText(); }
 };
+/* ---------- DM15 (owner 2026-11-19): pictures on tokens and cards ----------
+   Our side: the character apps' portraits by name ("b:mathias"); any creature (and a creature card): a picture from the
+   DM's phone ("u:<hash>", cropped square, 192 px, kept in IndexedDB like map pictures and sent to the players when their
+   phone lacks it). c.pic '' = none chosen on purpose; undefined = by name. */
+const picOf = (c) => (c.pic === undefined ? (c.side === 'ally' ? PIC_DEFAULT[c.name] || '' : '') : okPic(c.pic));
+function picUrl(pic, redraw) {
+  if (!pic) return '';
+  if (pic.startsWith('b:')) return PORTRAITS[pic.slice(2)] || '';
+  return imgUrl(pic, redraw) || '';
+}
+// the token's / card's circle: the picture once it is on this phone, else the letters
+const picAttr = (c, redraw) => { const u = picUrl(picOf(c), redraw); return u ? ` class="pic" style="background-image:url('${u}')"` : ''; };
+// a picture chosen on the phone: the middle square, 192 × 192, WebP (JPEG where WebP cannot be made)
+async function shrinkPic(file) {
+  const bmp = await createImageBitmap(file), m = Math.min(bmp.width, bmp.height), n = 192;
+  const cv = Object.assign(document.createElement('canvas'), { width: n, height: n });
+  cv.getContext('2d').drawImage(bmp, (bmp.width - m) / 2, (bmp.height - m) / 2, m, m, 0, 0, n, n);
+  const blob = await new Promise((ok) => cv.toBlob((b) => (b && b.type === 'image/webp' ? ok(b) : cv.toBlob(ok, 'image/jpeg', .85)), 'image/webp', .85));
+  const id = await hashBlob(blob); await imgPut(id, blob); IDB.urls.set(id, URL.createObjectURL(blob)); return 'u:' + id;
+}
+// the Resim row of the edit and card sheets: preview, Resim seç, Kaldır; the choice lives on the sheet until it is saved
+const picRow = (pic) => `<div class="picrow wide"><span class="picv" id="picv" style="${pic ? `background-image:url('${picUrl(pic)}')` : ''}"></span><button type="button" class="btn sm" data-picset>Resim seç</button><button type="button" class="btn sm" data-picdel${pic ? '' : ' hidden'}>Kaldır</button><input type="file" id="picFile" accept="image/*" hidden></div>`;
+function picBind(st) {
+  const show = () => { $('#picv').style.backgroundImage = st.pic ? `url('${picUrl(st.pic)}')` : ''; $('[data-picdel]').hidden = !st.pic; };
+  $('#picFile').onchange = async (e) => { const f = e.target.files?.[0]; e.target.value = ''; if (!f) return; if (!/^image\//.test(f.type)) { toast('Bu bir resim değil', true); return; } try { st.pic = await shrinkPic(f); show(); } catch { toast('Resim okunamadı', true); } };
+  return (e) => { if (e.target.closest('[data-picset]')) { $('#picFile').click(); return true; } if (e.target.closest('[data-picdel]')) { st.pic = ''; show(); return true; } return false; };
+}
 const DIST_DEFAULT = 'Pulu sürükle: hareket · <b>5 ft</b> = 1 kare';
 function renderMap() {
   if (W.on) return renderWatchMap();
@@ -2101,10 +2176,10 @@ function renderMap() {
   const tt = tokTexts(S.list);
   boardBg(b); boardLayers(b); drawTerrain();
   const mv = mover(); moveBar(); const pd = pendFor(mv);
-  $('#layer').innerHTML = wallsHtml(walls()) + reachHtml(mv) + areas().map(areaHtml).join('') + S.list.map((c) => {
+  $('#layer').innerHTML = imgSelHtml() + wallsHtml(walls()) + reachHtml(mv) + areas().map(areaHtml).join('') + S.list.map((c) => {
     const pct = Math.max(0, Math.min(100, (c.hp / c.max) * 100)), lw = labelW(c, S.list), tx = tt.get(c.id), at = pd && pd.id === c.id ? pd.to : [c.gx, c.gy];
     return `<div class="tok ${c.side}${S.cur === c.id ? ' now' : ''}${!takesTurn(c) ? ' down' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}${pd && pd.id === c.id ? ' pend' : ''}${UI.msel?.has(c.id) ? ' msel' : ''}" data-tok="${c.id}" style="left:${at[0] * CELL}px;top:${at[1] * CELL}px;--sz:${sz(c)};--lw:${lw};--tn:${tx.length}" role="button" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}, can ${c.hp}/${c.max}">
-      <i><span class="hpbar"><s style="width:${pct}%;background:${hpColor(c)}"></s></span>${esc(tx)}</i>${tokLabel(c, lw, S.list)}</div>`;
+      <i${picAttr(c, renderMap)}><span class="hpbar"><s style="width:${pct}%;background:${hpColor(c)}"></s></span>${esc(tx)}</i>${tokLabel(c, lw, S.list)}</div>`;
   }).join('');
   if (UI.measure?.b) { const a = byId(UI.measure.a), b = byId(UI.measure.b); if (a && b) drawMeasure(a, b); if (!UI.distArea) $('#dist').innerHTML = measureText(); }
   // The selected template's size and the creatures in it; the group-damage button when anyone is in it.
@@ -2170,10 +2245,10 @@ function showArea(a) {
   applyView();
 }
 (() => {
-  const view = $('#mapView'); const pts = new Map(); let drag = null, pan = null, pinch = null, adrag = null, wpaint = null, gdrag = null;
+  const view = $('#mapView'); const pts = new Map(); let drag = null, pan = null, pinch = null, adrag = null, wpaint = null, gdrag = null, idrag = null;
   // While a token or a template is held, the board is not rebuilt under the finger: the DM applies players' requests,
   // the player view the DM's new state, when the gesture ends.
-  const gestureEnd = () => { if (!UI.gesture || drag || adrag || wpaint || gdrag) return; UI.gesture = false; flushGesture(); };
+  const gestureEnd = () => { if (!UI.gesture || drag || adrag || wpaint || gdrag || idrag) return; UI.gesture = false; flushGesture(); };
   // DM10: Engel. The first square touched decides: an empty one puts obstacles down along the finger's path, an obstacle
   // takes them off. Every square the finger crosses counts (a fast stroke leaves no gaps).
   // DM12: the brush covers UI.brush × UI.brush squares around the touched one; the tool is an obstacle, the eraser or a
@@ -2244,12 +2319,18 @@ function showArea(a) {
       if (adrag) { Object.assign(adrag.a, adrag.orig); adrag = null; renderMap(); }
       // a stroke of obstacles turns into a pinch: the squares go back as they were
       if (gdrag) { gdrag = null; renderMap(); }
+      if (idrag) { S.img = idrag.orig; idrag = null; drawMapImage(); renderMap(); alignText(); }
       if (wpaint) { S.walls = wpaint.orig; S.ter = wpaint.origTer; wpaint = null; drawWalls(); drawTerrain(); $('#dist').innerHTML = DRAW_HINT(); }
       gestureEnd();
       const [p, q] = [...pts.values()]; pinch = { d: Math.hypot(p.x - q.x, p.y - q.y) }; pan = null; return;
     }
     // The DM moves every token and template. In the player view (DM3) a player moves only their own token and their own
     // templates, while the DM lets players act; touching anything else pans the view.
+    // DM16: aligning the map picture (its frame lies above everything while Hizala is on)
+    if (UI.align && !W.on) {
+      const fr = e.target.closest('[data-imgsel]');
+      if (fr && S.img) { idrag = { h: e.target.closest('[data-ih]')?.dataset.ih || 'move', start: at(local(e)), orig: { ...S.img }, before: JSON.stringify(S), moved: false }; UI.gesture = true; return; }
+    }
     if (UI.wall && !W.on) {
       const k = cellAt(local(e)), set = new Set(walls());
       wpaint = { tool: UI.tool, orig: [...walls()], origTer: S.ter || '', ter: [...(cleanTer(S.ter) || NO_TER)], before: JSON.stringify(S), set, add: !set.has(k[1] * COLS + k[0]), last: k, n: 0, started: false };
@@ -2287,6 +2368,19 @@ function showArea(a) {
       pinch.d = d; pinch.m = [mx, my]; return;
     }
     if (wpaint) { const k = cellAt(p); if (k[0] !== wpaint.last[0] || k[1] !== wpaint.last[1]) paintTo(k); return; }
+    if (idrag) {
+      const o = idrag.orig, [bx, by] = at(p), [sx, sy] = idrag.start, cx = o.x + o.w / 2, cy = o.y + o.h / 2, a = { ...o };
+      if (idrag.h === 'move') { a.x = Math.round((o.x + bx - sx) * 20) / 20; a.y = Math.round((o.y + by - sy) * 20) / 20; }
+      else if (idrag.h === 'rot') {
+        let d = (o.rot || 0) + (Math.atan2(by - cy, bx - cx) - Math.atan2(sy - cy, sx - cx)) * 180 / Math.PI; d = ((d % 360) + 360) % 360;
+        const n = Math.round(d / 90) * 90; a.rot = Math.abs(d - n) <= 8 ? n % 360 : Math.round(d);
+      } else {
+        const f = Math.hypot(bx - cx, by - cy) / Math.max(.01, Math.hypot(sx - cx, sy - cy)), w = Math.max(1, Math.min(80, Math.round(o.w * f * 10) / 10));
+        a.w = w; a.h = Math.round(w * o.h / o.w * 100) / 100; a.x = Math.round((cx - a.w / 2) * 100) / 100; a.y = Math.round((cy - a.h / 2) * 100) / 100;
+      }
+      if (!idrag.moved && Math.hypot(bx - sx, by - sy) * CELL * V.z < 6) return;
+      idrag.moved = true; S.img = cleanImg(a); drawMapImage(); renderMap(); alignText(); return;
+    }
     if (gdrag) {
       let dx = Math.round((p.x - gdrag.start.x) / (CELL * V.z)), dy = Math.round((p.y - gdrag.start.y) / (CELL * V.z));
       // the whole group stays on the board
@@ -2319,6 +2413,11 @@ function showArea(a) {
     // Lifting one finger after a pinch: the remaining finger keeps panning.
     if (pinch && pts.size === 1) { const p = [...pts.values()][0]; pan = { start: p, x: V.x, y: V.y, moved: true }; }
     if (pts.size < 2) pinch = null;
+    if (idrag && !pts.size) {
+      const g = idrag; idrag = null;
+      if (g.moved && JSON.stringify(S.img) !== JSON.stringify(g.orig)) { pushHist(g.before); log(g.h === 'rot' ? `Harita resmi çevrildi: ${num(S.img.rot || 0)}°` : g.h === 'move' ? 'Harita resmi taşındı' : `Harita resmi: ${num(S.img.w)} × ${num(S.img.h)} kare`); render(); }
+      alignText();
+    }
     if (gdrag && !pts.size) {
       const g = gdrag; gdrag = null; const [dx, dy] = g.d;
       if (dx || dy) {
@@ -2525,7 +2624,7 @@ function cleanCard(o) {
   const name = clip(o.name); if (!name) return null;
   const f = hpFormula(clip(o.hpf, 20));
   return { id: cleanId(o.id) || recId('k'), name, sub: clip(o.sub), ac: inRange(o.ac, 12, 0, 40), max: inRange(o.max, f?.avg ?? 10, 1, 9999), hpf: f ? f.text : '',
-    mod: inRange(o.mod, 0, -10, 20), ini: fixedIni(o.ini), speed: okSpeed(o.speed), size: inRange(o.size, 1, 1, 4), la: inRange(o.la, 0, 0, 9) || null, lr: inRange(o.lr, 0, 0, 9) || null, note: clip(o.note, 200) };
+    mod: inRange(o.mod, 0, -10, 20), ini: fixedIni(o.ini), speed: okSpeed(o.speed), pic: okPic(o.pic), size: inRange(o.size, 1, 1, 4), la: inRange(o.la, 0, 0, 9) || null, lr: inRange(o.lr, 0, 0, 9) || null, note: clip(o.note, 200) };
 }
 function cleanFight(o, ids) {
   if (!o || typeof o !== 'object') return null;
@@ -2618,7 +2717,7 @@ function addFromCards(items) {
   const said = [];
   for (const { card, n } of capItems(items)) {
     const k = cardById(card); if (!k || n < 1) continue;
-    const vals = { name: k.name, sub: k.sub, init: k.ini ?? 10 + k.mod, fixIni: k.ini != null, mod: k.mod, ac: k.ac, speed: k.speed ?? 30, max: k.max, size: k.size, note: k.note, card: k.id, la: k.la ? [k.la, k.la] : null, lr: k.lr ? [k.lr, k.lr] : null };
+    const vals = { name: k.name, sub: k.sub, init: k.ini ?? 10 + k.mod, fixIni: k.ini != null, mod: k.mod, ac: k.ac, speed: k.speed ?? 30, pic: k.pic || '', max: k.max, size: k.size, note: k.note, card: k.id, la: k.la ? [k.la, k.la] : null, lr: k.lr ? [k.lr, k.lr] : null };
     const f = LB.roll && hpFormula(k.hpf);
     addCopies('foe', vals, n, () => { if (!f) return {}; const hp = rollHp(f); return { hp, max: hp }; });
     said.push(`${n} × ${cardLabel(k)}`);
@@ -2659,6 +2758,7 @@ function cardSheet(k, after) {
       <label class="wide avgl"><output id="k-avg" class="hint"></output></label>`)}
     ${sec('Boyut', SEC.sense, `<div class="wide lh" style="--h:${HUE.size}"><span class="szl">Boyut (haritada)</span>
         <div class="szseg" id="k-size">${[[1, 'Small / Medium · 1 kare'], [2, 'Large · 2×2'], [3, 'Huge · 3×3'], [4, 'Gargantuan · 4×4']].map(([v, t]) => `<button type="button" data-sz="${v}" aria-pressed="${(c.size || 1) === v}">${t}</button>`).join('')}</div></div>`)}
+    ${sec('Resim', 250, picRow(okPic(c.pic)))}
     ${sec('Not', SEC.note, `<label${lab(HUE.note, true)}>Not<input id="k-note" value="${esc(c.note)}" placeholder="ör. Multiattack, Resistance: Fire"></label>`)}
     ${sec('Legendary', SEC.leg, `<label${lab(HUE.la)}>Legendary Action<input id="k-la" inputmode="numeric" value="${c.la ?? ''}" placeholder="—"></label>
       <label${lab(HUE.lr)}>Legendary Resistance<input id="k-lr" inputmode="numeric" value="${c.lr ?? ''}" placeholder="—"></label>`)}
@@ -2683,7 +2783,9 @@ function cardSheet(k, after) {
     $('#k-inih').classList.toggle('bad', bad);
   };
   $('#k-mod').oninput = $('#k-ini').oninput = showIni; showIni();
+  const pst = { pic: okPic(c.pic) }, picClick = picBind(pst);
   $('#sheetBody').onclick = (e) => {
+    if (picClick(e)) return;
     const szb = e.target.closest('[data-sz]');
     if (szb) { szb.parentElement.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === szb))); return; }
     const neg = e.target.closest('[data-neg]');
@@ -2706,7 +2808,7 @@ function cardSheet(k, after) {
     const fi = $('#k-ini').value.trim(); if (fi && toInt(fi, null) == null) { toast('Sabit inisiyatif bir sayı olmalı (ya da boş)', true); $('#k-ini').focus(); return; }
     const t = $('#k-hpf').value.trim(); if (t && !hpFormula(t)) { toast('Can formülü: ör. 2d8+2 ya da 3d6', true); $('#k-hpf').focus(); return; }
     const o = cleanCard({ id: k?.id || recId('k'), name, sub: $('#k-sub').value, ac: $('#k-ac').value, max: $('#k-max').value || hpFormula(t)?.avg, hpf: t, mod: $('#k-mod').value, ini: $('#k-ini').value, speed: $('#k-spd').value,
-      size: $('#k-size [aria-pressed="true"]')?.dataset.sz, la: $('#k-la').value, lr: $('#k-lr').value, note: $('#k-note').value });
+      size: $('#k-size [aria-pressed="true"]')?.dataset.sz, la: $('#k-la').value, lr: $('#k-lr').value, note: $('#k-note').value, pic: pst.pic });
     if (k) Object.assign(k, o); else LB.cards.push(o);
     if (!libSave()) return;
     closeSheet(); toast(k ? 'Kart güncellendi' : `Kart kaydedildi: ${cardLabel(o)}`); after?.();
@@ -2719,7 +2821,7 @@ function cardFromForm(c) {
   const sub = $('#f-sub').value.trim();
   const old = LB.cards.find((k) => k.name === name && k.sub === sub);
   const o = cleanCard({ id: old?.id || recId('k'), name, sub, ac: $('#f-ac').value, speed: $('#f-spd').value, max: $('#f-max').value, hpf: old?.hpf, ini: old?.ini, mod: $('#f-mod').value,
-    size: $('#f-size [aria-pressed="true"]')?.dataset.sz, la: $('#f-la').value, lr: $('#f-lr').value, note: $('#f-note').value });
+    size: $('#f-size [aria-pressed="true"]')?.dataset.sz, la: $('#f-la').value, lr: $('#f-lr').value, note: $('#f-note').value, pic: picOf(c) });
   if (old) Object.assign(old, o); else LB.cards.push(o);
   if (!libSave()) return;
   c.card = o.id; toast(`${old ? 'Kart güncellendi' : 'Kart kaydedildi'}: ${cardLabel(o)}`);
@@ -2853,7 +2955,8 @@ function cleanCombatant(o, side) {
   const c = { ...blank(side), id: cleanId(o.id) || newId(side), name, sub: clip(o.sub), init: inRange(o.init, 10, -20, 99), mod: inRange(o.mod, 0, -10, 20), ac: inRange(o.ac, 12, 0, 40),
     max, hp: inRange(o.hp, max, 0, max), tmp: inRange(o.tmp, 0, 0, 999), conds, conc, concOn: conc ? clip(o.concOn) : '', ds: [inRange(o.ds?.[0], 0, 0, 3), inRange(o.ds?.[1], 0, 0, 3)],
     stable: o.stable === true, react: o.react === true, la: pair(o.la), lr: pair(o.lr), note: clip(o.note, 200), size, ...pos2(o, size), turnRound: rnd(o.turnRound), endRound: rnd(o.endRound),
-    speed: okSpeed(o.speed, SPEED_DEFAULT[name] ?? 30), used: inRange(o.used, 0, 0, 400), dash: o.dash === true };
+    speed: okSpeed(o.speed, SPEED_DEFAULT[name] ?? 30), used: inRange(o.used, 0, 0, 400), dash: o.dash === true,
+    pic: typeof o.pic === 'string' ? okPic(o.pic) : side === 'ally' ? PIC_DEFAULT[name] || '' : '' };
   if (side === 'ally') { const pp = toInt(o.pp, null); c.pp = pp == null ? null : Math.max(0, Math.min(50, pp)); }
   else { c.card = cleanId(o.card) || null; c.fixIni = o.fixIni === true; }
   return c;
@@ -2877,7 +2980,7 @@ function libExport() {
   const fight = { round: S.round, cur: S.cur, curInit: S.curInit, prep: S.prep ?? null, foes: S.list.filter((c) => c.side === 'foe'), areas: areas(), walls: walls(), bg: bgById(S.bg)?.id || '', ter: cleanTer(S.ter), img: cleanImg(S.img) };
   const party = S.list.filter((c) => c.side === 'ally');
   // DM13: own map pictures go in as data URLs (read from this phone first; without any, written at once as before)
-  if (ownIds([S.img, ...(LB.maps || []).map((m) => m.img), ...LB.fights.map((f) => f.layout?.img)]).length && !libExport.imgs) { exportImages().then((imgs) => { libExport.imgs = imgs; try { libExport(); } finally { libExport.imgs = null; } }); return; }
+  if (ownIds([S.img, ...(LB.maps || []).map((m) => m.img), ...LB.fights.map((f) => f.layout?.img), ...[...S.list, ...LB.cards].map((c) => ({ src: picOf(c) }))]).length && !libExport.imgs) { exportImages().then((imgs) => { libExport.imgs = imgs; try { libExport(); } finally { libExport.imgs = null; } }); return; }
   const images = libExport.imgs || {};
   const text = JSON.stringify({ app: 'dmscreen', kind: 'library', v: 2, at: new Date().toISOString(), cards: LB.cards, fights: LB.fights, maps: LB.maps || [], images, party, fight }, null, 1);
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
@@ -2890,7 +2993,7 @@ const IMPORT_MAX_BYTES = 30 * 1024 * 1024;
 const ownIds = (L) => [...new Set(L.filter((a) => a?.src?.startsWith('u:')).map((a) => a.src.slice(2)))];
 async function exportImages() {
   const out = {};
-  for (const id of ownIds([S.img, ...(LB.maps || []).map((m) => m.img), ...LB.fights.map((f) => f.layout?.img)])) {
+  for (const id of ownIds([S.img, ...(LB.maps || []).map((m) => m.img), ...LB.fights.map((f) => f.layout?.img), ...[...S.list, ...LB.cards].map((c) => ({ src: picOf(c) }))])) {
     const b = await imgGet(id); if (!(b instanceof Blob)) continue;
     out[id] = await new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(b); });
   }
@@ -3000,7 +3103,7 @@ function publicState() {
   return {
     v: 1, round: S.round, cur: S.cur,
     list: order().map((c) => {
-      const o = { id: c.id, side: c.side, name: c.name, size: sz(c), gx: c.gx, gy: c.gy, turn: takesTurn(c), conds: c.conds.map((x) => ({ k: x.k, r: x.r, w: condWhen(c, x).replace(/^ · /, '') })), conc: !!c.conc };
+      const o = { id: c.id, side: c.side, name: c.name, pic: picOf(c), size: sz(c), gx: c.gx, gy: c.gy, turn: takesTurn(c), conds: c.conds.map((x) => ({ k: x.k, r: x.r, w: condWhen(c, x).replace(/^ · /, '') })), conc: !!c.conc };
       if (c.side === 'ally') Object.assign(o, { hp: c.hp, max: c.max, tmp: c.tmp, concOn: c.concOn || '', ds: [...c.ds], stable: !!c.stable, dead: isDead(c), speed: c.speed ?? 30, used: c.used || 0, dash: !!c.dash });
       else Object.assign(o, { sub: c.sub || '', st: isDead(c) ? 'dead' : isDown(c) ? 'down' : c.hp <= c.max / 2 ? 'bloodied' : '' });
       return o;
@@ -3019,7 +3122,7 @@ function cleanState(s) {
   if (!s || typeof s !== 'object' || !Array.isArray(s.list)) return null;
   const n = (v, d = 0) => (Number.isFinite(+v) ? +v : d), id = (v) => String(v ?? '').replace(/[^\w-]/g, '').slice(0, 40), str = (v) => String(v ?? '').slice(0, 80);
   const list = s.list.slice(0, 60).map((c) => {
-    const o = { id: id(c.id), side: c.side === 'ally' ? 'ally' : 'foe', name: str(c.name), size: Math.max(1, Math.min(4, n(c.size, 1))), gx: c.gx == null ? null : n(c.gx), gy: c.gy == null ? null : n(c.gy), turn: c.turn !== false,
+    const o = { id: id(c.id), side: c.side === 'ally' ? 'ally' : 'foe', name: str(c.name), pic: okPic(c.pic), size: Math.max(1, Math.min(4, n(c.size, 1))), gx: c.gx == null ? null : n(c.gx), gy: c.gy == null ? null : n(c.gy), turn: c.turn !== false,
       conds: (Array.isArray(c.conds) ? c.conds : []).slice(0, 20).map((x) => ({ k: str(x?.k), r: x?.r == null ? null : n(x.r), w: str(x?.w) })), conc: !!c.conc };
     if (o.side === 'ally') Object.assign(o, { hp: n(c.hp), max: Math.max(1, n(c.max, 1)), tmp: n(c.tmp), concOn: str(c.concOn), ds: [n(c.ds?.[0]), n(c.ds?.[1])], stable: !!c.stable, dead: !!c.dead, speed: Math.max(0, Math.min(400, n(c.speed, 30))), used: Math.max(0, Math.min(800, n(c.used))), dash: !!c.dash });
     else Object.assign(o, { sub: str(c.sub), st: ['down', 'dead', 'bloodied'].includes(c.st) ? c.st : '' });
@@ -3223,7 +3326,8 @@ function liveApply(conn, me, m) {
   if (m.t === 'pick') { if (m.char === null || typeof m.char === 'string') claim(conn, me, m.char || null, false); return; }
   // DM13: a player's phone lacks the DM's own map picture: only the one on the board now, once in 10 s per call
   if (m.t === 'img') {
-    if (typeof m.id !== 'string' || S.img?.src !== 'u:' + m.id || Date.now() - (me.imgAt || 0) < 10000) return; me.imgAt = Date.now();
+    const want = 'u:' + m.id, at = (me.imgAt ||= new Map());
+    if (typeof m.id !== 'string' || (S.img?.src !== want && !S.list.some((c) => picOf(c) === want)) || Date.now() - (at.get(m.id) || 0) < 10000) return; at.set(m.id, Date.now());
     imgGet(m.id).then(async (b) => { if (b instanceof Blob) tell(conn, { t: 'imgdata', id: m.id, type: b.type, data: await b.arrayBuffer() }); });
     return;
   }
@@ -3299,7 +3403,7 @@ document.addEventListener('visibilitychange', wake);
    Starting audio needs a tap: it starts from Oturum başlat, or (after a reload with the room open) on the next touch.
    Back on screen the room is checked at once: the signalling server rejoined, the state sent again. */
 const KA = { el: null, url: '' };
-function keepAlive(on) {
+function keepAlive(on, who = 'dm') {
   try {
     if (!on) { if (KA.el) { KA.el.pause(); KA.el.removeAttribute('src'); KA.el.load(); KA.el = null; } if (KA.url) { URL.revokeObjectURL(KA.url); KA.url = ''; } return; }
     if (!KA.el) {
@@ -3311,7 +3415,7 @@ function keepAlive(on) {
       KA.url = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
       KA.el = Object.assign(new Audio(KA.url), { loop: true }); KA.el.setAttribute('playsinline', '');
       if ('mediaSession' in navigator && window.MediaMetadata) {
-        navigator.mediaSession.metadata = new MediaMetadata({ title: 'DM Ekranı · oturum açık', artist: 'Oyuncular bağlı kalsın diye arka planda açık' });
+        navigator.mediaSession.metadata = who === 'dm' ? new MediaMetadata({ title: 'DM Ekranı · oturum açık', artist: 'Oyuncular bağlı kalsın diye arka planda açık' }) : new MediaMetadata({ title: 'DM Ekranı · canlı savaş', artist: 'Sıra sana gelince haber verir' });
         try { navigator.mediaSession.setActionHandler('pause', () => { KA.el?.pause(); }); navigator.mediaSession.setActionHandler('play', () => { KA.el?.play().catch(() => {}); }); } catch {}
       }
     }
@@ -3319,7 +3423,34 @@ function keepAlive(on) {
   } catch {}
 }
 // a reload with the room open: audio may start only after a touch
-addEventListener('pointerdown', () => { if (LV.on && (!KA.el || KA.el.paused)) keepAlive(true); }, true);
+addEventListener('pointerdown', () => { if ((LV.on || W.on) && (!KA.el || KA.el.paused)) keepAlive(true, W.on ? 'pl' : 'dm'); chime.unlock(); }, true);
+/* DM15 (owner 2026-11-19: "tur oyuncuya gelince oyuncunun telefonundaki uygulamadan ses calsin bildirim gelsin"): when the
+   turn comes to the player's character: a three-note chime, a vibration, a note on screen and, when the app is not on
+   screen, a system notification (permission asked when the player picks who they are). There is no push server: the
+   alert comes from the app itself, so it must still be running; on Android the player's app plays the same inaudible
+   keep-alive tone as the DM's while in a session (shown among the notifications). iPhone: only while the app is open. */
+const chime = {
+  ctx: null,
+  unlock() { try { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; this.ctx ||= new AC(); if (this.ctx.state !== 'running') this.ctx.resume().catch(() => {}); } catch {} },
+  play() {
+    try {
+      this.unlock(); const x = this.ctx; if (!x) return; const t0 = x.currentTime + .02;
+      [[660, 0], [880, .22], [1100, .44]].forEach(([f, d]) => { const o = x.createOscillator(), g = x.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0, t0 + d); g.gain.linearRampToValueAtTime(.35, t0 + d + .02); g.gain.exponentialRampToValueAtTime(.001, t0 + d + .4); o.connect(g).connect(x.destination); o.start(t0 + d); o.stop(t0 + d + .45); });
+    } catch {}
+  },
+};
+function askNotify() { try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission().catch(() => {}); } catch {} }
+function turnAlert() {
+  const me = meIn(W.P), body = `${me ? me.name + ': ' : ''}sıra sende. Pulunu yeşil karelere sürükle, Onayla.`;
+  toast(`Sıra sende${me ? ', ' + me.name : ''}!`); chime.play();
+  try { navigator.vibrate?.([250, 120, 250, 120, 400]); } catch {}
+  W.alerts = (W.alerts || 0) + 1;
+  try {
+    if (document.visibilityState === 'visible' || !('Notification' in window) || Notification.permission !== 'granted') return;
+    const o = { body, tag: 'dmscreen-turn', renotify: true, vibrate: [250, 120, 250], icon: 'icon-192.png', badge: 'icon-192.png' };
+    (navigator.serviceWorker ? navigator.serviceWorker.getRegistration() : Promise.resolve(null)).then((r) => (r ? r.showNotification('Sıra sende!', o) : new Notification('Sıra sende!', o))).catch(() => {});
+  } catch {}
+}
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
   if (LV.on) {
@@ -3426,7 +3557,7 @@ function pickSheet() {
     <div class="acts" style="grid-template-columns:1fr"><button class="btn" data-wme="">Yalnız izle</button></div>`);
   $('#sheetBody').onclick = (e) => {
     const b = e.target.closest('[data-wme]'); if (!b || b.disabled) return;
-    const id = b.dataset.wme; plStore({ code: W.code, char: id }); wsend({ t: 'pick', char: id || null }); closeSheet();
+    const id = b.dataset.wme; plStore({ code: W.code, char: id }); wsend({ t: 'pick', char: id || null }); closeSheet(); if (id) { askNotify(); chime.unlock(); }
   };
 }
 $('#watchPick').onclick = pickSheet;
@@ -3505,6 +3636,7 @@ function dial() {
     if (W.wantPick) pickSheet();
     if (first && UI.map) fit();
     if (turned && P.cur) reveal(P.cur);
+    if (turned && P.cur && P.cur === W.me && !first) turnAlert();
   });
   const lost = () => { if (W.conn !== conn) return; W.conn = null; watchStatus('DM’le bağlantı koptu, tekrar deneniyor…'); watchRetry(); };
   conn.on('close', lost); conn.on('error', lost);
@@ -3514,6 +3646,7 @@ setInterval(() => { if (W.on && W.conn?.open && Date.now() - W.last > 12000) { c
 function watchStart(code) {
   if (LV.on) hostStop();
   if (UI.wall) setWallMode(false);
+  keepAlive(true, 'pl'); chime.unlock();
   $('#watchEnd').hidden = true; $('#zmeasure').setAttribute('aria-pressed', 'false'); clearMeasure();
   Object.assign(W, { on: true, code, P: null, raw: '', next: null, dirty: false, me: null, wantSel: false, wantPick: false, msg: 'Bağlanıyor…' }); try { localStorage.setItem(WATCH_KEY, code); } catch {}
   UI.multi = false; UI.sel.clear(); UI.area = null; UI.measure = null; V.fitted = false;
@@ -3524,7 +3657,7 @@ function watchStart(code) {
 // keep (DM7): the reason also stays on the fight screen in a note until "Tamam" (the DM closed the session or made a new
 // code: the player may look at the phone later than a toast lasts).
 function watchStop(why, keep) {
-  W.on = false; clearTimeout(W.timer); try { W.conn?.close(); } catch {} W.conn = null; W.peer?.destroy(); W.peer = null; W.P = null; W.next = null; W.me = null; UI.area = null;
+  W.on = false; keepAlive(false); clearTimeout(W.timer); try { W.conn?.close(); } catch {} W.conn = null; W.peer?.destroy(); W.peer = null; W.P = null; W.next = null; W.me = null; UI.area = null;
   UI.measure = null; $('#zmeasure').setAttribute('aria-pressed', 'false'); clearMeasure(); $('#dist').innerHTML = DIST_DEFAULT;
   try { localStorage.removeItem(WATCH_KEY); } catch {}
   if (typeof why === 'string') { closeSheet(); toast(why, true); }
@@ -3643,10 +3776,11 @@ function wcard(c, pos, now) {
   const state = c.dead || c.st === 'dead' ? ' · öldü' : down ? ' · düştü' : dying ? (c.stable ? ' · stabil' : ' · ölüyor') : '';
   const shield = Math.max(c.max + (c.tmp || 0), c.max);
   return `<article class="card ro ${c.side}${now ? ' now' : ''}${down ? ' down' : ''}${c.dead || c.st === 'dead' ? ' dead' : ''}" data-id="${c.id}">
-    <div class="top"><span class="ini" aria-label="Sırada ${pos}.">${pos}<small>sıra</small></span><span class="name"><b>${esc(c.name)}</b><span>${ally ? 'Biz' : esc(c.sub || 'Düşman')}${state}</span></span></div>
+    <div class="top"><span class="ini" aria-label="Sırada ${pos}.">${pos}<small>sıra</small></span>${picOf(c) ? `<span class="cav"${picAttr(c, render).replace(' class="pic"', '')}></span>` : ''}<span class="name"><b>${esc(c.name)}</b><span>${ally ? 'Biz' : esc(c.sub || 'Düşman')}${state}</span></span></div>
     ${ally ? `<div class="hp" aria-label="Can ${c.hp} / ${c.max}"><span class="nums"><span class="cur">${c.hp}<small> / ${c.max}</small></span>${c.tmp ? `<span class="tmp">+${c.tmp} geçici</span>` : ''}</span>
       <span class="bar"><i style="width:${Math.max(0, c.hp / shield * 100)}%;background:${hpColor(c)}"></i><i class="t" style="width:${(c.tmp || 0) / shield * 100}%"></i></span></div>` : ''}
     ${tags ? `<div class="conds">${tags}</div>` : ''}
+    ${ally && c.id === W.me && now && c.turn !== false ? `<div class="res"><button class="pill dash${c.dash ? ' on' : ''}" data-wdash aria-pressed="${!!c.dash}">Dash · hız ${(c.speed ?? 30) * (c.dash ? 2 : 1)} ft · kalan ${Math.max(0, (c.speed ?? 30) * (c.dash ? 2 : 1) - (c.used || 0))} ft</button></div>` : ''}
     ${dying && !c.stable ? `<div class="res"><span class="pill ds">Death save <span class="dots">${dots(3, c.ds[0], 's')}</span><span class="dots">${dots(3, c.ds[1], 'f')}</span></span></div>` : ''}
   </article>`;
 }
@@ -3679,7 +3813,7 @@ function renderWatchMap() {
   $('#layer').innerHTML = !P ? '' : wallsHtml(P.walls) + reachHtml(mv) + P.areas.map(areaHtml).join('') + on.map((c) => {
     const lw = labelW(c, P.list), tx = tt.get(c.id), at = pd && pd.id === c.id ? pd.to : [c.gx, c.gy];
     const bar = c.side === 'ally' ? `<span class="hpbar"><s style="width:${Math.max(0, Math.min(100, c.hp / c.max * 100))}%;background:${hpColor(c)}"></s></span>` : '';
-    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}${pd && pd.id === c.id ? ' pend' : ''}" data-tok="${esc(c.id)}" style="left:${at[0] * CELL}px;top:${at[1] * CELL}px;--sz:${c.size};--lw:${lw};--tn:${tx.length}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i>${bar}${esc(tx)}</i>${tokLabel(c, lw, P.list)}</div>`;
+    return `<div class="tok ${c.side}${P.cur === c.id ? ' now' : ''}${!c.turn ? ' down' : ''}${c.st === 'bloodied' ? ' bl' : ''}${c.id === W.me ? ' me' : ''}${UI.measure?.a === c.id ? ' pick' : ''}${inside.has(c.id) ? ' inarea' : ''}${pd && pd.id === c.id ? ' pend' : ''}" data-tok="${esc(c.id)}" style="left:${at[0] * CELL}px;top:${at[1] * CELL}px;--sz:${c.size};--lw:${lw};--tn:${tx.length}" title="${esc(mapLabel(c))}" aria-label="${esc(mapLabel(c))}"><i${picAttr(c, renderWatchMap)}>${bar}${esc(tx)}</i>${tokLabel(c, lw, P.list)}</div>`;
   }).join('');
   if (P && UI.measure?.b) { const x = on.find((c) => c.id === UI.measure.a), y = on.find((c) => c.id === UI.measure.b); if (x && y) drawMeasure(x, y); }
   $('#dist').innerHTML = sel ? areaInfo(sel) : UI.measure ? measureText() : W.conn?.open ? (act ? (myTurn() ? '<b>Canlı</b> · kendi pulunu sürükle: hareket' : '<b>Canlı</b> · pulunu sıran gelince oynatırsın') : meIn(P) && !P.pl.on ? '<b>Canlı</b> · DM hareketi şu an kapattı' : '<b>Canlı</b> · yalnız izleme') : esc(W.msg || 'Bağlanıyor…');
