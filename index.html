@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = 'a851351392'; window.__BUILT__ = '2026-11-20 03:56';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '341d7cd98c'; window.__BUILT__ = '2026-11-20 04:09';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -459,7 +459,7 @@ body.watch .sess{display:none!important}
 .apick{grid-template-columns:repeat(2,minmax(0,1fr))}
 .apick > button{min-width:0}
 #mapView.zsm .zoom{gap:6px}
-#mapView.zsm .zoom button{height:36px}
+#mapView.zsm .zoom button{height:38px}
 /* the card sheet's average line shows only when there is a formula */
 .avgl:has(> output:empty){display:none}
 .apick button.hue{min-width:118px}
@@ -2600,9 +2600,10 @@ function mapLayout() {
   const v = $('#mapView'); if (v.hidden || !v.clientHeight) return;
   // as many 50 px rows as fit (with the column's 12 px margins), then as many columns as the buttons need
   // (DM5: a phone on its side, 844 × 390, needs three)
-  // DM18: one column whenever the buttons fit it, if need be a little lower (36 px, 42 px a row); only a really short map
-  // (a phone on its side) takes more columns
-  const n = $('.zoom').children.length, h = v.clientHeight - 24 + 6, small = Math.floor(h / 50) < n && Math.floor(h / 42) >= n;
+  // DM18: one column whenever the buttons fit it, if need be a little lower (38 px of 44 wide, 6 px apart, 44 px a row:
+  // still easy to hit, owner: "kolay basilabilsin / yanlış basma olmasin"); never lower than that: a really short map
+  // (a phone on its side) takes more columns instead
+  const n = $('.zoom').children.length, h = v.clientHeight - 24 + 6, small = Math.floor(h / 50) < n && Math.floor(h / 44) >= n;
   const rows = small ? n : Math.max(1, Math.floor(h / 50)), cols = Math.min(4, Math.ceil(n / rows));
   v.style.setProperty('--zc', cols); v.classList.toggle('zz', cols > 1); v.classList.toggle('zsm', small);
   placePick();
