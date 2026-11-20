@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '341d7cd98c'; window.__BUILT__ = '2026-11-20 04:09';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = '1920ee02bf'; window.__BUILT__ = '2026-11-20 09:54';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -613,7 +613,7 @@ body.watch .sess{display:none!important}
   </div>
   <div class="abar" id="abar" hidden><button class="btn sm pri" data-agrp>Bunlara toplu hasar</button></div>
   <div class="drawbar imgbar" id="imgbar" hidden role="group" aria-label="Resmi ızgaraya hizala">
-    <div class="drow"><button class="btn sm" id="imggrid" aria-pressed="true">Izgara</button><button class="btn sm" data-irm="1">Resmi kaldır</button><button class="btn sm pri" data-idone="1">Bitti</button></div>
+    <div class="drow"><button class="btn sm" id="imgsnap" aria-pressed="true" title="Resmin ızgarası bizimkine otursun">Yapış</button><button class="btn sm" id="imggrid" aria-pressed="true">Izgara</button><button class="btn sm" data-irm="1">Resmi kaldır</button><button class="btn sm pri" data-idone="1">Bitti</button></div>
   </div>
   <div class="mapcredit" id="mapcredit" hidden></div>
   <div class="drawbar movebar" id="movebar" hidden role="group" aria-label="Hareket"><div class="drow"><span class="mtxt" id="moveTxt"></span><button class="btn sm" data-mdash aria-pressed="false">Dash</button><button class="btn sm" data-mno hidden>Vazgeç</button><button class="btn sm pri" data-mok hidden>Onayla</button></div></div>
@@ -1913,7 +1913,9 @@ function cleanImg(o) {
   const w = fin(o.w, 0, 1, 80), h = fin(o.h, 0, 1, 80); if (!w || !h) return null;
   // DM16: rot, degrees clockwise about the picture's middle
   const r = Number(o.rot), rot = Number.isFinite(r) ? Math.round((((r % 360) + 360) % 360) * 10) / 10 : 0;
-  return { src: o.src, x: fin(o.x, 0, -80, 80), y: fin(o.y, 0, -80, 80), w, h, ...(rot ? { rot } : {}) };
+  // DM19: the picture's own grid: n squares across, its first lines px / py of a square in from the left / top edge
+  const n = fin(o.n, w, 1, 400), ph = (v) => { const f = Number(v); return Number.isFinite(f) ? Math.round((((f % 1) + 1) % 1) * 1000) / 1000 : 0; };
+  return { src: o.src, x: fin(o.x, 0, -80, 80), y: fin(o.y, 0, -80, 80), w, h, ...(rot ? { rot } : {}), n, px: ph(o.px), py: ph(o.py) };
 }
 const mapImg = () => cleanImg(W.on ? W.P?.img : S.img);
 // own pictures on this phone
@@ -1963,8 +1965,12 @@ function gridGuess(cv) {
     let best = 0, bp = 0; for (let p = Math.max(8, Math.round(20 * k)); p < Math.min(n / 3, 400 * k); p++) { const s = ac(p); if (s > best) { best = s; bp = p; } }
     // a multiple of the true period can win: take the smallest divisor that is nearly as strong
     for (const d of [4, 3, 2]) { const q = Math.round(bp / d); if (q >= 8 && ac(q) >= best * .6) { bp = q; break; } }
-    return bp ? cv.width / (bp / k) : 0;
-  } catch { return 0; }
+    if (!bp) return null;
+    // DM19: where the lines lie: the offset whose every period has the strongest edges, across and down
+    const row = new Float64Array(h); for (let y = 1; y < h; y++) for (let i = 0; i < n; i++) { const p = (y * n + i) * 4, q = p - n * 4; row[y] += Math.abs(d[p] - d[q]) + Math.abs(d[p + 1] - d[q + 1]); }
+    const phase = (pr, len) => { let bo = 0, bs = -Infinity; for (let o = 0; o < bp; o++) { let t = 0; for (let i = o; i < len; i += bp) t += pr[i]; if (t > bs) { bs = t; bo = o; } } return bo / bp; };
+    return { sq: cv.width / (bp / k), px: phase(col, n), py: phase(row, h) };
+  } catch { return null; }
 }
 async function hashBlob(b) { const h = new Uint8Array(await crypto.subtle.digest('SHA-256', await b.arrayBuffer())); return Array.from(h.slice(0, 12), (x) => x.toString(16).padStart(2, '0')).join(''); }
 function putImg(img, line) {
@@ -1972,7 +1978,7 @@ function putImg(img, line) {
 }
 function useReadyMap(r) {
   const x = Math.floor((COLS - r.w) / 2), y = Math.floor((ROWS - r.h) / 2);
-  putImg({ src: 'r:' + r.id, x, y, w: r.w, h: r.h }, `Hazır harita: <b>${esc(r.name)}</b>`);
+  putImg({ src: 'r:' + r.id, x, y, w: r.w, h: r.h, n: r.w, px: 0, py: 0 }, `Hazır harita: <b>${esc(r.name)}</b>`);
 }
 async function uploadMap(file) {
   if (!file) return;
@@ -1981,9 +1987,10 @@ async function uploadMap(file) {
   try {
     const { blob, cv } = await shrinkImage(file), id = await hashBlob(blob);
     await imgPut(id, blob); IDB.urls.set(id, URL.createObjectURL(blob));
-    let sq = gridGuess(cv); if (!(sq >= 4 && sq <= 80)) sq = 40;
-    const w = Math.round(sq * 10) / 10, h = Math.round(w * cv.height / cv.width * 100) / 100;
-    putImg({ src: 'u:' + id, x: Math.max(0, Math.floor((COLS - w) / 2)), y: Math.max(0, Math.floor((ROWS - h) / 2)), w, h }, 'Harita resmi yüklendi');
+    const g = gridGuess(cv), ok = g && g.sq >= 4 && g.sq <= 80, n = ok ? Math.round(g.sq * 100) / 100 : 40;
+    const w = n, h = Math.round(w * cv.height / cv.width * 100) / 100;
+    const a = { src: 'u:' + id, x: Math.max(0, Math.floor((COLS - w) / 2)), y: Math.max(0, Math.floor((ROWS - h) / 2)), w, h, n, px: ok ? g.px : 0, py: ok ? g.py : 0 };
+    putImg(snapImg(a), 'Harita resmi yüklendi');
     alignMode(true);
   } catch { toast('Resim okunamadı', true); }
 }
@@ -1992,6 +1999,36 @@ async function uploadMap(file) {
    olsun"): Hizala works like a template: the picture gets a dashed frame; drag its body to move it, a corner to make it
    bigger or smaller (the middle stays, the shape too), the ring above it to turn it (snaps to 0°, 90°, 180°, 270° within
    8°, else whole degrees). Each drag is one Geri al step. Two fingers pan and zoom as ever. */
+/* DM19 (owner 2026-11-20: "zemin büyütüp küçültürken izgaraya oturarak büyüyüp küçültülsün / snapping yani / ızgara
+   çizgileri zemindekiyle üst üste gelsin"): with Yapış on (the default) the picture's own grid lands on ours. Size: one of
+   its squares is ¼, ⅓, ½, 1, 2, 3 or 4 of ours (the nearest to the drag); place: its lines on our lines (also when it
+   is turned by a quarter turn). The picture's grid is known for the ready maps and guessed for one loaded from the phone
+   (spacing and where the first line lies). If the guess is wrong: Yapış off, fit it by eye, Yapış on: the picture as it
+   lies now counts as fitting (its grid is taken from there). */
+const SNAP_S = [1 / 4, 1 / 3, 1 / 2, 1, 2, 3, 4];
+const nearS = (s) => SNAP_S.reduce((b, v) => (Math.abs(Math.log(s / v)) < Math.abs(Math.log(s / b)) ? v : b), 1);
+// where the picture's grid lines meet the board's x and y axes (one of them), for a turn of 0 / 90 / 180 / 270°
+function imgLines(a) {
+  const s = a.w / a.n, cx = a.x + a.w / 2, cy = a.y + a.h / 2, lx = a.x + a.px * s, ly = a.y + a.py * s, r = Math.round((a.rot || 0) / 90) * 90 % 360;
+  if (r === 90) return [cx - (ly - cy), cy + (lx - cx)];
+  if (r === 180) return [2 * cx - lx, 2 * cy - ly];
+  if (r === 270) return [cx + (ly - cy), cy - (lx - cx)];
+  return [lx, ly];
+}
+function snapImg(a) {
+  if (!a || (a.rot || 0) % 90) return a;
+  const [ox, oy] = imgLines(a), r2 = (v) => Math.round(v * 1000) / 1000;
+  return { ...a, x: r2(a.x + Math.round(ox) - ox), y: r2(a.y + Math.round(oy) - oy) };
+}
+// Yapış back on: the picture as it lies now fits; its grid (squares across, first lines) is taken from that
+function calibImg(a) {
+  const s = nearS(a.w / a.n), n = Math.round(a.w / s * 100) / 100, b = { ...a, n, px: 0, py: 0 }, r = Math.round((a.rot || 0) / 90) * 90 % 360;
+  const [ox, oy] = imgLines(b);
+  // which phase moves the meeting point on each board axis, and which way (a shift t moves it by ±t·s)
+  const map = { 0: [['px', 1], ['py', 1]], 90: [['py', -1], ['px', 1]], 180: [['px', -1], ['py', -1]], 270: [['py', 1], ['px', -1]] }[r];
+  [ox, oy].forEach((o, i) => { const [k, sg] = map[i]; b[k] = ((((Math.round(o) - o) / (sg * s)) % 1) + 1) % 1; });
+  return cleanImg(b);
+}
 function alignMode(on) {
   UI.align = !!on && !!S.img && !W.on;
   if (UI.align) { if (UI.wall) setWallMode(false); if (UI.msel) setMsel(false); UI.area = null; }
@@ -2002,7 +2039,9 @@ const num = (v) => String(Math.round(v * 100) / 100).replace('.', ',');
 function alignText() {
   const a = cleanImg(S.img); if (!a || !UI.align) return;
   $('#imggrid').setAttribute('aria-pressed', String(S.grid !== false));
-  $('#dist').innerHTML = `Hizala: gövdeyi sürükle: taşı · köşe: büyüt / küçült · halka: çevir · <b>${num(a.w)} × ${num(a.h)} kare</b>${a.rot ? ` · ${num(a.rot)}°` : ''}`;
+  const s = nearS(a.w / a.n), fits = Math.abs(a.w / a.n - s) < .01;
+  $('#imgsnap').setAttribute('aria-pressed', String(UI.isnap !== false));
+  $('#dist').innerHTML = `Hizala: gövdeyi sürükle: taşı · köşe: büyüt / küçült · halka: çevir · <b>${num(a.w)} × ${num(a.h)} kare</b>${a.rot ? ` · ${num(a.rot)}°` : ''}${UI.isnap !== false && fits ? ` · resmin 1 karesi = ${({ 0.25: '¼', 0.5: '½' })[s] || (Math.abs(s - 1 / 3) < 1e-9 ? '⅓' : s)} kare` : ''}`;
 }
 // the whole picture in view (its turned outline), left of the map buttons, above the bar
 function fitImage() {
@@ -2024,6 +2063,12 @@ function alignStep(e) {
   if (b.dataset.idone != null) { alignMode(false); $('#dist').innerHTML = DIST_DEFAULT; render(); return; }
   if (b.dataset.irm != null) { snap(); S.img = null; log('Harita resmi kaldırıldı'); alignMode(false); $('#dist').innerHTML = DIST_DEFAULT; render(); return; }
   if (b.id === 'imggrid') { snap(); S.grid = S.grid === false; log(S.grid === false ? 'Izgara gizlendi' : 'Izgara gösterildi'); }
+  if (b.id === 'imgsnap') {
+    UI.isnap = UI.isnap === false;
+    // on again: the picture as it lies now counts as fitting
+    if (UI.isnap) { const c = calibImg(S.img); if (JSON.stringify(c) !== JSON.stringify(S.img)) { snap(); S.img = c; } toast('Yapış açık: resim böyle oturuyor sayıldı'); }
+    else toast('Yapış kapalı: serbest; gözle oturtup yeniden aç');
+  }
   render(); alignText();
 }
 function bgSheet() {
@@ -2392,14 +2437,17 @@ function showArea(a) {
     if (wpaint) { const k = cellAt(p); if (k[0] !== wpaint.last[0] || k[1] !== wpaint.last[1]) paintTo(k); return; }
     if (idrag) {
       const o = idrag.orig, [bx, by] = at(p), [sx, sy] = idrag.start, cx = o.x + o.w / 2, cy = o.y + o.h / 2, a = { ...o };
+      const snapOn = UI.isnap !== false;
       if (idrag.h === 'move') { a.x = Math.round((o.x + bx - sx) * 20) / 20; a.y = Math.round((o.y + by - sy) * 20) / 20; }
       else if (idrag.h === 'rot') {
         let d = (o.rot || 0) + (Math.atan2(by - cy, bx - cx) - Math.atan2(sy - cy, sx - cx)) * 180 / Math.PI; d = ((d % 360) + 360) % 360;
         const n = Math.round(d / 90) * 90; a.rot = Math.abs(d - n) <= 8 ? n % 360 : Math.round(d);
       } else {
         const f = Math.hypot(bx - cx, by - cy) / Math.max(.01, Math.hypot(sx - cx, sy - cy)), w = Math.max(1, Math.min(80, Math.round(o.w * f * 10) / 10));
-        a.w = w; a.h = Math.round(w * o.h / o.w * 100) / 100; a.x = Math.round((cx - a.w / 2) * 100) / 100; a.y = Math.round((cy - a.h / 2) * 100) / 100;
+        a.w = snapOn ? Math.max(1, Math.min(80, Math.round(o.n * nearS(o.w * f / o.n) * 100) / 100)) : w;
+        a.h = Math.round(a.w * o.h / o.w * 100) / 100; a.x = Math.round((cx - a.w / 2) * 100) / 100; a.y = Math.round((cy - a.h / 2) * 100) / 100;
       }
+      if (snapOn && idrag.h !== 'rot') Object.assign(a, snapImg(cleanImg(a)));
       if (!idrag.moved && Math.hypot(bx - sx, by - sy) * CELL * V.z < 6) return;
       idrag.moved = true; S.img = cleanImg(a); drawMapImage(); renderMap(); alignText(); return;
     }
