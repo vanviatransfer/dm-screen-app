@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="DM Ekranı">
-<script>window.__PWA__ = true; window.__BUILD__ = '5fdd47e1b6'; window.__BUILT__ = '2026-11-20 02:23';</script>
+<script>window.__PWA__ = true; window.__BUILD__ = 'a851351392'; window.__BUILT__ = '2026-11-20 03:56';</script>
 <style>[hidden]{display:none!important} body{margin:0} header{top:0 !important; padding-top:env(safe-area-inset-top,0px)}</style>
 </head>
 <body>
@@ -280,7 +280,7 @@ body.watch .tok.me{z-index:4}
 .acol [role=radiogroup]{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .apick .asw{height:40px;min-height:40px;min-width:0;border-radius:8px;border:2px solid color-mix(in srgb,var(--ac) 60%,var(--line));background:color-mix(in srgb,var(--ac) 35%,var(--surface));padding:0}
 .apick .asw[aria-checked="true"]{background:var(--ac);border-color:var(--ink);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ac)}
-.apick{position:absolute;right:68px;top:262px;z-index:7;display:grid;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow)}
+.apick{position:absolute;right:68px;top:262px;z-index:7;max-width:calc(100% - 76px);box-sizing:border-box;display:grid;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow)}
 .apick button{min-height:44px;min-width:132px;border:1px solid var(--ctl);border-radius:10px;background:var(--bg);font-weight:700;display:grid;justify-items:start;padding:4px 12px;text-align:left}
 .apick small{font-weight:500;font-size:.72rem;color:var(--muted)}
 .abar{position:absolute;left:12px;bottom:48px;z-index:4}
@@ -454,7 +454,12 @@ body.watch .sess{display:none!important}
 /* DM4b: a short map puts the controls in two columns (all visible); the info box and the chooser move aside for them */
 #mapView.zz .zoom{grid-template-columns:repeat(var(--zc,2),44px)}
 #mapView.zz .dist{right:calc(var(--zc,2) * 50px + 18px);max-width:calc(100% - var(--zc,2) * 50px - 30px)}
-#mapView.zz .apick{right:calc(var(--zc,2) * 50px + 18px)}
+#mapView.zz .apick{right:calc(var(--zc,2) * 50px + 18px);max-width:calc(100% - var(--zc,2) * 50px - 26px)}
+/* DM18: the Alan chooser never wider than the room left of the buttons (it went off the left edge on a narrow phone) */
+.apick{grid-template-columns:repeat(2,minmax(0,1fr))}
+.apick > button{min-width:0}
+#mapView.zsm .zoom{gap:6px}
+#mapView.zsm .zoom button{height:36px}
 /* the card sheet's average line shows only when there is a formula */
 .avgl:has(> output:empty){display:none}
 .apick button.hue{min-width:118px}
@@ -590,8 +595,6 @@ body.watch .sess{display:none!important}
   <div id="board"></div>
   <div class="dist" id="dist">Pulu sürükle: hareket · <b>5 ft</b> = 1 kare</div>
   <div class="zoom">
-    <button class="hue" style="--h:36" id="zin" aria-label="Yakınlaştır">+</button>
-    <button class="hue" style="--h:60" id="zout" aria-label="Uzaklaştır">−</button>
     <button class="hue" style="--h:180;font-size:.78rem" id="zfit" aria-label="Herkesi sığdır">Sığdır</button>
     <button class="hue" style="--h:210;font-size:.74rem" id="zmeasure" aria-label="İki pul arası mesafe ölç" aria-pressed="false">Ölç</button>
     <button class="hue" style="--h:120;font-size:.7rem;line-height:1.1" id="zreset" aria-label="Dizilişi sıfırla">Diz</button>
@@ -2498,7 +2501,8 @@ function showArea(a) {
   view.addEventListener('pointerup', end); view.addEventListener('pointercancel', end);
   view.addEventListener('wheel', (e) => { e.preventDefault(); const p = local(e); zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, p.x, p.y); }, { passive: false });
   const mid = () => { const r = view.getBoundingClientRect(); return [r.width / 2, r.height / 2]; };
-  $('#zin').onclick = () => { zoomAt(1.25, ...mid()); if (UI.area) renderMap(); }; $('#zout').onclick = () => { zoomAt(1 / 1.25, ...mid()); if (UI.area) renderMap(); }; $('#zfit').onclick = fit;
+  // DM18 (owner 2026-11-20: "+ ve - tuşlarını kaldir gerek yok / tek sütun a indir"): zoom is two fingers (or the wheel)
+  $('#zfit').onclick = fit;
   $('#zreset').onclick = () => ask('Dizilişi sıfırla', 'Bütün pullar baştaki yerlerine döner.', 'Sıfırla', () => { snap(); S.list.forEach((c) => { c.gx = null; c.gy = null; }); log('Harita dizilişi sıfırlandı'); render(); fit(); });
   $('#zmeasure').onclick = () => {
     if (UI.wall) setWallMode(false);
@@ -2596,8 +2600,11 @@ function mapLayout() {
   const v = $('#mapView'); if (v.hidden || !v.clientHeight) return;
   // as many 50 px rows as fit (with the column's 12 px margins), then as many columns as the buttons need
   // (DM5: a phone on its side, 844 × 390, needs three)
-  const n = $('.zoom').children.length, rows = Math.max(1, Math.floor((v.clientHeight - 24 + 6) / 50)), cols = Math.min(4, Math.ceil(n / rows));
-  v.style.setProperty('--zc', cols); v.classList.toggle('zz', cols > 1);
+  // DM18: one column whenever the buttons fit it, if need be a little lower (36 px, 42 px a row); only a really short map
+  // (a phone on its side) takes more columns
+  const n = $('.zoom').children.length, h = v.clientHeight - 24 + 6, small = Math.floor(h / 50) < n && Math.floor(h / 42) >= n;
+  const rows = small ? n : Math.max(1, Math.floor(h / 50)), cols = Math.min(4, Math.ceil(n / rows));
+  v.style.setProperty('--zc', cols); v.classList.toggle('zz', cols > 1); v.classList.toggle('zsm', small);
   placePick();
 }
 window.visualViewport?.addEventListener('resize', mapLayout);
